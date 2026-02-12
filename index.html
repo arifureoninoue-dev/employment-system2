@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employment Contract Builder</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #0f172a;
+            color: #1e293b;
+        }
+
+        /* Layout */
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .flex-1 { flex: 1; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .grid-form { display: grid; grid-template-columns: 2fr 1fr; gap: 48px; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 8px; }
+        .gap-3 { gap: 12px; }
+        .gap-6 { gap: 24px; }
+        .h-screen { height: 100vh; }
+        .overflow-y-auto { overflow-y: auto; }
+        .overflow-hidden { overflow: hidden; }
+        .sticky { position: sticky; }
+        .fixed { position: fixed; }
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+
+        /* Spacing */
+        .p-2 { padding: 8px; }
+        .p-4 { padding: 16px; }
+        .p-6 { padding: 24px; }
+        .p-8 { padding: 32px; }
+        .p-10 { padding: 40px; }
+        .p-12 { padding: 48px; }
+        .px-4 { padding-left: 16px; padding-right: 16px; }
+        .px-6 { padding-left: 24px; padding-right: 24px; }
+        .py-3 { padding-top: 12px; padding-bottom: 12px; }
+        .py-4 { padding-top: 16px; padding-bottom: 16px; }
+        .py-6 { padding-top: 24px; padding-bottom: 24px; }
+        .mb-2 { margin-bottom: 8px; }
+        .mb-4 { margin-bottom: 16px; }
+        .mb-6 { margin-bottom: 24px; }
+        .mb-8 { margin-bottom: 32px; }
+        .mt-2 { margin-top: 8px; }
+        .ml-2 { margin-left: 8px; }
+        .mr-2 { margin-right: 8px; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+
+        /* Typography */
+        .text-xs { font-size: 12px; line-height: 1.4; }
+        .text-sm { font-size: 14px; line-height: 1.5; }
+        .text-lg { font-size: 18px; line-height: 1.5; }
+        .text-2xl { font-size: 24px; line-height: 1.3; }
+        .text-3xl { font-size: 30px; line-height: 1.2; }
+        .text-5xl { font-size: 48px; line-height: 1.1; }
+        .font-bold { font-weight: 700; }
+        .font-black { font-weight: 900; }
+        .font-mono { font-family: monospace; }
+        .italic { font-style: italic; }
+        .uppercase { text-transform: uppercase; }
+        .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .letter-tight { letter-spacing: -0.05em; }
+        .letter-wide { letter-spacing: 0.1em; }
+
+        /* Colors - Text */
+        .text-white { color: #ffffff; }
+        .text-slate-300 { color: #cbd5e1; }
+        .text-slate-400 { color: #94a3b8; }
+        .text-slate-500 { color: #64748b; }
+        .text-slate-600 { color: #475569; }
+        .text-indigo-400 { color: #818cf8; }
+        .text-red-400 { color: #f87171; }
+        .text-red-500 { color: #ef4444; }
+        .text-emerald-400 { color: #34d399; }
+
+        /* Colors - Background */
+        .bg-white { background-color: #ffffff; }
+        .bg-slate-50 { background-color: #f8fafc; }
+        .bg-slate-100 { background-color: #f1f5f9; }
+        .bg-slate-800 { background-color: #1e293b; }
+        .bg-slate-900 { background-color: #0f172a; }
+        .bg-indigo-600 { background-color: #4f46e5; }
+        .bg-blue-600 { background-color: #2563eb; }
+        .bg-teal-600 { background-color: #0d9488; }
+        .bg-red-500 { background-color: #ef4444; }
+        .bg-yellow-500 { background-color: #eab308; }
+        .bg-emerald-500 { background-color: #10b981; }
+        .bg-red-error { background-color: rgba(239,68,68,0.1); }
+
+        /* Border */
+        .border { border: 1px solid #e2e8f0; }
+        .border-r { border-right: 1px solid #e2e8f0; }
+        .border-b { border-bottom: 1px solid #e2e8f0; }
+        .border-t { border-top: 1px solid #e2e8f0; }
+        .border-2 { border-width: 2px; }
+        .border-transparent { border-color: transparent; }
+        .border-slate-700 { border-color: #334155; }
+        .border-indigo-500 { border-color: #6366f1; }
+        .border-slate-200 { border-color: #e2e8f0; }
+        .border-red-err { border: 1px solid rgba(239,68,68,0.2); }
+        .rounded-lg { border-radius: 8px; }
+        .rounded-xl { border-radius: 12px; }
+        .rounded-2xl { border-radius: 16px; }
+        .rounded-3xl { border-radius: 24px; }
+        .rounded-full { border-radius: 9999px; }
+
+        /* Effects */
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,.05); }
+        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1); }
+        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,.25); }
+        .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0,0,0,.06); }
+        .outline-none { outline: none; }
+        .w-full { width: 100%; }
+        .max-w-4xl { max-width: 896px; }
+        .max-w-5xl { max-width: 1024px; }
+        .min-h-screen { min-height: 100vh; }
+        .text-center { text-align: center; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-shadow: inset 0 2px 4px 0 rgba(0,0,0,.06);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Button */
+        button {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+        button:disabled { cursor: not-allowed; opacity: 0.2; }
+
+        input, select {
+            font-family: inherit;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .anim-fade { animation: fadeIn 0.4s ease-out; }
+        .anim-slide { animation: slideIn 0.3s ease-out; }
+
+        /* Record Item */
+        .record-item {
+            padding: 14px 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+            margin-bottom: 6px;
+        }
+        .record-item:hover { border-color: #e2e8f0; }
+        .record-item.active {
+            background: #ffffff;
+            border-color: #6366f1;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,.1);
+        }
+        .record-item .delete-btn {
+            display: none;
+            margin-top: 8px;
+            color: #ef4444;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .record-item:hover .delete-btn { display: flex; align-items: center; gap: 4px; }
+
+        /* Home Card */
+        .home-card {
+            background: #1e293b;
+            border: 2px solid #334155;
+            padding: 40px;
+            border-radius: 24px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .home-card:hover {
+            border-color: #6366f1;
+            transform: translateY(-6px);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,.4);
+        }
+
+        /* Input / Select */
+        .field-input {
+            width: 100%;
+            background: #f1f5f9;
+            border: 2px solid transparent;
+            padding: 16px;
+            border-radius: 16px;
+            outline: none;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .field-input:focus {
+            border-color: #6366f1;
+            background: #ffffff;
+        }
+
+        /* Validation Panel */
+        .validation-panel {
+            position: sticky;
+            top: 120px;
+            background: #0f172a;
+            border-radius: 24px;
+            padding: 32px;
+            color: white;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            min-width: 300px;
+            padding: 16px 24px;
+            border-radius: 16px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* Page nav */
+        .page-nav {
+            display: flex;
+            align-items: center;
+            background: #f1f5f9;
+            border-radius: 9999px;
+            padding: 4px;
+            border: 1px solid #e2e8f0;
+        }
+        .page-nav button {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+        .page-nav button:hover:not(:disabled) { background: #ffffff; }
+        .page-nav button:disabled { opacity: 0.3; }
+
+        /* Export Button */
+        .btn-export {
+            width: 100%;
+            background: #0f172a;
+            color: white;
+            font-weight: 900;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,.2);
+            transition: transform 0.1s;
+            font-family: inherit;
+        }
+        .btn-export:hover:not(:disabled) { transform: translateY(1px); }
+
+        /* Dot indicator */
+        .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dot-red { background: #ef4444; }
+        .dot-green { background: #10b981; }
+
+        /* Icon box */
+        .icon-box {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 24px;
+        }
+        .icon-box-sm {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* Error item */
+        .error-item {
+            display: flex;
+            gap: 8px;
+            color: #f87171;
+            font-size: 11px;
+            background: rgba(239,68,68,0.1);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(239,68,68,0.2);
+            margin-bottom: 8px;
+        }
+
+        /* Suffix */
+        .suffix {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            font-weight: 900;
+            color: #94a3b8;
+        }
+
+        /* Home screen */
+        .home-screen {
+            min-height: 100vh;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .home-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 32px;
+        }
+        @media (max-width: 640px) {
+            .home-grid { grid-template-columns: 1fr; }
+            .grid-form { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useMemo, useRef, useEffect } = React;
+
+        const PREFECTURE_MIN_WAGE = {
+            "東京都": 1113, "神奈川県": 1112, "大阪府": 1064, "埼玉県": 1028,
+            "愛知県": 1027, "千葉県": 1026, "京都府": 1008, "兵庫県": 1001, "その他": 950
+        };
+
+        const BUSINESS_UNITS = [
+            { id: 'intern', name: '技能実習', color: '#2563eb', description: '実習実施者・送出機関向けの項目構成', icon: '🏢' },
+            { id: 'skilled', name: '特定技能', color: '#0d9488', description: '支援計画書・雇用契約書向けの項目構成', icon: '⚡' }
+        ];
+
+        const isHalfWidth = (str) => !str || /^[a-zA-Z0-9!-/:-@[-`{-~\s]+$/.test(str);
+        const isNumeric = (str) => !str || /^[0-9]+$/.test(str);
+        const escapeCSV = (str) => {
+            if (str == null) return '';
+            const s = String(str);
+            if (s.includes(',') || s.includes('"') || s.includes('\n')) return `"${s.replace(/"/g, '""')}"`;
+            return s;
+        };
+
+        const FIELDS = [
+            { id: 'name',        label: '企業名',            sf_api: 'Name',                        type: 'text',   required: true,  bu: ['intern','skilled'], page: 1, note: '法人格も含めて入力' },
+            { id: 'name_en',     label: '企業名(英)',         sf_api: 'EnglishName__c',              type: 'text',   required: true,  bu: ['intern','skilled'], page: 1, validation: 'half_width', note: '半角英数字のみ' },
+            { id: 'sales_name',  label: '担当者名',           sf_api: 'sales_name__c',               type: 'text',   required: true,  bu: ['intern','skilled'], page: 1, note: '営業担当名' },
+            { id: 'rep_name',    label: '代表者名',           sf_api: 'NameOfRepresentative__c',     type: 'text',   required: true,  bu: ['intern','skilled'], page: 1 },
+            { id: 'rep_pos',     label: '代表者役職名',        sf_api: 'RepresentativePosition__c',   type: 'text',   required: true,  bu: ['intern','skilled'], page: 1, note: '代表取締役 / 代表 など' },
+            { id: 'postal_code', label: '所在地(郵便番号)',    sf_api: 'Address__PostalCode__s',      type: 'text',   required: true,  bu: ['intern','skilled'], page: 2, validation: 'numeric' },
+            { id: 'address',     label: '所在地(拠点)',        sf_api: 'Address__c',                  type: 'text',   required: true,  bu: ['intern','skilled'], page: 2 },
+            { id: 'address_en',  label: '住所(英)',           sf_api: 'AddressInEnglish__c',         type: 'text',   required: true,  bu: ['intern','skilled'], page: 2, validation: 'half_width' },
+            { id: 'housing_status', label: '宿泊施設',        sf_api: 'Housing_Status__c',           type: 'select', required: true,  bu: ['intern','skilled'], page: 2, options: ['未定','確定'] },
+            { id: 'housing_postal', label: '宿泊施設郵便番号', sf_api: 'Housing_PostalCode__c',      type: 'text',   required: false, bu: ['intern','skilled'], page: 2, validation: 'numeric', depend_on: 'housing_status', depend_val: '確定' },
+            { id: 'job_type',    label: '職種(技能実習)',      sf_api: 'Job_Type_Intern__c',          type: 'text',   required: true,  bu: ['intern'],           page: 3 },
+            { id: 'work_name',   label: '作業名',             sf_api: 'Work_Name__c',                type: 'text',   required: true,  bu: ['intern'],           page: 3 },
+            { id: 'pref',        label: '就業場所（都道府県）', sf_api: 'Work_Location_Pref__c',      type: 'select', required: true,  bu: ['intern','skilled'], page: 3, options: Object.keys(PREFECTURE_MIN_WAGE) },
+            { id: 'emp_type',    label: '雇用形態',           sf_api: 'Employment_Type__c',          type: 'select', required: true,  bu: ['intern','skilled'], page: 3, options: ['正社員','契約社員','有期雇用'] },
+            { id: 'work_hours',  label: '1日の所定労働時間',   sf_api: 'Standard_Work_Hours__c',     type: 'number', required: true,  bu: ['intern','skilled'], page: 4, suffix: '時間' },
+            { id: 'annual_holidays', label: '年間休日数',     sf_api: 'Annual_Holidays__c',          type: 'number', required: true,  bu: ['intern','skilled'], page: 4, suffix: '日' },
+            { id: 'base_salary', label: '基本給（月額）',      sf_api: 'Base_Salary__c',             type: 'number', required: true,  bu: ['intern','skilled'], page: 4, suffix: '円' },
+            { id: 'allowance',   label: '諸手当',             sf_api: 'Allowance__c',                type: 'number', required: false, bu: ['intern','skilled'], page: 4, suffix: '円' },
+        ];
+
+        const Notification = ({ message, type, onClose }) => {
+            useEffect(() => {
+                const t = setTimeout(onClose, 3000);
+                return () => clearTimeout(t);
+            }, [onClose]);
+            const bg = type === 'error' ? '#ef4444' : type === 'warning' ? '#eab308' : '#10b981';
+            return (
+                <div className="notification" style={{ background: bg }}>
+                    <span>{type === 'error' ? '⚠️' : '✓'}</span>
+                    <span style={{ flex: 1 }}>{message}</span>
+                    <button onClick={onClose} style={{ color: 'white', fontSize: 18, padding: '2px 6px', borderRadius: 6 }}>✕</button>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [appMode, setAppMode] = useState(null);
+            const [dataList, setDataList] = useState([]);
+            const [currentId, setCurrentId] = useState(null);
+            const [currentPage, setCurrentPage] = useState(1);
+            const [notification, setNotification] = useState(null);
+            const fileInputRef = useRef(null);
+
+            const currentData = useMemo(() => dataList.find(d => d.id === currentId) || null, [dataList, currentId]);
+            const maxPage = useMemo(() => {
+                if (!appMode) return 1;
+                return Math.max(...FIELDS.filter(f => f.bu.includes(appMode)).map(f => f.page));
+            }, [appMode]);
+
+            const notify = (msg, type = 'success') => setNotification({ msg, type });
+
+            const createNew = () => {
+                const newId = `SF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+                setDataList(prev => [...prev, { id: newId, bu: appMode, createdAt: new Date().toISOString() }]);
+                setCurrentId(newId);
+                setCurrentPage(1);
+                notify('新規レコードを作成しました');
+            };
+
+            const updateField = (fieldId, value) => {
+                setDataList(prev => prev.map(d => d.id === currentId ? { ...d, [fieldId]: value } : d));
+            };
+
+            const deleteRecord = (id) => {
+                if (!confirm('このレコードを削除してもよろしいですか？')) return;
+                setDataList(prev => prev.filter(d => d.id !== id));
+                if (currentId === id) setCurrentId(null);
+                notify('レコードを削除しました');
+            };
+
+            const validate = (data) => {
+                const errors = [];
+                if (!data) return errors;
+                FIELDS.filter(f => f.bu.includes(data.bu)).forEach(f => {
+                    if (f.required && !data[f.id]) errors.push(`${f.label}は必須項目です。`);
+                    if (f.depend_on && data[f.depend_on] === f.depend_val && !data[f.id]) errors.push(`${f.depend_val}の場合、${f.label}は必須です。`);
+                    if (data[f.id] && f.validation === 'half_width' && !isHalfWidth(data[f.id])) errors.push(`${f.label}は半角英数字のみです。`);
+                    if (data[f.id] && f.validation === 'numeric' && !isNumeric(data[f.id])) errors.push(`${f.label}は半角数字のみです。`);
+                });
+                if (data.base_salary && data.pref && data.work_hours) {
+                    const minWage = PREFECTURE_MIN_WAGE[data.pref] || 950;
+                    const hourly = data.base_salary / (data.work_hours * 21.67);
+                    if (hourly < minWage) errors.push(`[最低賃金] ${data.pref}の基準割れ (${minWage}円 > ${Math.round(hourly)}円)`);
+                }
+                return errors;
+            };
+
+            const exportCSV = () => {
+                try {
+                    const fields = FIELDS.filter(f => f.bu.includes(appMode));
+                    const header = ['ID', ...fields.map(f => f.sf_api)].join(',');
+                    const rows = dataList.filter(d => d.bu === appMode).map(d =>
+                        [escapeCSV(d.id), ...fields.map(f => escapeCSV(d[f.id]))].join(',')
+                    );
+                    const csv = '\uFEFF' + [header, ...rows].join('\n');
+                    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `SF_Import_${appMode}_${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    notify('CSVを出力しました');
+                } catch (e) {
+                    notify('CSVの出力に失敗しました', 'error');
+                }
+            };
+
+            // ホーム画面
+            if (!appMode) {
+                return (
+                    <div className="home-screen">
+                        <div style={{ maxWidth: 800, width: '100%', textAlign: 'center' }}>
+                            <h1 style={{ fontSize: 48, fontWeight: 900, color: 'white', marginBottom: 8, letterSpacing: '-0.05em', fontStyle: 'italic' }}>
+                                CONTRACT MASTER
+                            </h1>
+                            <p style={{ color: '#64748b', marginBottom: 40, fontSize: 14 }}>雇用契約書作成システム</p>
+                            <div className="home-grid">
+                                {BUSINESS_UNITS.map(bu => (
+                                    <button key={bu.id} className="home-card" onClick={() => setAppMode(bu.id)}>
+                                        <div className="icon-box" style={{ background: bu.color }}>{bu.icon}</div>
+                                        <h2 style={{ fontSize: 22, fontWeight: 700, color: 'white', marginBottom: 8 }}>{bu.name}</h2>
+                                        <p style={{ color: '#64748b', fontSize: 13, marginBottom: 32 }}>{bu.description}</p>
+                                        <div style={{ color: '#818cf8', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                            START CREATION <span>→</span>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const activeBU = BUSINESS_UNITS.find(b => b.id === appMode);
+            const buRecords = dataList.filter(d => d.bu === appMode);
+
+            return (
+                <div style={{ display: 'flex', height: '100vh', background: 'white' }}>
+                    {notification && <Notification message={notification.msg} type={notification.type} onClose={() => setNotification(null)} />}
+
+                    {/* Sidebar */}
+                    <div className="sidebar">
+                        <div style={{ padding: 24 }}>
+                            <button
+                                onClick={() => setAppMode(null)}
+                                style={{ fontSize: 11, fontWeight: 900, color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 24 }}
+                            >
+                                ← Back
+                            </button>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                                <div className="icon-box-sm" style={{ background: activeBU.color, color: 'white' }}>📄</div>
+                                <h1 style={{ fontSize: 16, fontWeight: 900, letterSpacing: '-0.03em' }}>{activeBU.name}</h1>
+                            </div>
+                            <div className="grid-2">
+                                <button
+                                    onClick={createNew}
+                                    style={{ background: '#4f46e5', color: 'white', fontWeight: 900, padding: '12px 8px', borderRadius: 12, fontSize: 11, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
+                                >
+                                    <span style={{ fontSize: 20 }}>＋</span> NEW
+                                </button>
+                                <button
+                                    onClick={() => fileInputRef.current.click()}
+                                    style={{ background: 'white', border: '1px solid #e2e8f0', color: '#475569', fontWeight: 900, padding: '12px 8px', borderRadius: 12, fontSize: 11, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
+                                >
+                                    <span style={{ fontSize: 20 }}>↑</span> LOAD
+                                </button>
+                                <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".csv"
+                                    onChange={(e) => { notify('この環境ではファイル読み込みを制限しています。', 'warning'); e.target.value = ''; }} />
+                            </div>
+                        </div>
+
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 16px' }}>
+                            <div style={{ fontSize: 10, fontWeight: 900, color: '#cbd5e1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8, paddingLeft: 8 }}>
+                                Records ({buRecords.length})
+                            </div>
+                            {buRecords.map(item => {
+                                const errors = validate(item);
+                                return (
+                                    <div key={item.id} className={`record-item ${currentId === item.id ? 'active' : ''}`}>
+                                        <div onClick={() => setCurrentId(item.id)}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                                                <span style={{ fontWeight: 700, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 8 }}>
+                                                    {item.name || '(未入力)'}
+                                                </span>
+                                                <div className={`dot ${errors.length > 0 ? 'dot-red' : 'dot-green'}`} />
+                                            </div>
+                                            <div style={{ fontSize: 10, fontFamily: 'monospace', color: '#94a3b8' }}>{item.id}</div>
+                                        </div>
+                                        <button className="delete-btn" onClick={(e) => { e.stopPropagation(); deleteRecord(item.id); }}>
+                                            🗑️ 削除
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div style={{ padding: 20, background: 'white', borderTop: '1px solid #e2e8f0' }}>
+                            <button className="btn-export" disabled={buRecords.length === 0} onClick={exportCSV}>
+                                💾 Export CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Main */}
+                    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+                        {currentData ? (
+                            <>
+                                <div style={{ padding: '24px 32px', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, background: 'white', zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,.08)', display: 'flex', alignItems: 'center', gap: 24 }}>
+                                    <h2 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.04em', margin: 0 }}>
+                                        {currentData.name || 'New Item'}
+                                    </h2>
+                                    <div className="page-nav">
+                                        <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>←</button>
+                                        <span style={{ padding: '0 16px', fontSize: 11, fontWeight: 900 }}>PAGE {currentPage} / {maxPage}</span>
+                                        <button disabled={currentPage === maxPage} onClick={() => setCurrentPage(p => p + 1)}>→</button>
+                                    </div>
+                                </div>
+
+                                <div style={{ padding: 48, maxWidth: 960, margin: '0 auto', width: '100%' }}>
+                                    <div className="grid-form">
+                                        {/* Fields */}
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+                                            {FIELDS.filter(f => f.bu.includes(appMode) && f.page === currentPage).map(f => (
+                                                <div key={f.id} className="anim-fade">
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                                                        <label style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b' }}>
+                                                            {f.label} {f.required && <span style={{ color: '#ef4444' }}>*</span>}
+                                                        </label>
+                                                        <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#cbd5e1', fontStyle: 'italic' }}>{f.sf_api}</span>
+                                                    </div>
+                                                    {f.type === 'select' ? (
+                                                        <select className="field-input" value={currentData[f.id] || ''} onChange={e => updateField(f.id, e.target.value)}>
+                                                            <option value="">未選択</option>
+                                                            {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                                                        </select>
+                                                    ) : (
+                                                        <div style={{ position: 'relative' }}>
+                                                            <input
+                                                                className="field-input"
+                                                                type={f.type}
+                                                                value={currentData[f.id] || ''}
+                                                                onChange={e => updateField(f.id, e.target.value)}
+                                                                placeholder={f.note || ''}
+                                                            />
+                                                            {f.suffix && <span className="suffix">{f.suffix}</span>}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Validation */}
+                                        <div>
+                                            <div className="validation-panel">
+                                                <div style={{ fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <span style={{ color: '#818cf8' }}>⚙️</span> Validation
+                                                </div>
+                                                {(() => {
+                                                    const errors = validate(currentData);
+                                                    return errors.length === 0 ? (
+                                                        <div style={{ textAlign: 'center', padding: '24px 0', color: '#34d399' }}>
+                                                            <div style={{ fontSize: 48, opacity: 0.6, marginBottom: 8 }}>✓</div>
+                                                            <div style={{ fontWeight: 900, fontSize: 13, letterSpacing: '0.05em' }}>CLEARED</div>
+                                                        </div>
+                                                    ) : errors.map((e, i) => (
+                                                        <div key={i} className="error-item">
+                                                            <span style={{ flexShrink: 0 }}>⚠️</span>
+                                                            <span>{e}</span>
+                                                        </div>
+                                                    ));
+                                                })()}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#e2e8f0' }}>
+                                <div style={{ fontSize: 64, opacity: 0.15, marginBottom: 16 }}>📋</div>
+                                <p style={{ fontSize: 11, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase' }}>Select an item to edit</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
