@@ -623,20 +623,84 @@
             return fields;
         }
 
+        const JOB_WORK_MAP = {
+            '耕種農業': ['施設園芸', '畑作・野菜', '果樹'],
+            '畜産農業': ['養豚', '養鶏', '酪農'],
+            'さく井': ['パーカッション式さく井工事', 'ロータリー式さく井工事'],
+            '建築板金': ['ダクト板金', '内外装板金'],
+            '冷凍空気調和機器施工': ['冷凍空気調和機器施工'],
+            '建築大工': ['木製建具手加工', '大工工事'],
+            '型枠施工': ['型枠工事'],
+            '鉄筋施工': ['鉄筋組立て'],
+            'とび': ['とび'],
+            '石材施工': ['石材加工', '石張り'],
+            'タイル張り': ['タイル張り'],
+            '左官': ['左官'],
+            '配管': ['建築配管', 'プラント配管'],
+            '内装仕上げ施工': ['プラスチック系床仕上げ工事', 'カーペット系床仕上げ工事', '鋼製下地工事', 'ボード仕上げ工事', 'カーテン工事'],
+            '熱絶縁施工': ['保温保冷工事'],
+            'サッシ施工': ['ビル用サッシ施工'],
+            '防水施工': ['シーリング防水工事'],
+            'コンクリート圧送施工': ['コンクリート圧送工事'],
+            '表装': ['壁装'],
+            '建設機械施工': ['押土・整地', '積込み', '掘削', '締固め'],
+            '築炉': ['築炉'],
+            '缶詰巻締': ['缶詰巻締'],
+            '牛豚食肉処理加工業': ['牛豚部分肉製造'],
+            'そう菜製造業': ['そう菜加工'],
+            '医療・福祉施設給食製造': ['医療・福祉施設給食製造'],
+            '鉄工': ['構造物鉄工', '機械板金'],
+            '電子機器組立て': ['電子機器組立て'],
+            '家具製作': ['家具手加工'],
+            'プラスチック成形': ['圧縮成形', '射出成形', 'インフレーション成形', 'ブロー成形', '手積み積層成形'],
+            '溶接': ['手溶接', '半自動溶接'],
+            '工業包装': ['工業包装'],
+            '紙器・段ボール箱製造': ['印刷箱打抜き', '印刷箱製箱', '貼箱製造', '段ボール箱製造'],
+            'ビルクリーニング': ['ビルクリーニング'],
+            '介護': ['介護'],
+            'コンクリート製品製造': ['コンクリート製品製造'],
+            '電気機器組立て': ['回転電機組立て', '変圧器組立て', '配電盤・制御盤組立て', '開閉制御器具組立て', '回転電機巻線製作'],
+            '塗装': ['建築塗装', '金属塗装', '鋼橋塗装', '噴霧塗装'],
+            '加熱性水産加工食品製造業': ['節類製造', '加熱乾製品製造', '調理加工品製造', 'くん製品製造', 'かまぼこ製品製造'],
+            '非加熱性水産加工食品製造業': ['塩蔵品製造 仕上工程', '乾製品製造', '発酵食品製造', '調理加工品製造', '生食用加工品製造'],
+            'かわらぶき': ['かわらぶき'],
+            'ゴム製品製造': ['成形加工', '押出し加工', '混練り圧延加工', '複合積層加工'],
+            'ハム・ソーセージ・ベーコン製造職種': ['ハム・ソーセージ・ベーコン製造作業'],
+            '金属プレス加工職種': ['金属プレス作業']
+        };
+
         // All field definitions
         const FIELDS = [
             // Tab 1: 基本情報
-            { id: 'company_name', label: '企業名', sf: 'Name', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 1 },
-            { id: 'company_name_en', label: '企業名(英)', sf: 'EnglishName__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1 },
-            { id: 'sales_name', label: '担当者名', sf: 'SalesName__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 1 },
+            { id: 'company_name', label: '企業名', sf: 'Name', type: 'text', req: true,val:'noFullLatin', bu: ['intern', 'skilled'], tab: 1 },
+            { id: 'company_name_en', label: '企業名(英)', sf: 'EnglishName__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1 ,help:'コピーして利用「Co., Ltd.」'},
+            { id: 'sales_name', label: '営業担当者名', sf: 'SalesName__c', type: 'searchable', req: true, bu: ['intern', 'skilled'], tab: 1 ,opts: [
+                '鬼木 康輔', '牧野 仁勇', '前田 悠陽', '宮寺 健斗', '山本 あさひ', '玉置 裕大', 
+                'ソーソン夏帆 サニー', '西村 孟留', '後藤 冶真斗', '松永 美紅', '林 竜之輔', 
+                '笠原 綾乃', '長野 羽良', '渡耒 遊夢', '藤井 春菜', '吉田 美紀', '荒木 彪太郎', 
+                '吉田 侑生', '吉野 維吹', '秋葉 健悟', '宮本 裕里菜', '新庄 夏葉', '山口 大弥', 
+                '楠 葉月', '土屋 雛子', '市橋 大旗', '髙木 翔平', '森 泉充', '川島 卓人', 
+                '岡田 祐希', '幡中 涼太', '森岡 沙弥', '濵 教了', '西野 宏', '金子 純也', 
+                '阪部 まどか', '井上 翼アリフレオン', '藤本 千春', '宇田川 友里', '沼里 麻美', '南﨑 一輝'
+            ]},
             { id: 'rep_name', label: '代表者名', sf: 'RepresentativeName__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 1 },
-            { id: 'rep_name_en', label: '代表者(英語)', sf: 'RepresentativeNameEN__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1 },
-            { id: 'rep_position', label: '代表者役職名', sf: 'RepresentativePosition__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 1 },
+            { id: 'rep_name_en', label: '代表者名(英)', sf: 'RepresentativeNameEN__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1 },
+            { id: 'rep_position', label: '代表者役職名', sf: 'RepresentativePosition__c', type: 'select', req: true,opts: ['代表取締役', '取締役','代表社員','代表'], bu: ['intern', 'skilled'], tab: 1 },
             { id: 'postal_code', label: '所在地(郵便番号)', sf: 'PostalCode__c', type: 'text', req: true, val: 'num', bu: ['intern', 'skilled'], tab: 1 },
             { id: 'address', label: '所在地(拠点)', sf: 'Address__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 1 },
-            { id: 'address_en', label: '住所(英)', sf: 'AddressEN__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1 },
-            { id: 'job_type', label: '職種(技能実習)', sf: 'JobType__c', type: 'text', req: true, bu: ['intern'], tab: 1 },
-            { id: 'work_name', label: '作業名', sf: 'WorkName__c', type: 'text', req: true, bu: ['intern'], tab: 1 },
+            { id: 'address_en', label: '住所(英)', sf: 'AddressEN__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1 ,help:<span><a href="https://kimini.jp/" target="_blank" rel="noopener noreferrer">君に届け(住所変換サイト)</a></span>},
+            { id: 'job_type', label: '職種(技能実習)', sf: 'JobType__c', type: 'searchable', req: true, bu: ['intern'], tab: 1,opts: [
+                '耕種農業', '畜産農業', 'さく井', '建築板金', '冷凍空気調和機器施工', 
+                '建築大工', '型枠施工', '鉄筋施工', 'とび', '石材施工', 'タイル張り', 
+                '左官', '配管', '内装仕上げ施工', '熱絶縁施工', 'サッシ施工', '防水施工', 
+                'コンクリート圧送施工', '表装', '建設機械施工', '築炉', '缶詰巻締', 
+                '牛豚食肉処理加工業', 'そう菜製造業', '医療・福祉施設給食製造', '鉄工', 
+                '電子機器組立て', '家具製作', 'プラスチック成形', '溶接', '工業包装', 
+                '紙器・段ボール箱製造', 'ビルクリーニング', '介護', 'コンクリート製品製造', 
+                '電気機器組立て', '塗装', '加熱性水産加工食品製造業', '非加熱性水産加工食品製造業', 
+                'かわらぶき', 'ゴム製品製造', 'ハム・ソーセージ・ベーコン製造職種', '金属プレス加工職種'
+            ] },
+            { id: 'work_name', label: '作業名', sf: 'WorkName__c', type: 'searchable', req: true, bu: ['intern'], tab: 1 ,opts:[]},
             { id: 'workplace_name', label: '就業先事業所名', sf: 'WorkplaceName__c', type: 'text', req: false, bu: ['intern'], tab: 1 },
 
             // Tab 2: 生活環境・宿泊施設
@@ -732,7 +796,7 @@
             { id: 'company_culture', label: '会社の特徴／社風', sf: 'CompanyCulture__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '会社の特徴および社風を入力してください\n記載された情報を元に人材が応募するので、よりよいマッチングのためきちんとしたヒアリングを推奨します。' },
             { id: 'foreigner_experience', label: '外国人受入経験', sf: 'ForeignerExperience__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 5, prompt: '外国人材の受入経験について教えてください\n経験の有無は採用時の参考情報となります。' },
             { id: 'actual_work_content', label: '実際の実習内容', sf: 'ActualWorkContent__c', type: 'text', req: false, bu: ['intern'], tab: 5, prompt: '実際にどのような実習を行うかを具体的に記載してください\nより詳細な情報が、適切な人材とのマッチングにつながります。' },
-            { id: 'training_period', label: '実習期間', sf: 'TrainingPeriod__c', type: 'select', req: false, opts: ['1年', '2年', '3年', '5年'], bu: ['intern'], tab: 5, prompt: '実習期間を選択してください' },
+            { id: 'training_period', label: '実習期間', sf: 'TrainingPeriod__c', type: 'select', req: false, opts: ['技能実習2号まで', '技能実習3号まで', '特定技能まで'], bu: ['intern'], tab: 5, prompt: '実習期間を選択してください' },
             { id: 'high_altitude_work', label: '高所作業', sf: 'HighAltitudeWork__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 5, prompt: '高所での作業が含まれますか？\n安全管理の観点から正確な情報をお願いします。' },
             { id: 'outdoor_indoor_ratio', label: '屋外屋内作業比率', sf: 'OutdoorIndoorRatio__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '屋外作業と屋内作業の比率を教えてください\n例:「屋外7割、屋内3割」「ほぼ屋内」など' },
             { id: 'overtime_nightshift', label: '残業・夜勤の有無', sf: 'OvertimeNightshift__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 5, prompt: '残業や夜勤の可能性について教えてください' },
@@ -776,6 +840,8 @@
 
         const isHalfWidth = (str) => !str || /^[a-zA-Z0-9!-/:-@[-`{-~\s]+$/.test(str);
         const isNumeric = (str) => !str || /^[0-9]+$/.test(str);
+        // 全角の英数字（および主要な記号）が含まれているかチェックする関数
+        const containsFullWidthLatin = (str) => /[０-９Ａ-Ｚａ-ｚ]/.test(str);
         const escapeCSV = (str) => {
             if (str == null) return '';
             const s = String(str);
@@ -812,14 +878,29 @@
 
             const createNew = () => {
                 const newId = `SF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-                setDataList(prev => [...prev, { id: newId, bu: appMode, createdAt: new Date().toISOString() }]);
+                setDataList(prev => [...prev, { id: newId, bu: appMode, createdAt: new Date().toISOString(),rep_position: '代表取締役' }]);
                 setCurrentId(newId);
                 setCurrentTab(1);
                 notify('新規レコードを作成しました');
             };
 
             const updateField = (fieldId, value) => {
-                setDataList(prev => prev.map(d => d.id === currentId ? { ...d, [fieldId]: value } : d));
+                setDataList(prev => prev.map(d => {
+                    if (d.id === currentId) {
+                        let newData = { ...d, [fieldId]: value };
+                        // 職種(job_type)が変更されたら、作業名(work_name)を空にする
+                        if (fieldId === 'job_type') {
+                            newData.work_name = '';
+                        }
+                        // 【重要】企業名(英)に "Co., Ltd." が含まれない場合、常に「代表」に固定
+                        const hasCoLtd = (newData.company_name_en || '').includes("Co., Ltd.");
+                        if (!hasCoLtd) {
+                            newData.rep_position = '代表';
+                        }
+                        return newData;
+                    }
+                    return d;
+                }));
             };
 
             const deleteRecord = (id) => {
@@ -834,6 +915,9 @@
                 if (!data) return errors;
                 FIELDS.filter(f => f.bu?.includes(data.bu)).forEach(f => {
                     if (f.req && !data[f.id]) errors.push({ field: f.id, msg: `${f.label}は必須項目です。` });
+                    if (data[f.id] && f.val === 'noFullLatin' && containsFullWidthLatin(data[f.id])) {
+                        errors.push({ field: f.id, msg: `${f.label}に含まれる英数字は半角で入力してください（全角が含まれています）。` });
+                    }
                     if (data[f.id] && f.val === 'half' && !isHalfWidth(data[f.id]))
                         errors.push({ field: f.id, msg: `${f.label}は半角英数字のみです。` });
                     if (data[f.id] && f.val === 'num' && !isNumeric(data[f.id]))
@@ -1000,26 +1084,43 @@
                                                             </div>
                                                         )}
                                                         {f.type === 'select' ? (
-                                                            <select
-                                                                className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
-                                                                value={currentData[f.id] || ''}
-                                                                onChange={e => updateField(f.id, e.target.value)}
-                                                            >
-                                                                <option value="">未選択</option>
-                                                                {f.opts?.map(o => <option key={o} value={o}>{o}</option>)}
-                                                            </select>
-                                                        ) : (
-                                                            <div className="relative">
-                                                                <input
-                                                                    className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
-                                                                    type={f.type}
-                                                                    value={currentData[f.id] || ''}
-                                                                    onChange={e => updateField(f.id, e.target.value)}
-                                                                    placeholder={f.note || ''}
-                                                                />
-                                                                {f.suf && <span className="suffix">{f.suf}</span>}
-                                                            </div>
-                                                        )}
+                                                    <select
+                                                        className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
+                                                        value={currentData[f.id] || ''}
+                                                        onChange={e => updateField(f.id, e.target.value)}
+                                                    >
+                                                        <option value="">未選択</option>
+                                                        {f.opts?.map(o => <option key={o} value={o}>{o}</option>)}
+                                                    </select>
+                                                ) : f.type === 'searchable' ? (
+                                                    <div className="relative">
+                                                    <input
+                                                        className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
+                                                        type="text"
+                                                        list={`${f.id}-list`}
+                                                        value={currentData[f.id] || ''}
+                                                        onChange={e => updateField(f.id, e.target.value)}
+                                                        placeholder={f.id === 'work_name' && !currentData.job_type ? "先に職種を選択してください" : "入力して絞り込み..."}
+                                                    />
+                                                    <datalist id={`${f.id}-list`}>
+                                                        {(f.id === 'work_name' 
+                                                            ? (JOB_WORK_MAP[currentData.job_type] || []) // 作業名ならマッピングから取得
+                                                            : f.opts // それ以外（営業名など）なら固定のoptsから取得
+                                                        ).map(o => <option key={o} value={o} />)}
+                                                    </datalist>
+                                                </div>
+                                                ) : (
+                                                    <div className="relative">
+                                                        <input
+                                                            className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
+                                                            type={f.type}
+                                                            value={currentData[f.id] || ''}
+                                                            onChange={e => updateField(f.id, e.target.value)}
+                                                            placeholder={f.note || ''}
+                                                        />
+                                                        {f.suf && <span className="suffix">{f.suf}</span>}
+                                                    </div>
+                                                )}
                                                         {f.help && (
                                                             <div className="field-help">
                                                                 💡 {f.help}
