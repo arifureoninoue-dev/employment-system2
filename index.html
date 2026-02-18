@@ -798,24 +798,23 @@
             { id: 'actual_work_content', label: '実際の実習内容', sf: 'ActualWorkContent__c', type: 'text', req: false, bu: ['intern'], tab: 5, prompt: '実際にどのような実習を行うかを具体的に記載してください\nより詳細な情報が、適切な人材とのマッチングにつながります。' },
             { id: 'training_period', label: '実習期間', sf: 'TrainingPeriod__c', type: 'select', req: false, opts: ['技能実習2号まで', '技能実習3号まで', '特定技能まで'], bu: ['intern'], tab: 5, prompt: '実習期間を選択してください' },
             { id: 'high_altitude_work', label: '高所作業', sf: 'HighAltitudeWork__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 5, prompt: '高所での作業が含まれますか？\n安全管理の観点から正確な情報をお願いします。' },
+            { id: 'high_altitude_height', label: '高所作業の高さ', sf: 'HighAltitudeHeight__c', type: 'number', req: false, suf: 'm', bu: ['intern', 'skilled'], tab: 5,prompt: 'おおよその高さを入力してください',showIf: (data) => data.high_altitude_work === '有' },
             { id: 'outdoor_indoor_ratio', label: '屋外屋内作業比率', sf: 'OutdoorIndoorRatio__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '屋外作業と屋内作業の比率を教えてください\n例:「屋外7割、屋内3割」「ほぼ屋内」など' },
             { id: 'overtime_nightshift', label: '残業・夜勤の有無', sf: 'OvertimeNightshift__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 5, prompt: '残業や夜勤の可能性について教えてください' },
+            { id: 'avg_overtime_hours', label: '残業月平均', sf: 'AvgOvertimeHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 5, prompt: '月平均の残業時間を入力してください',showIf: (data) => data.overtime_nightshift === '有' },
+            { id: 'nightshift_count', label: '夜勤月回数', sf: 'NightshiftCount__c', type: 'number', req: true, suf: '回', bu: ['intern', 'skilled'], tab: 5, prompt: '月あたりの夜勤回数を入力してください',showIf: (data) => data.overtime_nightshift === '有' },
             { id: 'sending_org_notes', label: '送出機関への共有事項', sf: 'SendingOrgNotes__c', type: 'text', req: false, bu: ['intern'], tab: 5, prompt: '送出機関に特に伝えておきたい事項があれば記載してください\n業務上の特性や必要なスキルなど' },
             { id: 'gender', label: '性別', sf: 'Gender__c', type: 'select', req: false, opts: ['男性', '女性', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '性別の希望がありますか？\n業務内容により必要な場合のみ選択してください。' },
             { id: 'preferred_age', label: '希望年齢', sf: 'PreferredAge__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する年齢層を教えてください\n例:「20代前半」「25歳～35歳」など' },
             { id: 'blood_type', label: '血液型', sf: 'BloodType__c', type: 'select', req: false, opts: ['A', 'B', 'O', 'AB', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '血液型の希望がありますか？\n特に指定がない場合は「不問」を選択してください。' },
             { id: 'preferred_height', label: '希望身長', sf: 'PreferredHeight__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する身長があれば記載してください\n業務上必要な場合のみ。例:「160cm以上」' },
             { id: 'preferred_weight', label: '希望体重', sf: 'PreferredWeight__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する体重があれば記載してください\n業務上必要な場合のみ。例:「60kg以上」' },
-            { id: 'body_type', label: '体格', sf: 'BodyType__c', type: 'select', req: false, opts: ['小柄', '普通', '大柄', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '求める体格について教えてください\n業務内容により体力が必要な場合は選択してください。' },
-            { id: 'fitness_video', label: '体力測定動画', sf: 'FitnessVideo__c', type: 'select', req: false, opts: ['必要', '不要'], bu: ['intern'], tab: 5, prompt: '体力測定動画の提出を求めますか？\n体力を要する業務の場合は「必要」を選択してください。' },
             { id: 'dominant_hand', label: '利き手', sf: 'DominantHand__c', type: 'select', req: false, opts: ['右', '左', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '利き手の指定が必要ですか？', help: '業務で使用する道具との関係で、利き手が指定される場合にのみ選択' },
-            { id: 'japanese_level', label: '日本語能力', sf: 'JapaneseLevel__c', type: 'select', req: false, opts: ['N5', 'N4', 'N3', 'N2', 'N1', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '必要な日本語能力のレベルを選択してください\n業務上のコミュニケーションに必要な水準を考慮してください。' },
             { id: 'glasses', label: 'メガネ', sf: 'Glasses__c', type: 'select', req: false, opts: ['可', '不可', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '眼鏡の着用について教えてください', help: '業務の安全上、眼鏡の着用が問題となる場合にのみ選択' },
-            { id: 'tattoo', label: '刺青', sf: 'Tattoo__c', type: 'select', req: false, opts: ['可', '不可', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '刺青(タトゥー)がある方の受入について教えてください', help: '記載例:「長袖で隠せる場合は可能」「大きさ・場所に問わず不可」' },
+            { id: 'tattoo', label: '刺青', sf: 'Tattoo__c', type: 'select', req: false, opts: ['完全に洋服や作業着で隠せる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '刺青(タトゥー)がある方の受入について教えてください', help: '記載例:「長袖で隠せる場合は可能」「大きさ・場所に問わず不可」' },
             { id: 'marital_status', label: '結婚', sf: 'MaritalStatus__c', type: 'select', req: false, opts: ['既婚可', '未婚のみ', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '結婚の有無について条件がありますか?\n特に指定がない場合は「不問」を選択してください。' },
-            { id: 'manners', label: '礼儀・マナー', sf: 'Manners__c', type: 'select', req: false, opts: ['重視', '普通', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '礼儀やマナーをどの程度重視しますか?\n顧客対応や接客が含まれる場合は「重視」をお勧めします。' },
-            { id: 'smoking', label: '喫煙', sf: 'Smoking__c', type: 'select', req: false, opts: ['可', '不可', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '喫煙者の受入について教えてください', help: '所定のルールや場所を守れる場合はどうか、など緩和を行う' },
-            { id: 'drinking', label: '飲酒', sf: 'Drinking__c', type: 'select', req: false, opts: ['可', '不可', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '飲酒について教えてください', help: '所定のルールや場所を守れる場合はどうか、など緩和を行う' },
+            { id: 'smoking', label: '喫煙', sf: 'Smoking__c', type: 'select', req: false, opts: ['所定のルールや場所を守れる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '喫煙者の受入について教えてください', help: '所定のルールや場所を守れる場合はどうか、など緩和を行う' },
+            { id: 'drinking', label: '飲酒', sf: 'Drinking__c', type: 'select', req: false, opts: ['ルール・法令厳守を守れる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '飲酒について教えてください', help: '所定のルールや場所を守れる場合はどうか、など緩和を行う' },
             { id: 'work_experience', label: '現場経験', sf: 'WorkExperience__c', type: 'select', req: false, opts: ['必要', '不要', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '職種に関連する現場経験は必要ですか?\n未経験者でも可能な場合は「不要」を選択してください。' },
             { id: 'hometown', label: '出身地', sf: 'Hometown__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する出身地があれば記載してください\n例:「ベトナム北部」「フィリピン・セブ地域」など' },
 
@@ -914,6 +913,7 @@
                 const errors = [];
                 if (!data) return errors;
                 FIELDS.filter(f => f.bu?.includes(data.bu)).forEach(f => {
+                    if (f.showIf && !f.showIf(data)) return;
                     if (f.req && !data[f.id]) errors.push({ field: f.id, msg: `${f.label}は必須項目です。` });
                     if (data[f.id] && f.val === 'noFullLatin' && containsFullWidthLatin(data[f.id])) {
                         errors.push({ field: f.id, msg: `${f.label}に含まれる英数字は半角で入力してください（全角が含まれています）。` });
@@ -1070,64 +1070,72 @@
                                                 <div className="field-section-title">
                                                     {TABS.find(t => t.id === currentTab)?.icon} {TABS.find(t => t.id === currentTab)?.name}
                                                 </div>
-                                                {tabFields.map(f => (
-                                                    <div key={f.id} style={{ marginBottom: 24 }}>
+                                                {tabFields.map(f => {
+                                                // 表示条件(showIf)のチェック
+                                                if (f.showIf && !f.showIf(currentData)) return null;
+
+                                                return (
+                                                    <div key={f.id} style={{ marginBottom: 24 }} className="anim-fade">
                                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                                                             <label style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b' }}>
                                                                 {f.label} {f.req && <span style={{ color: '#ef4444' }}>*</span>}
                                                             </label>
                                                             <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#cbd5e1', fontStyle: 'italic' }}>{f.sf}</span>
                                                         </div>
+
                                                         {f.prompt && (
                                                             <div className="field-prompt">
                                                                 {f.prompt}
                                                             </div>
                                                         )}
+
                                                         {f.type === 'select' ? (
-                                                    <select
-                                                        className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
-                                                        value={currentData[f.id] || ''}
-                                                        onChange={e => updateField(f.id, e.target.value)}
-                                                    >
-                                                        <option value="">未選択</option>
-                                                        {f.opts?.map(o => <option key={o} value={o}>{o}</option>)}
-                                                    </select>
-                                                ) : f.type === 'searchable' ? (
-                                                    <div className="relative">
-                                                    <input
-                                                        className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
-                                                        type="text"
-                                                        list={`${f.id}-list`}
-                                                        value={currentData[f.id] || ''}
-                                                        onChange={e => updateField(f.id, e.target.value)}
-                                                        placeholder={f.id === 'work_name' && !currentData.job_type ? "先に職種を選択してください" : "入力して絞り込み..."}
-                                                    />
-                                                    <datalist id={`${f.id}-list`}>
-                                                        {(f.id === 'work_name' 
-                                                            ? (JOB_WORK_MAP[currentData.job_type] || []) // 作業名ならマッピングから取得
-                                                            : f.opts // それ以外（営業名など）なら固定のoptsから取得
-                                                        ).map(o => <option key={o} value={o} />)}
-                                                    </datalist>
-                                                </div>
-                                                ) : (
-                                                    <div className="relative">
-                                                        <input
-                                                            className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
-                                                            type={f.type}
-                                                            value={currentData[f.id] || ''}
-                                                            onChange={e => updateField(f.id, e.target.value)}
-                                                            placeholder={f.note || ''}
-                                                        />
-                                                        {f.suf && <span className="suffix">{f.suf}</span>}
-                                                    </div>
-                                                )}
+                                                            <select
+                                                                className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
+                                                                value={currentData[f.id] || ''}
+                                                                onChange={e => updateField(f.id, e.target.value)}
+                                                            >
+                                                                <option value="">未選択</option>
+                                                                {f.opts?.map(o => <option key={o} value={o}>{o}</option>)}
+                                                            </select>
+                                                        ) : f.type === 'searchable' ? (
+                                                            <div className="relative">
+                                                                <input
+                                                                    className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
+                                                                    type="text"
+                                                                    list={`${f.id}-list`}
+                                                                    value={currentData[f.id] || ''}
+                                                                    onChange={e => updateField(f.id, e.target.value)}
+                                                                    placeholder={f.id === 'work_name' && !currentData.job_type ? "先に職種を選択してください" : "入力して絞り込み..."}
+                                                                />
+                                                                <datalist id={`${f.id}-list`}>
+                                                                    {(f.id === 'work_name' 
+                                                                        ? (JOB_WORK_MAP[currentData.job_type] || []) 
+                                                                        : (f.opts || [])
+                                                                    ).map(o => <option key={o} value={o} />)}
+                                                                </datalist>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="relative">
+                                                                <input
+                                                                    className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
+                                                                    type={f.type}
+                                                                    value={currentData[f.id] || ''}
+                                                                    onChange={e => updateField(f.id, e.target.value)}
+                                                                    placeholder={f.note || ''}
+                                                                />
+                                                                {f.suf && <span className="suffix">{f.suf}</span>}
+                                                            </div>
+                                                        )}
+
                                                         {f.help && (
                                                             <div className="field-help">
                                                                 💡 {f.help}
                                                             </div>
                                                         )}
                                                     </div>
-                                                ))}
+                                                );
+                                            })}
                                             </div>
                                         </div>
 
