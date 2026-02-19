@@ -701,17 +701,24 @@
                 'かわらぶき', 'ゴム製品製造', 'ハム・ソーセージ・ベーコン製造職種', '金属プレス加工職種'
             ] },
             { id: 'work_name', label: '作業名', sf: 'WorkName__c', type: 'searchable', req: true, bu: ['intern'], tab: 1 ,opts:[]},
-            { id: 'workplace_name', label: '就業先事業所名', sf: 'WorkplaceName__c', type: 'text', req: false, bu: ['intern'], tab: 1 },
+            { id: 'workplace_name', label: '就業先事業所名', sf: 'WorkplaceName__c', type: 'text', req: false, bu: ['intern'], tab: 1 ,help:'企業名もしくは事業所の名称を記載してください'},
 
             // Tab 2: 生活環境・宿泊施設
             { id: 'housing_status', label: '宿泊施設', sf: 'HousingStatus__c', type: 'select', req: true, opts: ['未定', '確定'], bu: ['intern', 'skilled'], tab: 2 },
-            { id: 'housing_id', label: '宿泊施設ID', sf: 'HousingID__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 2 },
-            { id: 'housing_postal', label: '宿泊施設郵便番号', sf: 'HousingPostalCode__c', type: 'text', req: false, val: 'num', bu: ['intern', 'skilled'], tab: 2 },
-            { id: 'housing_property_name', label: '宿泊施設物件名', sf: 'HousingPropertyName__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 2 },
-            { id: 'housing_address', label: '宿泊施設住所', sf: 'HousingAddress__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 2 },
-            { id: 'property_area', label: '物件の総面積', sf: 'PropertyTotalArea__c', type: 'number', req: false, suf: '㎡', bu: ['intern', 'skilled'], tab: 2 },
-            { id: 'housing_residents', label: '宿泊施設の居住者人数', sf: 'HousingResidents__c', type: 'number', req: false, suf: '人', bu: ['intern', 'skilled'], tab: 2 },
-            { id: 'area_per_person', label: '1人あたり居室面積', sf: 'AreaPerPerson__c', type: 'number', req: false, suf: '㎡', bu: ['intern', 'skilled'], tab: 2 },
+            { id: 'housing_id', label: '宿泊施設ID', sf: 'HousingID__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 2,
+            showIf: (data) => data.housing_status === '確定' },
+            { id: 'housing_postal', label: '宿泊施設郵便番号', sf: 'HousingPostalCode__c', type: 'text', req: true, val: 'zip', bu: ['intern', 'skilled'], tab: 2,
+            showIf: (data) => data.housing_status === '確定' },
+            { id: 'housing_property_name', label: '宿泊施設物件名', sf: 'HousingPropertyName__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 2,
+            showIf: (data) => data.housing_status === '確定' },
+            { id: 'housing_address', label: '宿泊施設住所', sf: 'HousingAddress__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 2,
+            showIf: (data) => data.housing_status === '確定' },
+            { id: 'property_area', label: '物件の総面積', sf: 'PropertyTotalArea__c', type: 'number', req: true, suf: '㎡', bu: ['intern', 'skilled'], tab: 2,
+            showIf: (data) => data.housing_status === '確定' },
+            { id: 'housing_residents', label: '宿泊施設の居住者人数', sf: 'HousingResidents__c', type: 'number', req: true, suf: '人', bu: ['intern', 'skilled'], tab: 2,
+            showIf: (data) => data.housing_status === '確定' },
+            { id: 'area_per_person', label: '1人あたり居室面積', sf: 'AreaPerPerson__c', type: 'number', req: true, suf: '㎡', bu: ['intern', 'skilled'], tab: 2,help: '物件の総面積と居住者人数から自動計算されます',
+            showIf: (data) => data.housing_status === '確定' },
 
             // Tab 3: 労働時間・休憩・休日
             { id: 'annual_holidays', label: '年間合計休日数(日)', sf: 'AnnualHolidays__c', type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: 3 },
@@ -774,7 +781,7 @@
             { id: 'pension_type', label: '加入年金種別', sf: 'PensionType__c', type: 'select', req: false, opts: ['厚生年金', '国民年金'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'insurance_type', label: '加入保険種別', sf: 'InsuranceType__c', type: 'select', req: false, opts: ['健康保険', '国民健康保険'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'other_insurance', label: 'その他の保険', sf: 'OtherInsurance__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'labor_insurance_total', label: '労働保険控除総額', sf: 'LaborInsuranceTotal__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'labor_insurance_total', label: '労働保険控除総額', sf: 'LaborInsuranceTotal__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4 ,help:<span><a href="https://e-kyu.com/" target="_blank" rel="noopener noreferrer">イージー給与計算</a></span>},
             { id: 'income_tax', label: '所得税', sf: 'IncomeTax__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'social_insurance_total', label: '社会保険控除総額', sf: 'SocialInsuranceTotal__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'provides_meals', label: '食事食材等の提供有無', sf: 'ProvidesMeals__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
@@ -839,6 +846,7 @@
 
         const isHalfWidth = (str) => !str || /^[a-zA-Z0-9!-/:-@[-`{-~\s]+$/.test(str);
         const isNumeric = (str) => !str || /^[0-9]+$/.test(str);
+        const isZipCode = (str) => !str || /^\d{3}-\d{4}$/.test(str);
         // 全角の英数字（および主要な記号）が含まれているかチェックする関数
         const containsFullWidthLatin = (str) => /[０-９Ａ-Ｚａ-ｚ]/.test(str);
         const escapeCSV = (str) => {
@@ -876,12 +884,38 @@
             const notify = (msg, type = 'success') => setNotification({ msg, type });
 
             const createNew = () => {
-                const newId = `SF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-                setDataList(prev => [...prev, { id: newId, bu: appMode, createdAt: new Date().toISOString(),rep_position: '代表取締役' }]);
-                setCurrentId(newId);
-                setCurrentTab(1);
-                notify('新規レコードを作成しました');
-            };
+                // ランダムID生成（substrではなく現代的なsliceを使用）
+                const newId = `SF-${Math.random().toString(36).slice(2, 11).toUpperCase()}`;
+                
+                // 新規レコードのオブジェクト定義
+                const newRecord = {
+                    id: newId,
+                    bu: appMode,
+                    createdAt: new Date().toISOString(),
+                    
+                    // --- 基本情報（Tab 1）の初期値 ---
+                    company_name_en: 'Co., Ltd.', // 英語名を最初から入力
+                    rep_position: '代表取締役',     // Co., Ltd.がある前提なので「代表取締役」
+
+                    // --- 生活環境（Tab 2）の初期値 ---
+                    housing_status: '未定',       // 「未定」にすることで、Tab 2 を開いたときにセレクトボックスが見える
+
+                    // --- 労働条件・賃金（Tab 3, 4）の初期値 ---
+                    has_shift: '無',              // 交代制
+                    has_bonus: '無',              // 賞与
+                    has_raise: '無',              // 昇給
+                    has_retirement: '無'           // 退職金
+                };
+
+                    // リストに追加
+                    setDataList(prev => [...prev, newRecord]);
+                    
+                    // 作成したレコードを選択状態にし、最初のタブを表示
+                    setCurrentId(newId);
+                    setCurrentTab(1);
+                    
+                    notify('新規レコードを作成しました');
+                };
 
             const updateField = (fieldId, value) => {
                 setDataList(prev => prev.map(d => {
@@ -895,6 +929,18 @@
                         const hasCoLtd = (newData.company_name_en || '').includes("Co., Ltd.");
                         if (!hasCoLtd) {
                             newData.rep_position = '代表';
+                        }
+                        // --- 追加：1人あたり居室面積の自動計算 ---
+                        // 物件の総面積(property_area) または 居住者人数(housing_residents) が更新された場合
+                        if (fieldId === 'property_area' || fieldId === 'housing_residents') {
+                        const area = parseFloat(newData.property_area);
+                        const residents = parseFloat(newData.housing_residents);
+                        if (area && residents && residents > 0) {
+                        // 小数点第2位まで計算して代入
+                        newData.area_per_person = (area / residents).toFixed(2);
+                        } else {
+                        newData.area_per_person = ''; // 入力が不完全なら空にする
+                        }
                         }
                         return newData;
                     }
@@ -922,7 +968,12 @@
                         errors.push({ field: f.id, msg: `${f.label}は半角英数字のみです。` });
                     if (data[f.id] && f.val === 'num' && !isNumeric(data[f.id]))
                         errors.push({ field: f.id, msg: `${f.label}は半角数字のみです。` });
-                });
+                    if (data[f.id] && f.val === 'zip' && !isZipCode(data[f.id])) {
+                        errors.push({ 
+                        field: f.id, 
+                        msg: `${f.label}は「000-0000」の形式（半角数字3桁＋ハイフン＋4桁）で入力してください。`});
+                        }
+                    });
                 return errors;
             };
 
@@ -1123,6 +1174,8 @@
                                                                     value={currentData[f.id] || ''}
                                                                     onChange={e => updateField(f.id, e.target.value)}
                                                                     placeholder={f.note || ''}
+                                                                    readOnly={f.id === 'area_per_person'} 
+                                                                    style={f.id === 'area_per_person' ? { background: '#e2e8f0', cursor: 'not-allowed' } : {}}
                                                                 />
                                                                 {f.suf && <span className="suffix">{f.suf}</span>}
                                                             </div>
