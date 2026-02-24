@@ -758,7 +758,6 @@
                 req_cond: (vals) => vals.irregular_holiday === '週あたり' || vals.irregular_holiday === '月あたり', 
                 bu: ['intern', 'skilled'], tab: 3 
             },
-
                         // --- カテゴリ2：基本労働時間 ---
             { type: 'section', label: '【基本労働時間】', bu: ['intern', 'skilled'], tab: 3 },
             { id: 'start_time', label: '【基本】始業時刻', sf: 'StartTime__c', type: 'time', req: true, bu: ['intern', 'skilled'], tab: 3, paired: true },
@@ -795,13 +794,13 @@
 
             // --- カテゴリ4：交代制の労働時間 ---
             { type: 'section', label: '【交代制の労働時間】', bu: ['intern', 'skilled'], tab: 3 },
-            { id: 'has_shift', label: '交代制の有無', sf: 'HasShift__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 3 },
+            { id: 'has_shift', label: '交代制の有無', sf: 'HasShift__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 3 },
             ...(() => {
                 const fields = [];
                 for (let i = 1; i <= 5; i++) {
                     fields.push(
-                        { id: `shift_start_${i}`, label: `【交代制】始業時刻${i}`, sf: `ShiftStart${i}__c`, type: 'time', req: true, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_end_${i}`, label: `【交代制】終業時刻${i}`, sf: `ShiftEnd${i}__c`, type: 'time', req: true, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
+                        { id: `shift_start_${i}`, label: `【交代制】始業時刻${i}`, sf: `ShiftStart${i}__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
+                        { id: `shift_end_${i}`, label: `【交代制】終業時刻${i}`, sf: `ShiftEnd${i}__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
                         { id: `shift_days_${i}`, label: `【交代制】交代制の適用日${i}`, sf: `ShiftDays${i}__c`, type: 'text', req: false, bu: ['intern', 'skilled'], tab: 3, showIf: (data) => data.has_shift === '有' },
                         { id: `shift_break_start_${i}_1`, label: `【交代制】休憩開始時間${i}`, sf: `ShiftBreakStart${i}_1__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
                         { id: `shift_break_end_${i}_1`, label: `【交代制】休憩終了時間${i}`, sf: `ShiftBreakEnd${i}_1__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
@@ -822,44 +821,45 @@
 
             // Tab 4: 賃金・手当・支払条件
             { type: 'section', label: '【給与】', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'payment_type', label: '支払区分', sf: 'PaymentType__c', type: 'select', req: true, opts: ['月給', '日給', '時給'], bu: ['intern', 'skilled'], tab: 4,
+            { id: 'payment_type', label: '支払区分', sf: 'PaymentType__c', type: 'select', req: true, opts: ['月給', '日給', '時給'], bu: ['intern', 'skilled'], tab: 4, paired: true,
             help: '建設業は月給が必須です' },
+            { id: 'residence_status', label: '在留資格', sf: 'ResidenceStatus__c', type: 'select', req: true, opts: ['実習1号', '実習2号', '実習3号'], bu: ['intern'], tab: 4, paired: true },
 
             // 月給・時給共通：月給額（時給選択時は自動計算）
             { id: 'monthly_salary_1', label: '月給額(実習1号)', sf: 'MonthlySalary1__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
             readOnly: (data) => data.payment_type === '時給',
             help: '時給選択時は「時給 × 月所定労働時間」で自動計算されます',
-            showIf: (data) => data.payment_type === '月給' || data.payment_type === '時給' },
+            showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習1号' },
             { id: 'monthly_salary_2', label: '月給額(実習2号)', sf: 'MonthlySalary2__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
             readOnly: (data) => data.payment_type === '時給',
             help: '時給選択時は「時給 × 月所定労働時間」で自動計算されます',
-            showIf: (data) => data.payment_type === '月給' || data.payment_type === '時給' },
+            showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習2号' },
             { id: 'monthly_salary_3', label: '月給額(実習3号)', sf: 'MonthlySalary3__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
             readOnly: (data) => data.payment_type === '時給',
             help: '時給選択時は「時給 × 月所定労働時間」で自動計算されます',
-            showIf: (data) => data.payment_type === '月給' || data.payment_type === '時給' },
+            showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習3号' },
 
             // 日給
             { id: 'daily_salary_1', label: '日給額(実習1号)', sf: 'DailySalary1__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
-            showIf: (data) => data.payment_type === '日給' },
+            showIf: (data) => data.payment_type === '日給' && data.residence_status === '実習1号' },
             { id: 'daily_salary_2', label: '日給額(実習2号)', sf: 'DailySalary2__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
-            showIf: (data) => data.payment_type === '日給' },
+            showIf: (data) => data.payment_type === '日給' && data.residence_status === '実習2号' },
             { id: 'daily_salary_3', label: '日給額(実習3号)', sf: 'DailySalary3__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
-            showIf: (data) => data.payment_type === '日給' },
+            showIf: (data) => data.payment_type === '日給' && data.residence_status === '実習3号' },
 
             // 月給・時給共通：時給額（月給選択時は自動計算）
             { id: 'hourly_salary_1', label: '時給額(実習1号)', sf: 'HourlySalary1__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
             readOnly: (data) => data.payment_type === '月給',
             help: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます',
-            showIf: (data) => data.payment_type === '月給' || data.payment_type === '時給' },
+            showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習1号' },
             { id: 'hourly_salary_2', label: '時給額(実習2号)', sf: 'HourlySalary2__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
             readOnly: (data) => data.payment_type === '月給',
             help: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます',
-            showIf: (data) => data.payment_type === '月給' || data.payment_type === '時給' },
+            showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習2号' },
             { id: 'hourly_salary_3', label: '時給額(実習3号)', sf: 'HourlySalary3__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
             readOnly: (data) => data.payment_type === '月給',
             help: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます',
-            showIf: (data) => data.payment_type === '月給' || data.payment_type === '時給' },
+            showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習3号' },
             { id: 'has_bonus', label: '賞与有無', sf: 'HasBonus__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'has_raise', label: '昇給有無', sf: 'HasRaise__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
             ...generateAllowanceFields(4),
@@ -1441,20 +1441,32 @@
                                                                     <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#cbd5e1', fontStyle: 'italic' }}>{field.sf}</span>
                                                                 </div>
                                                                 <div className="relative">
-                                                                    <input
-                                                                        className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`}
-                                                                        type={field.type}
-                                                                        value={currentData[field.id] || ''}
-                                                                        onChange={e => updateField(field.id, e.target.value)}
-                                                                        readOnly={isReadOnly}
-                                                                        style={isReadOnly ? { background: '#e2e8f0', cursor: 'not-allowed' } : {}}
-                                                                    />
+                                                                    {field.type === 'select' ? (
+                                                                        <select
+                                                                            className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`}
+                                                                            value={currentData[field.id] || ''}
+                                                                            onChange={e => updateField(field.id, e.target.value)}
+                                                                        >
+                                                                            <option value="">未選択</option>
+                                                                            {field.opts?.map(o => <option key={o} value={o}>{o}</option>)}
+                                                                        </select>
+                                                                    ) : (
+                                                                        <input
+                                                                            className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`}
+                                                                            type={field.type}
+                                                                            value={currentData[field.id] || ''}
+                                                                            onChange={e => updateField(field.id, e.target.value)}
+                                                                            readOnly={isReadOnly}
+                                                                            style={isReadOnly ? { background: '#e2e8f0', cursor: 'not-allowed' } : {}}
+                                                                        />
+                                                                    )}
                                                                     {field.suf && <span className="suffix">{field.suf}</span>}
                                                                 </div>
                                                                 {field.help && <div className="field-help">💡 {field.help}</div>}
                                                             </div>
                                                         );
                                                     })}
+
                                                 </div>
                                             );
                                             i += 2;
