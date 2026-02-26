@@ -337,8 +337,8 @@
         }
 
         .field-input.has-error {
-            border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.05);
+            border-color: #fca5a5;;
+            background: rgba(239, 68, 68, 0.03);
         }
 
         .validation-panel {
@@ -547,12 +547,10 @@
             font-weight: 500;
             white-space: pre-line;
         }
-
         @media (max-width: 1024px) {
             .grid-form {
                 grid-template-columns: 1fr;
             }
-
             .validation-panel {
                 position: static;
                 max-height: none;
@@ -560,7 +558,6 @@
         }
 
         @media (max-width: 640px) {
-
             .home-grid,
             .grid-2 {
                 grid-template-columns: 1fr;
@@ -578,16 +575,16 @@
         const { useState, useMemo, useRef, useEffect } = React;
 
         function generateAllowanceFields(count) {
-            const fields = [];
-            for (let i = 1; i <= count; i++) {
-                fields.push(
-                    { id: `allowance_name_${i}`, label: `手当名${i}`, sf: `AllowanceName${i}__c`, type: 'text', req: false, bu: ['intern'] },
-                    { id: `allowance_amount_${i}`, label: `手当額${i}`, sf: `AllowanceAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'] },
-                    { id: `allowance_calc_${i}`, label: `手当の計算方法${i}`, sf: `AllowanceCalc${i}__c`, type: 'text', req: false, bu: ['intern'] }
-                );
-            }
-            return fields;
+        const fields = [];
+        for (let i = 1; i <= count; i++) {
+            fields.push(
+                { id: `allowance_name_${i}`, label: `手当名${i}`, sf: `AllowanceName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4 },
+                { id: `allowance_amount_${i}`, label: `手当額${i}`, sf: `AllowanceAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4 },
+                { id: `allowance_calc_${i}`, label: `手当の計算方法${i}`, sf: `AllowanceCalc${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4 }
+            );
         }
+        return fields;
+    }   
 
         function generateOtherCostFields(count) {
             const fields = [];
@@ -646,6 +643,25 @@
             'ハム・ソーセージ・ベーコン製造職種': ['ハム・ソーセージ・ベーコン製造作業'],
             '金属プレス加工職種': ['金属プレス作業']
         };
+
+        // ===== 令和7年度 最低賃金マスタ（厚生労働省） =====
+        // 更新方法：毎年10月頃に厚生労働省発表の「地域別最低賃金 全国一覧」を参照して手動更新
+        const MIN_WAGE_MASTER = {
+            '北海道': 1075, '青森県': 1029, '岩手県': 1031, '宮城県': 1038,
+            '秋田県': 1031, '山形県': 1032, '福島県': 1033, '茨城県': 1074,
+            '栃木県': 1068, '群馬県': 1063, '埼玉県': 1141, '千葉県': 1140,
+            '東京都': 1226, '神奈川県': 1225, '新潟県': 1050, '富山県': 1062,
+            '石川県': 1054, '福井県': 1053, '山梨県': 1052, '長野県': 1061,
+            '岐阜県': 1065, '静岡県': 1097, '愛知県': 1140, '三重県': 1087,
+            '滋賀県': 1080, '京都府': 1122, '大阪府': 1177, '兵庫県': 1116,
+            '奈良県': 1051, '和歌山県': 1045, '鳥取県': 1030, '島根県': 1033,
+            '岡山県': 1047, '広島県': 1085, '山口県': 1043, '徳島県': 1046,
+            '香川県': 1036, '愛媛県': 1033, '高知県': 1023, '福岡県': 1057,
+            '佐賀県': 1030, '長崎県': 1031, '熊本県': 1034, '大分県': 1035,
+            '宮崎県': 1023, '鹿児島県': 1026, '沖縄県': 1023
+        };
+        const MIN_WAGE_YEAR = '令和7年度';
+        const PREFECTURES = Object.keys(MIN_WAGE_MASTER);
 
         // All field definitions
         const FIELDS = [
@@ -773,8 +789,8 @@
             { id: 'daily_work_minutes', label: '1日の所定労働時間(分)', sf: 'DailyWorkMinutes__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
             { id: 'weekly_work_hours', label: '週所定労働時間(時間)', sf: 'WeeklyWorkHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
             { id: 'weekly_work_minutes', label: '週所定労働時間(分)', sf: 'WeeklyWorkMinutes__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
-            { id: 'annual_work_hours', label: '年所定労働時間(時間)', sf: 'AnnualWorkHours__c', type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'annual_work_minutes', label: '年所定労働時間(分)', sf: 'AnnualWorkMinutes__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true },
+            { id: 'annual_work_hours', label: '年所定労働時間(時間)', sf: 'AnnualWorkHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true },
+            { id: 'annual_work_minutes', label: '年所定労働時間(分)', sf: 'AnnualWorkMinutes__c', type: 'number', req: true, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'monthly_work_hours', label: '月所定労働時間(時間)', sf: 'MonthlyWorkHours__c', type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'monthly_work_minutes', label: '月所定労働時間(分)', sf: 'MonthlyWorkMinutes__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'annual_holidays', label: '年間合計休日数(日)', sf: 'AnnualHolidays__c', type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: 3 },
@@ -850,29 +866,52 @@
             // 月給・時給共通：時給額（月給選択時は自動計算）
             { id: 'hourly_salary_1', label: '時給額(実習1号)', sf: 'HourlySalary1__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
             readOnly: (data) => data.payment_type === '月給',
-            help: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます',
+            help: (data) => {
+                const pref = PREFECTURES.find(p => (data.address || '').includes(p));
+                const hourly = parseFloat(data.hourly_salary_1);
+                const minWage = pref ? MIN_WAGE_MASTER[pref] : null;
+                const wageInfo = (pref && !isNaN(hourly) && hourly > 0)
+                    ? (hourly >= minWage
+                        ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` }
+                        : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` })
+                    : null;
+                return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' };
+            },
             showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習1号' },
             { id: 'hourly_salary_2', label: '時給額(実習2号)', sf: 'HourlySalary2__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
             readOnly: (data) => data.payment_type === '月給',
-            help: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます',
+            help: (data) => {
+                const pref = PREFECTURES.find(p => (data.address || '').includes(p));
+                const hourly = parseFloat(data.hourly_salary_2);
+                const minWage = pref ? MIN_WAGE_MASTER[pref] : null;
+                const wageInfo = (pref && !isNaN(hourly) && hourly > 0)
+                    ? (hourly >= minWage
+                        ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` }
+                        : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` })
+                    : null;
+                return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' };
+            },
             showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習2号' },
             { id: 'hourly_salary_3', label: '時給額(実習3号)', sf: 'HourlySalary3__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4,
             readOnly: (data) => data.payment_type === '月給',
-            help: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます',
+            help: (data) => {
+                const pref = PREFECTURES.find(p => (data.address || '').includes(p));
+                const hourly = parseFloat(data.hourly_salary_3);
+                const minWage = pref ? MIN_WAGE_MASTER[pref] : null;
+                const wageInfo = (pref && !isNaN(hourly) && hourly > 0)
+                    ? (hourly >= minWage
+                        ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` }
+                        : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` })
+                    : null;
+                return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' };
+            },
             showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習3号' },
-            { id: 'has_bonus', label: '賞与有無', sf: 'HasBonus__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'has_raise', label: '昇給有無', sf: 'HasRaise__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'has_bonus', label: '賞与有無', sf: 'HasBonus__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 ,tripled: true },
+            { id: 'has_raise', label: '昇給有無', sf: 'HasRaise__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 ,tripled: true},
+            { id: 'has_retirement', label: '退職金有無', sf: 'HasRetirement__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 ,tripled: true},
             ...generateAllowanceFields(4),
-            { id: 'has_retirement', label: '退職金有無', sf: 'HasRetirement__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'resignation_notice_days', label: '退職届出の猶予日数（日前）', sf: 'ResignationNoticeDays__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'wage_cutoff_day', label: '賃金締切日', sf: 'WageCutoffDay__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'wage_payment_day', label: '賃金支払日', sf: 'WagePaymentDay__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'wage_cutoff_day_2', label: '賃金締切日2', sf: 'WageCutoffDay2__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'wage_payment_day_2', label: '賃金支払日2', sf: 'WagePaymentDay2__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'wage_payment_method', label: '賃金支払方法', sf: 'WagePaymentMethod__c', type: 'select', req: false, opts: ['銀行振込', '現金支給'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'health_checkup_hire', label: '雇入れ時の健康診断 受診日', sf: 'HealthCheckupHire__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'health_checkup_first', label: '初回健康診断 受診日', sf: 'HealthCheckupFirst__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'health_checkup_schedule', label: 'その後の健康診断実施時期', sf: 'HealthCheckupSchedule__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
+
+            { type: 'section', label: '【控除】', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'has_wage_deduction', label: '賃金支払い時の控除有無', sf: 'HasWageDeduction__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'pension_type', label: '加入年金種別', sf: 'PensionType__c', type: 'select', req: false, opts: ['厚生年金', '国民年金'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'insurance_type', label: '加入保険種別', sf: 'InsuranceType__c', type: 'select', req: false, opts: ['健康保険', '国民健康保険'], bu: ['intern', 'skilled'], tab: 4 },
@@ -893,6 +932,22 @@
             ...generateOtherCostFields(4),
             { id: 'other_cost_benefits', label: 'その他負担費用に対する便益', sf: 'OtherCostBenefits__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
             { id: 'other_cost_explanation', label: 'その他の負担費用が実費に相当する額であることの説明', sf: 'OtherCostExplanation__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
+
+            { type: 'section', label: '【支払い方法】', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'wage_payment_method', label: '賃金支払方法', sf: 'WagePaymentMethod__c', type: 'select', req: true, opts: ['口座振込', '通貨払'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'wage_cutoff_day', label: '賃金締切日', sf: 'WageCutoffDay__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'wage_payment_day', label: '賃金支払日', sf: 'WagePaymentDay__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'wage_cutoff_day_2', label: '賃金締切日2', sf: 'WageCutoffDay2__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'wage_payment_day_2', label: '賃金支払日2', sf: 'WagePaymentDay2__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
+
+
+            { type: 'section', label: '【その他】', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'resignation_notice_days', label: '退職届出の猶予日数（日前）', sf: 'ResignationNoticeDays__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'health_checkup_hire', label: '雇入れ時の健康診断 受診日', sf: 'HealthCheckupHire__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'health_checkup_first', label: '初回健康診断 受診日', sf: 'HealthCheckupFirst__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'health_checkup_schedule', label: 'その後の健康診断実施時期', sf: 'HealthCheckupSchedule__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
+
+
 
             // Tab 5: 募集要件
             { id: 'placement_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '企業様の希望する配属希望日を入力してください' },
@@ -1234,6 +1289,23 @@
                     if (holidays && selectedDays >= 2 && ah <= 120)
                         errors.push({ field: 'annual_holidays', msg: `祝日休み・週2日休みの設定で年間休日が120日以下です。${LAW_MSG}` });
                 }
+                // --- 最低賃金チェック ---
+                const pref = PREFECTURES.find(p => (data.address || '').includes(p));
+                if (pref) {
+                    const minWage = MIN_WAGE_MASTER[pref];
+                    // 表示中の時給フィールドをチェック
+                    ['1', '2', '3'].forEach(n => {
+                        const hourly = parseFloat(data[`hourly_salary_${n}`]);
+                        if (!isNaN(hourly) && hourly > 0 && hourly < minWage) {
+                            errors.push({
+                                field: `hourly_salary_${n}`,
+                                msg: `時給額(実習${n}号) ${hourly}円が${pref}の最低賃金(${MIN_WAGE_YEAR}: ${minWage}円)を下回っています。`
+                            });
+                        }
+                    });
+                } else if (data.address) {
+                    // 住所はあるが都道府県が特定できない場合
+                }
                 return errors;
             };
 
@@ -1415,14 +1487,49 @@
                                         if (f.type === 'section') {
                                             rendered.push(
                                                 <div key={f.label} style={{
-                                                    background: '#f1f5f9', padding: '10px 16px', borderRadius: '8px',
-                                                    marginBottom: '20px', marginTop: '20px', fontSize: '12px',
-                                                    fontWeight: '900', color: '#475569', borderLeft: '4px solid #6366f1'
-                                                }}>
-                                                    {f.label}
-                                                </div>
+                                                background: '#fef3c7', padding: '10px 16px', borderRadius: '8px',
+                                                marginBottom: '20px', marginTop: '20px', fontSize: '12px',
+                                                fontWeight: '900', color: '#92400e', borderLeft: '4px solid #f59e0b'
+                                            }}>
+                                                {f.label}
+                                            </div>
                                             );
                                             i++;
+                                            continue;
+                                        }
+
+                                        // tripledグループ：3列グリッド表示
+                                        if (f.tripled) {
+                                            const group = [f];
+                                            let j = i + 1;
+                                            while (j < tabFields.length && tabFields[j].tripled && group.length < 3) {
+                                                group.push(tabFields[j]);
+                                                j++;
+                                            }
+                                            rendered.push(
+                                                <div key={group.map(g => g.id).join('+')} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: 24 }}>
+                                                    {group.map(field => (
+                                                        <div key={field.id} className="anim-fade">
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                                                                <label style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b' }}>
+                                                                    {field.label} {field.req && <span style={{ color: '#ef4444' }}>*</span>}
+                                                                </label>
+                                                                <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#cbd5e1', fontStyle: 'italic' }}>{field.sf}</span>
+                                                            </div>
+                                                            <select
+                                                                className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`}
+                                                                value={currentData[field.id] || ''}
+                                                                onChange={e => updateField(field.id, e.target.value)}
+                                                            >
+                                                                <option value="">未選択</option>
+                                                                {field.opts?.map(o => <option key={o} value={o}>{o}</option>)}
+                                                            </select>
+                                                            {field.help && <div className="field-help">💡 {field.help}</div>}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            );
+                                            i = j;
                                             continue;
                                         }
 
@@ -1457,12 +1564,35 @@
                                                                             value={currentData[field.id] || ''}
                                                                             onChange={e => updateField(field.id, e.target.value)}
                                                                             readOnly={isReadOnly}
-                                                                            style={isReadOnly ? { background: '#e2e8f0', cursor: 'not-allowed' } : {}}
+                                                                            style={isReadOnly ? { background: '#fef9c3', cursor: 'not-allowed', color: '#854d0e', borderColor: '#fde047' } : {}}
                                                                         />
                                                                     )}
                                                                     {field.suf && <span className="suffix">{field.suf}</span>}
                                                                 </div>
-                                                                {field.help && <div className="field-help">💡 {field.help}</div>}
+                                                                {(() => {
+                                                                        const helpVal = typeof field.help === 'function' ? field.help(currentData) : field.help;
+                                                                        if (!helpVal) return null;
+                                                                        if (typeof helpVal === 'object' && helpVal.wageInfo !== undefined) {
+                                                                            return (
+                                                                                <div>
+                                                                                    {helpVal.wageInfo && (
+                                                                                        <div style={{
+                                                                                            fontSize: 11, fontWeight: 700, marginTop: 6, marginBottom: 4,
+                                                                                            padding: '8px 12px', borderRadius: 8,
+                                                                                            background: helpVal.wageInfo.ok ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                                                                                            color: helpVal.wageInfo.ok ? '#059669' : '#dc2626',
+                                                                                            borderLeft: `3px solid ${helpVal.wageInfo.ok ? '#10b981' : '#ef4444'}`
+                                                                                        }}>
+                                                                                            {helpVal.wageInfo.ok ? '✅' : '❌'} {helpVal.wageInfo.msg}<br/>
+                                                                                            <span style={{ fontWeight: 400, fontSize: 10 }}>※賃金は{MIN_WAGE_YEAR}時点の数値を参照しています</span>
+                                                                                        </div>
+                                                                                    )}
+                                                                                    <div className="field-help">💡 {helpVal.baseMsg}</div>
+                                                                                </div>
+                                                                            );
+                                                                        }
+                                                                        return <div className="field-help">💡 {helpVal}</div>;
+                                                                    })()}
                                                             </div>
                                                         );
                                                     })}
@@ -1543,13 +1673,36 @@
                                                             value={currentData[f.id] || ''}
                                                             onChange={e => updateField(f.id, e.target.value)}
                                                             readOnly={isReadOnly}
-                                                            style={isReadOnly ? { background: '#e2e8f0', cursor: 'not-allowed' } : {}}
+                                                            style={isReadOnly ? { background: '#fef9c3', cursor: 'not-allowed', color: '#854d0e', borderColor: '#fde047' } : {}}
                                                         />
                                                         {f.suf && <span className="suffix">{f.suf}</span>}
                                                     </div>
                                                 )}
 
-                                                {f.help && <div className="field-help">💡 {f.help}</div>}
+                                                {(() => {
+                                                        const helpVal = typeof f.help === 'function' ? f.help(currentData) : f.help;
+                                                        if (!helpVal) return null;
+                                                        if (typeof helpVal === 'object' && helpVal.wageInfo !== undefined) {
+                                                            return (
+                                                                <div>
+                                                                    {helpVal.wageInfo && (
+                                                                        <div style={{
+                                                                            fontSize: 11, fontWeight: 700, marginTop: 6, marginBottom: 4,
+                                                                            padding: '8px 12px', borderRadius: 8,
+                                                                            background: helpVal.wageInfo.ok ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                                                                            color: helpVal.wageInfo.ok ? '#059669' : '#dc2626',
+                                                                            borderLeft: `3px solid ${helpVal.wageInfo.ok ? '#10b981' : '#ef4444'}`
+                                                                        }}>
+                                                                            {helpVal.wageInfo.ok ? '✅' : '❌'} {helpVal.wageInfo.msg}<br/>
+                                                                            <span style={{ fontWeight: 400, fontSize: 10 }}>※賃金は{MIN_WAGE_YEAR}時点の数値を参照しています</span>
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="field-help">💡 {helpVal.baseMsg}</div>
+                                                                </div>
+                                                            );
+                                                        }
+                                                        return <div className="field-help">💡 {helpVal}</div>;
+                                                    })()}
                                             </div>
                                         );
                                         i++;
