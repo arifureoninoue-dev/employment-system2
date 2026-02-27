@@ -578,13 +578,14 @@
         const fields = [];
         for (let i = 1; i <= count; i++) {
             fields.push(
-                { id: `allowance_name_${i}`, label: `手当名${i}`, sf: `AllowanceName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4 },
-                { id: `allowance_amount_${i}`, label: `手当額${i}`, sf: `AllowanceAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4 },
-                { id: `allowance_calc_${i}`, label: `手当の計算方法${i}`, sf: `AllowanceCalc${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4 }
+                { id: `allowance_name_${i}`, label: `手当名${i}`, sf: `AllowanceName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, paired: true, showIf: (data) => data.has_allowance === '有' },
+                { id: `allowance_amount_${i}`, label: `手当額${i}`, sf: `AllowanceAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, paired: true, showIf: (data) => data.has_allowance === '有' },
+                { id: `allowance_calc_${i}`, label: `手当の計算方法${i}`, sf: `AllowanceCalc${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_allowance === '有' }
             );
         }
         return fields;
-    }   
+    }
+   
 
         function generateOtherCostFields(count) {
             const fields = [];
@@ -683,6 +684,7 @@
             { id: 'postal_code', label: '所在地(郵便番号)', sf: 'PostalCode__c', type: 'text', req: true, val: 'num', bu: ['intern', 'skilled'], tab: 1 },
             { id: 'address', label: '所在地(拠点)', sf: 'Address__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 1 },
             { id: 'address_en', label: '住所(英)', sf: 'AddressEN__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1 ,help:<span><a href="https://kimini.jp/" target="_blank" rel="noopener noreferrer">君に届け(住所変換サイト)</a></span>},
+            { id: 'desired_start_date', label: '配属希望日', sf: 'DesiredStartMonth__c', type: 'date', req: false, bu: ['intern'], tab: 1 },
             { id: 'job_type', label: '職種(技能実習)', sf: 'JobType__c', type: 'searchable', req: true, bu: ['intern'], tab: 1,opts: [
                 '耕種農業', '畜産農業', 'さく井', '建築板金', '冷凍空気調和機器施工', 
                 '建築大工', '型枠施工', '鉄筋施工', 'とび', '石材施工', 'タイル張り', 
@@ -909,6 +911,7 @@
             { id: 'has_bonus', label: '賞与有無', sf: 'HasBonus__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 ,tripled: true },
             { id: 'has_raise', label: '昇給有無', sf: 'HasRaise__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 ,tripled: true},
             { id: 'has_retirement', label: '退職金有無', sf: 'HasRetirement__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 ,tripled: true},
+            { id: 'has_allowance', label: '手当の有無', sf: 'HasAllowance__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4, tripled: false },
             ...generateAllowanceFields(4),
 
             { type: 'section', label: '【控除】', bu: ['intern', 'skilled'], tab: 4 },
@@ -935,20 +938,33 @@
 
             { type: 'section', label: '【支払い方法】', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'wage_payment_method', label: '賃金支払方法', sf: 'WagePaymentMethod__c', type: 'select', req: true, opts: ['口座振込', '通貨払'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'wage_cutoff_day', label: '賃金締切日', sf: 'WageCutoffDay__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'wage_payment_day', label: '賃金支払日', sf: 'WagePaymentDay__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'wage_cutoff_day_2', label: '賃金締切日2', sf: 'WageCutoffDay2__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'wage_payment_day_2', label: '賃金支払日2', sf: 'WagePaymentDay2__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
+            // --- 締切日・支払日 1回目 ---
+            { type: 'section', label: '【賃金締切日・支払日 1回目】', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'wage_cutoff_type_1', label: '賃金締切日', sf: 'WageCutoffDay__c', type: 'select', req: true, opts: ['当月指定日', '末日'], bu: ['intern', 'skilled'], tab: 4, paired: true },
+            { id: 'wage_cutoff_day_1', label: '締切日（日）', sf: '_wage_cutoff_day_1', type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: 4, paired: true, showIf: (data) => data.wage_cutoff_type_1 === '当月指定日' },
+            { id: 'wage_payment_month_1', label: '支払月', sf: '_wage_payment_month_1', type: 'select', req: false, opts: ['当月', '翌月', '翌々月'], bu: ['intern', 'skilled'], tab: 4, paired: true },
+            { id: 'wage_payment_day_type_1', label: '支払日タイプ', sf: '_wage_payment_day_type_1', type: 'select', req: false, opts: ['指定日', '末日'], bu: ['intern', 'skilled'], tab: 4, paired: true },
+            { id: 'wage_payment_day_1', label: '支払日（日）', sf: 'WagePaymentDay__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.wage_payment_day_type_1 === '指定日' },
 
+            // --- 締切日・支払日 2回目 ---
+            { type: 'section', label: '【賃金締切日・支払日 2回目】', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'wage_cutoff_type_2', label: '賃金締切日', sf: 'WageCutoffDay2__c', type: 'select', req: false, opts: ['当月指定日', '末日'], bu: ['intern', 'skilled'], tab: 4, paired: true },
+            { id: 'wage_cutoff_day_2', label: '締切日（日）', sf: '_wage_cutoff_day_2', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4, paired: true, showIf: (data) => data.wage_cutoff_type_2 === '当月指定日' },
+            { id: 'wage_payment_month_2', label: '支払月', sf: '_wage_payment_month_2', type: 'select', req: false, opts: ['当月', '翌月', '翌々月'], bu: ['intern', 'skilled'], tab: 4, paired: true },
+            { id: 'wage_payment_day_type_2', label: '支払日タイプ', sf: '_wage_payment_day_type_2', type: 'select', req: false, opts: ['指定日', '末日'], bu: ['intern', 'skilled'], tab: 4, paired: true },
+            { id: 'wage_payment_day_2', label: '支払日（日）', sf: 'WagePaymentDay2__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.wage_payment_day_type_2 === '指定日' },
 
             { type: 'section', label: '【その他】', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'resignation_notice_days', label: '退職届出の猶予日数（日前）', sf: 'ResignationNoticeDays__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'health_checkup_hire', label: '雇入れ時の健康診断 受診日', sf: 'HealthCheckupHire__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'health_checkup_first', label: '初回健康診断 受診日', sf: 'HealthCheckupFirst__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'health_checkup_schedule', label: 'その後の健康診断実施時期', sf: 'HealthCheckupSchedule__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
-
-
-
+            { id: 'health_checkup_hire', label: '雇入れ時の健康診断 受診日', sf: 'HealthCheckupHire__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4 ,readOnly: true},
+            { id: 'health_checkup_first', label: '初回健康診断 受診日', sf: 'HealthCheckupFirst__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4 ,readOnly: true},
+            { id: 'health_checkup_schedule', label: 'その後の健康診断実施時期', sf: 'HealthCheckupSchedule__c', type: 'select', req: true, opts: ['1年', '半年'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'health_checkup_schedule_confirmed', label: '夜勤4回超・1年健診を確認済み', sf: '_health_checkup_confirmed', type: 'checkbox_confirm', req: false, bu: ['intern', 'skilled'], tab: 4,
+                showIf: (data) => {
+                    const n = parseInt(data.nightshift_count);
+                    return data.has_shift === '有' && data.health_checkup_schedule === '1年' && !isNaN(n) && n > 4;
+                }
+            },
             // Tab 5: 募集要件
             { id: 'placement_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '企業様の希望する配属希望日を入力してください' },
             { id: 'company_culture', label: '会社の特徴／社風', sf: 'CompanyCulture__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '会社の特徴および社風を入力してください\n記載された情報を元に人材が応募するので、よりよいマッチングのためきちんとしたヒアリングを推奨します。' },
@@ -1056,7 +1072,8 @@
                     has_bonus: '無',
                     has_raise: '無',
                     has_retirement: '無',
-                    annual_leave: '10'
+                    annual_leave: '10',
+                    resignation_notice_days:'30'
                 };
 
                 setDataList(prev => [...prev, newRecord]);
@@ -1185,6 +1202,27 @@
                                 }
                             }
                         }
+                        // --- 健康診断日の自動計算 ---
+                        // 配属希望日 → +1ヶ月 → 雇入れ時健康診断
+                        if (fieldId === 'desired_start_date' && newData.desired_start_date) {
+                            const base = new Date(newData.desired_start_date);
+                            // +1ヶ月（月末対応：例 1/31→2/28）
+                            const hire = new Date(base);
+                            hire.setMonth(hire.getMonth() + 1);
+                            newData.health_checkup_hire = hire.toISOString().split('T')[0];
+
+                            // 雇入れ時 +1年 → 初回健康診断
+                            const first = new Date(hire);
+                            first.setFullYear(first.getFullYear() + 1);
+                            newData.health_checkup_first = first.toISOString().split('T')[0];
+                        }
+                        // 雇入れ時健康診断が手動変更された場合も初回を再計算
+                        if (fieldId === 'health_checkup_hire' && newData.health_checkup_hire) {
+                            const hire = new Date(newData.health_checkup_hire);
+                            const first = new Date(hire);
+                            first.setFullYear(first.getFullYear() + 1);
+                            newData.health_checkup_first = first.toISOString().split('T')[0];
+                        }
 
                         // --- 給与自動計算 ---
                         const annualMin = (parseInt(newData.annual_work_hours) || 0) * 60 + (parseInt(newData.annual_work_minutes) || 0);
@@ -1289,6 +1327,20 @@
                     if (holidays && selectedDays >= 2 && ah <= 120)
                         errors.push({ field: 'annual_holidays', msg: `祝日休み・週2日休みの設定で年間休日が120日以下です。${LAW_MSG}` });
                 }
+                // --- 健康診断スケジュールアラート ---
+                // 交代制あり かつ 1年選択 かつ 夜勤月4回超 かつ 確認チェック未済
+                const nightCount = parseInt(data.nightshift_count);
+                if (
+                    data.has_shift === '有' &&
+                    data.health_checkup_schedule === '1年' &&
+                    !isNaN(nightCount) && nightCount > 4 &&
+                    !data.health_checkup_schedule_confirmed
+                ) {
+                    errors.push({
+                        field: 'health_checkup_schedule',
+                        msg: `夜勤が月${nightCount}回あります。交代制勤務で夜勤が月4回を超える場合、健康診断は「半年」が推奨されます。問題なければ確認済みにチェックしてください。`
+                    });
+                }
                 // --- 最低賃金チェック ---
                 const pref = PREFECTURES.find(p => (data.address || '').includes(p));
                 if (pref) {
@@ -1314,24 +1366,31 @@
                     // 1. type: 'section'（見出し）を除外して、実際の入力項目だけを抽出
                     const fields = FIELDS.filter(f => f.bu?.includes(appMode) && f.type !== 'section');
                     
+                    const buildWageText = (cutoffType, cutoffDay, paymentMonth, paymentDayType, paymentDay) => {
+                    const cutoff = cutoffType === '末日' ? '末日' : (cutoffDay ? `当月${cutoffDay}日` : '');
+                    const payment = paymentMonth && (paymentDayType === '末日' ? `${paymentMonth}末日` : (paymentDay ? `${paymentMonth}${paymentDay}日` : ''));
+                    return { cutoff, payment };
+                };
                     const header = ['ID', ...fields.map(f => f.sf)].join(',');
                     
                     const rows = dataList.filter(d => d.bu === appMode).map(d => {
                         const rowData = [escapeCSV(d.id)]; // ID列
-                        
-                        // 各フィールドの値を処理
+                        // 締切日・支払日の結合値をSFフィールドに上書き
+                        const w1 = buildWageText(d.wage_cutoff_type_1, d.wage_cutoff_day_1, d.wage_payment_month_1, d.wage_payment_day_type_1, d.wage_payment_day_1);
+                        const w2 = buildWageText(d.wage_cutoff_type_2, d.wage_cutoff_day_2, d.wage_payment_month_2, d.wage_payment_day_type_2, d.wage_payment_day_2);
+                        const wageOverride = {
+                            'WageCutoffDay__c': w1.cutoff,
+                            'WagePaymentDay__c': w1.payment,
+                            'WageCutoffDay2__c': w2.cutoff,
+                            'WagePaymentDay2__c': w2.payment,
+                        };
                         const fieldValues = fields.map(f => {
+                            if (wageOverride[f.sf] !== undefined) return escapeCSV(wageOverride[f.sf]);
                             const val = d[f.id];
-                            
-                            // データが配列（multiselect）の場合は「・」で繋いだ文字列に変換
-                            if (Array.isArray(val)) {
-                                return escapeCSV(val.join('・'));
-                            }
-                            
-                            // それ以外は通常通りエスケープして返す
+                            if (Array.isArray(val)) return escapeCSV(val.join('・'));
                             return escapeCSV(val);
                         });
-                        
+
                         return [...rowData, ...fieldValues].join(',');
                     });
 
@@ -1643,6 +1702,25 @@
                                                             );
                                                         })}
                                                     </div>
+                                                 ) : f.type === 'checkbox_confirm' ? (
+                                                    <label style={{
+                                                        display: 'flex', alignItems: 'center', gap: 10,
+                                                        padding: '12px 16px', borderRadius: 12,
+                                                        background: currentData[f.id] ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.07)',
+                                                        border: `1.5px solid ${currentData[f.id] ? '#10b981' : '#fca5a5'}`,
+                                                        cursor: 'pointer', fontWeight: 700, fontSize: 13,
+                                                        color: currentData[f.id] ? '#059669' : '#dc2626',
+                                                        transition: 'all 0.2s'
+                                                    }}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={!!currentData[f.id]}
+                                                            onChange={e => updateField(f.id, e.target.checked)}
+                                                            style={{ width: 18, height: 18, accentColor: '#10b981', cursor: 'pointer' }}
+                                                        />
+                                                        {currentData[f.id] ? '✅ 確認済み（アラート解除）' : '⚠️ 確認してチェックを入れてください'}
+                                                    </label>
+
                                                 ) : f.type === 'select' ? (
                                                     <select
                                                         className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`}
