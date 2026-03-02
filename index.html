@@ -591,13 +591,14 @@
             const fields = [];
             for (let i = 1; i <= count; i++) {
                 fields.push(
-                    { id: `other_cost_name_${i}`, label: `その他の負担費用名${i}`, sf: `OtherCostName${i}__c`, type: 'text', req: false, bu: ['intern'] },
-                    { id: `other_cost_type_${i}`, label: `その他負担費用${i} 種別`, sf: `OtherCostType${i}__c`, type: 'select', req: false, opts: ['実費', '定額'], bu: ['intern'] },
-                    { id: `other_cost_amount_${i}`, label: `その他の負担費用額${i}`, sf: `OtherCostAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'] }
+                    { id: `other_cost_name_${i}`, label: `その他の負担費用名${i}`, sf: `OtherCostName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
+                    { id: `other_cost_type_${i}`, label: `その他負担費用${i} 種別`, sf: `OtherCostType${i}__c`, type: 'select', req: false, opts: ['実費', '定額'], bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
+                    { id: `other_cost_amount_${i}`, label: `その他の負担費用額${i}`, sf: `OtherCostAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === '有' }
                 );
             }
             return fields;
         }
+
 
         const JOB_WORK_MAP = {
             '耕種農業': ['施設園芸', '畑作・野菜', '果樹'],
@@ -667,6 +668,7 @@
         // All field definitions
         const FIELDS = [
             // Tab 1: 基本情報
+            { id: 'business_type', label: '事業区分', sf: '_business_type', type: 'select', req: false, opts: ['法人', '個人事業主'], bu: ['intern', 'skilled'], tab: 1 },
             { id: 'company_name', label: '企業名', sf: 'Name', type: 'text', req: true,val:'noFullLatin', bu: ['intern', 'skilled'], tab: 1 },
             { id: 'company_name_en', label: '企業名(英)', sf: 'EnglishName__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1 ,help:'コピーして利用「Co., Ltd.」'},
             { id: 'sales_name', label: '営業担当者名', sf: 'SalesName__c', type: 'searchable', req: true, bu: ['intern', 'skilled'], tab: 1 ,opts: [
@@ -701,8 +703,8 @@
 
             // Tab 2: 生活環境・宿泊施設
             { id: 'housing_status', label: '宿泊施設', sf: 'HousingStatus__c', type: 'select', req: true, opts: ['未定', '確定'], bu: ['intern', 'skilled'], tab: 2 },
-            { id: 'housing_id', label: '宿泊施設ID', sf: 'HousingID__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 2,
-            showIf: (data) => data.housing_status === '確定' },
+            { id: 'housing_id', label: '宿泊施設ID', sf: 'HousingID__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 2,showIf: (data) => data.housing_status === '確定' },
+            { id: 'housing_property_type', label: '居住物件種別', sf: 'HousingPropertyType__c', type: 'select', req: true, opts: ['会社所有', '賃貸', '寮'], bu: ['intern', 'skilled'], tab: 2,showIf: (data) => data.housing_status === '確定' },
             { id: 'housing_postal', label: '宿泊施設郵便番号', sf: 'HousingPostalCode__c', type: 'text', req: true, val: 'zip', bu: ['intern', 'skilled'], tab: 2,
             showIf: (data) => data.housing_status === '確定' },
             { id: 'housing_property_name', label: '宿泊施設物件名', sf: 'HousingPropertyName__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 2,
@@ -914,27 +916,30 @@
             { id: 'has_allowance', label: '手当の有無', sf: 'HasAllowance__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4, tripled: false },
             ...generateAllowanceFields(4),
 
-            { type: 'section', label: '【控除】', bu: ['intern', 'skilled'], tab: 4 },
+            { type: 'section', label: '【控除】', bu: ['intern', 'skilled'], tab: 4 , help:<span><a href="https://e-kyu.com/" target="_blank" rel="noopener noreferrer">イージー給与計算</a></span>},
             { id: 'has_wage_deduction', label: '賃金支払い時の控除有無', sf: 'HasWageDeduction__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'pension_type', label: '加入年金種別', sf: 'PensionType__c', type: 'select', req: false, opts: ['厚生年金', '国民年金'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'insurance_type', label: '加入保険種別', sf: 'InsuranceType__c', type: 'select', req: false, opts: ['健康保険', '国民健康保険'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'other_insurance', label: 'その他の保険', sf: 'OtherInsurance__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'labor_insurance_total', label: '労働保険控除総額', sf: 'LaborInsuranceTotal__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4 ,help:<span><a href="https://e-kyu.com/" target="_blank" rel="noopener noreferrer">イージー給与計算</a></span>},
-            { id: 'income_tax', label: '所得税', sf: 'IncomeTax__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'social_insurance_total', label: '社会保険控除総額', sf: 'SocialInsuranceTotal__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'provides_meals', label: '食事食材等の提供有無', sf: 'ProvidesMeals__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'housing_fee_monthly', label: '居住費徴収額（月）', sf: 'HousingFeeMonthly__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'housing_property_type', label: '居住物件種別', sf: 'HousingPropertyType__c', type: 'select', req: false, opts: ['会社所有', '賃貸', '寮'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'pension_type', label: '加入年金種別', sf: 'PensionType__c', type: 'select', req: true,
+            opts: (data) => data.business_type === '法人' ? ['厚生年金'] : ['厚生年金', '国民年金'],bu: ['intern', 'skilled'], tab: 4, help:'法人の場合は「厚生年金」、個人事業主の場合は「厚生年金」もしくは「国民年金」から選択してください',showIf: (data) => data.has_wage_deduction === '有' },
+            { id: 'insurance_type', label: '加入保険種別', sf: 'InsuranceType__c', type: 'select', req: false, opts: ['健康保険', '国民健康保険','その他保険'], bu: ['intern', 'skilled'], tab: 4 ,showIf: (data) => data.has_wage_deduction === '有'},
+            { id: 'other_insurance', label: 'その他の保険の詳細', sf: 'OtherInsurance__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, help:'土建国保などの場合は、加入する保険の正式名称を記載',
+            showIf: (data) => data.has_wage_deduction === '有' && data.insurance_type === 'その他保険' },
+            { id: 'labor_insurance_total', label: '労働保険控除総額(雇用保険)', sf: 'LaborInsuranceTotal__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4 ,help:'イージー給与計算の「雇用保険」が該当する項目です',showIf: (data) => data.has_wage_deduction === '有'},
+            { id: 'income_tax', label: '所得税', sf: 'IncomeTax__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4 ,help:'イージー給与計算の「源泉所得税:扶養」が該当する項目です',showIf: (data) => data.has_wage_deduction === '有'},
+            { id: 'pension_standard_remuneration', label: '厚生年金：標準報酬', sf: '_pension_standard_remuneration', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4 ,help:'イージー給与計算の「厚生年金:標準報酬」が該当する項目です',showIf: (data) => data.has_wage_deduction === '有' },
+            { id: 'health_standard_remuneration', label: '健康保険：標準報酬', sf: '_health_standard_remuneration', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4 ,help:'イージー給与計算の「健康保険:標準報酬」が該当する項目です。国民健康保険および土建国保の場合は金額を参照できません。控除する金額とそもそも給与から控除するかを企業様に確認してください',showIf: (data) => data.has_wage_deduction === '有'},
+            { id: 'social_insurance_total', label: '社会保険控除総額', sf: 'SocialInsuranceTotal__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, readOnly: true, help: '厚生年金標準報酬＋健康保険標準報酬から自動計算されます' ,showIf: (data) => data.has_wage_deduction === '有'},
+            { id: 'provides_meals', label: '食事食材等の提供有無', sf: 'ProvidesMeals__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'housing_fee_monthly', label: '居住費徴収額（月）', sf: 'HousingFeeMonthly__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'housing_fee_explanation', label: '居住費が実費に相当する額その他の適正な額であることの説明', sf: 'HousingFeeExplanation__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'charges_utilities', label: '水道光熱費の徴収の有無', sf: 'ChargesUtilities__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'utilities_type', label: '水道光熱費種別', sf: 'UtilitiesType__c', type: 'select', req: false, opts: ['実費', '定額'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'utilities_details', label: '水道光熱費の詳細', sf: 'UtilitiesDetails__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'has_other_fees', label: 'その他技能実習生が定期に負担する費用の有無', sf: 'HasOtherFees__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'telecom_type', label: '通信費種別', sf: 'TelecomType__c', type: 'select', req: false, opts: ['実費', '定額', '無'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'charges_utilities', label: '水道光熱費の徴収の有無', sf: 'ChargesUtilities__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'utilities_type', label: '水道光熱費種別', sf: 'UtilitiesType__c', type: 'select', req: true, opts: ['実費', '定額'], bu: ['intern', 'skilled'], tab: 4 ,showIf: (data) => data.charges_utilities === '有'},
+            { id: 'utilities_details', label: '水道光熱費の詳細', sf: 'UtilitiesDetails__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 ,showIf: (data) => data.charges_utilities === '有'},
+            { id: 'telecom_type', label: '通信費種別', sf: 'TelecomType__c', type: 'select', req: true, opts: ['実費', '定額', '無'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'telecom_fee_monthly', label: '実費以外の時の通信費（月）', sf: 'TelecomFeeMonthly__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'has_other_fees', label: 'その他技能実習生が定期に負担する費用の有無', sf: 'HasOtherFees__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
             ...generateOtherCostFields(4),
-            { id: 'other_cost_benefits', label: 'その他負担費用に対する便益', sf: 'OtherCostBenefits__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'other_cost_explanation', label: 'その他の負担費用が実費に相当する額であることの説明', sf: 'OtherCostExplanation__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'other_cost_benefits', label: 'その他負担費用に対する便益', sf: 'OtherCostBenefits__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 ,showIf: (data) => data.has_other_fees === '有'},
+            { id: 'other_cost_explanation', label: 'その他の負担費用が実費に相当する額であることの説明', sf: 'OtherCostExplanation__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 ,showIf: (data) => data.has_other_fees === '有'},
 
             { type: 'section', label: '【支払い方法】', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'wage_payment_method', label: '賃金支払方法', sf: 'WagePaymentMethod__c', type: 'select', req: true, opts: ['口座振込', '通貨払'], bu: ['intern', 'skilled'], tab: 4 },
@@ -1073,7 +1078,9 @@
                     has_raise: '無',
                     has_retirement: '無',
                     annual_leave: '10',
-                    resignation_notice_days:'30'
+                    resignation_notice_days:'30',
+                    has_wage_deduction: '有',
+                    charges_utilities: '有'
                 };
 
                 setDataList(prev => [...prev, newRecord]);
@@ -1081,7 +1088,7 @@
                 setCurrentTab(1);
                 notify('新規レコードを作成しました');
             };
-
+            
             const updateField = (fieldId, value) => {
                 setDataList(prev => prev.map(d => {
                     if (d.id === currentId) {
@@ -1095,6 +1102,11 @@
                         if (!hasCoLtd) {
                             newData.rep_position = '代表';
                         }
+                        // 事業区分が「法人」に変更された場合、加入年金を厚生年金に固定
+                        if (fieldId === 'business_type' && newData.business_type === '法人') {
+                            newData.pension_type = '厚生年金';
+                        }
+
                         // --- 追加：1人あたり居室面積の自動計算 ---
                         // 物件の総面積(property_area) または 居住者人数(housing_residents) が更新された場合
                         if (fieldId === 'property_area' || fieldId === 'housing_residents') {
@@ -1224,6 +1236,17 @@
                             newData.health_checkup_first = first.toISOString().split('T')[0];
                         }
 
+                        // --- 社会保険控除総額の自動計算（厚生年金標準報酬 + 健康保険標準報酬）---
+                        const pensionTriggers = ['pension_standard_remuneration', 'health_standard_remuneration'];
+                        if (pensionTriggers.includes(fieldId)) {
+                            const pension = parseFloat(newData.pension_standard_remuneration) || 0;
+                            const health = parseFloat(newData.health_standard_remuneration) || 0;
+                            if (pension > 0 || health > 0) {
+                                newData.social_insurance_total = String(Math.round(pension + health));
+                            } else {
+                                newData.social_insurance_total = '';
+                            }
+                        }
                         // --- 給与自動計算 ---
                         const annualMin = (parseInt(newData.annual_work_hours) || 0) * 60 + (parseInt(newData.annual_work_minutes) || 0);
                         const monthlyMin = (parseInt(newData.monthly_work_hours) || 0) * 60 + (parseInt(newData.monthly_work_minutes) || 0);
@@ -1550,7 +1573,8 @@
                                                 marginBottom: '20px', marginTop: '20px', fontSize: '12px',
                                                 fontWeight: '900', color: '#92400e', borderLeft: '4px solid #f59e0b'
                                             }}>
-                                                {f.label}
+                                                <span>{f.label}</span>
+                                                {f.help && <span style={{ fontWeight: 400, fontSize: 11, color: '#b45309' }}>{f.help}</span>}
                                             </div>
                                             );
                                             i++;
@@ -1581,7 +1605,7 @@
                                                                 onChange={e => updateField(field.id, e.target.value)}
                                                             >
                                                                 <option value="">未選択</option>
-                                                                {field.opts?.map(o => <option key={o} value={o}>{o}</option>)}
+                                                                {(typeof field.opts === 'function' ? field.opts(currentData) : (field.opts || [])).map(o => <option key={o} value={o}>{o}</option>)}
                                                             </select>
                                                             {field.help && <div className="field-help">💡 {field.help}</div>}
                                                         </div>
@@ -1614,7 +1638,7 @@
                                                                             onChange={e => updateField(field.id, e.target.value)}
                                                                         >
                                                                             <option value="">未選択</option>
-                                                                            {field.opts?.map(o => <option key={o} value={o}>{o}</option>)}
+                                                                            {(typeof field.opts === 'function' ? field.opts(currentData) : (field.opts || [])).map(o => <option key={o} value={o}>{o}</option>)}
                                                                         </select>
                                                                     ) : (
                                                                         <input
@@ -1728,7 +1752,7 @@
                                                         onChange={e => updateField(f.id, e.target.value)}
                                                     >
                                                         <option value="">未選択</option>
-                                                        {f.opts?.map(o => <option key={o} value={o}>{o}</option>)}
+                                                        {(typeof f.opts === 'function' ? f.opts(currentData) : (f.opts || [])).map(o => <option key={o} value={o}>{o}</option>)}
                                                     </select>
                                                 ) : f.type === 'searchable' ? (
                                                     <div className="relative">
