@@ -312,7 +312,7 @@
 
             { id: 'housing_status', label: '宿泊施設', sf: 'dk_Accommodations__c', type: 'select', req: true, opts: ['未定', '確定'], bu: ['intern', 'skilled'], tab: 2 },
             { id: 'housing_id', label: '宿泊施設ID', sf: 'dk_AccommodationId__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
-            { id: 'housing_property_type', label: '居住物件種別', sf: 'ResidentialPropertyType__c', type: 'select', req: true, opts: ['会社所有', '賃貸', '寮'], bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
+            { id: 'housing_property_type', label: '居住物件種別', sf: 'ResidentialPropertyType__c', type: 'select', req: true, opts: ['会社所有', '賃貸', '寮','借上物件'], bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
             { id: 'housing_postal', label: '宿泊施設郵便番号', sf: 'dk_AccommodationPostalCode__c', type: 'text', req: true, val: 'zip', bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
             { id: 'housing_property_name', label: '宿泊施設物件名', sf: 'AccommodationName__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
             { id: 'housing_address', label: '宿泊施設住所', sf: 'AccommodationsAddress__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
@@ -732,96 +732,143 @@
 
             // ─── 【変更②】CSVインポート ──────────────────────────────────────────
             const importCSV = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                e.target.value = ''; // 同一ファイルの再選択を可能にする
+            const file = e.target.files[0];
+            if (!file) return;
+            e.target.value = '';
 
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    try {
-                        // BOM除去
-                        const text = evt.target.result.replace(/^\uFEFF/, '');
-                        const lines = text.split('\n').filter(l => l.trim() !== '');
-                        if (lines.length < 2) { notify('データが含まれていません', 'error'); return; }
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                try {
+                    // BOM除去
+                    const text = evt.target.result.replace(/^\uFEFF/, '');
+                    const lines = text.split('\n').filter(l => l.trim() !== '');
+                    if (lines.length < 2) { notify('データが含まれていません', 'error'); return; }
 
-                        // ヘッダー解析
-                        const headers = parseCSVLine(lines[0]);
-                        // 全FIELDSのsf → id の逆引きマップを生成（section除外）
-                        const sfToId = {};
-                        FIELDS.filter(f => f.type !== 'section').forEach(f => { sfToId[f.sf] = f.id; });
+                    // ─── フォーマット判定 ──────────────────────────────────────
+                    // ツール出力CSV：1行目がAPI名（'ID'列を含む）
+                    // Salesforce出力CSV：1行目が日本語表示名、2行目がAPI名
+                    const firstRowCells = parseCSVLine(lines[0]);
+                    const isSalesforceFormat = !firstRowCells.includes('ID') && !firstRowCells.includes('bu');
 
-                        let importedCount = 0;
-                        let skippedCount = 0;
-                        const newRecords = [];
+                    let apiHeaders;   // API名の行
+                    let dataStartRow; // データ開始行インデックス
 
-                        for (let i = 1; i < lines.length; i++) {
-                            const values = parseCSVLine(lines[i]);
-                            if (values.length < 2) continue;
+                    if (isSalesforceFormat) {
+                        // Salesforce形式：2行目がAPI名、3行目〜がデータ
+                        if (lines.length < 3) { notify('データが含まれていません', 'error'); return; }
+                        apiHeaders = parseCSVLine(lines[1]);
+                        dataStartRow = 2;
+                    } else {
+                        // ツール出力形式：1行目がAPI名、2行目〜がデータ
+                        apiHeaders = firstRowCells;
+                        dataStartRow = 1;
+                    }
 
-                            // 列インデックスを動的に取得
-                            const idxId   = headers.indexOf('ID');
-                            const idxBu   = headers.indexOf('bu');
-                            const idxMemo = headers.indexOf('_memo');
+                    // sf → id の逆引きマップを生成
+                    const sfToId = {};
+                    FIELDS.filter(f => f.type !== 'section').forEach(f => { sfToId[f.sf] = f.id; });
 
-                            const rowId = idxId >= 0 ? values[idxId] : null;
-                            const rowBu = idxBu >= 0 ? values[idxBu] : null;
+                    // 列インデックスを取得（ツール出力形式のみ存在）
+                    const idxId   = apiHeaders.indexOf('ID');
+                    const idxBu   = apiHeaders.indexOf('bu');
+                    const idxMemo = apiHeaders.indexOf('_memo');
 
-                            // 現在のappModeと異なるbuはスキップ
-                            if (rowBu !== appMode) { skippedCount++; continue; }
+                    let importedCount = 0;
+                    let skippedCount = 0;
+                    const newRecords = [];
 
-                            // 新規IDを発行（常に新規追加、重複なし）
-                            const newId = `SF-${Math.random().toString(36).slice(2, 11).toUpperCase()}`;
+                    for (let i = dataStartRow; i < lines.length; i++) {
+                        const values = parseCSVLine(lines[i]);
+                        if (values.length < 2) continue;
 
-                            // レコード組み立て
-                            const record = {
-                                id: newId,
-                                bu: rowBu,
-                                createdAt: new Date().toISOString(),
-                                _originalId: rowId, // 元のIDを参考として保持
-                            };
+                        const rowId = idxId >= 0 ? values[idxId] : null;
+                        const rowBu = idxBu >= 0 ? values[idxBu] : null;
 
+                        // ツール出力形式のみbuチェック（Salesforce形式は現在のappModeで取り込む）
+                        if (!isSalesforceFormat && rowBu !== appMode) {
+                            skippedCount++;
+                            continue;
+                        }
+
+                        // 新規IDを発行
+                        const newId = `SF-${Math.random().toString(36).slice(2, 11).toUpperCase()}`;
+
+                        const record = {
+                            id: newId,
+                            bu: isSalesforceFormat ? appMode : rowBu,
+                            createdAt: new Date().toISOString(),
+                            _originalId: rowId,
+                        };
+
+                        // 各カラムをフィールドIDにマッピング
                             // 各カラムをフィールドIDにマッピング
-                            headers.forEach((sfName, colIdx) => {
+                            apiHeaders.forEach((sfName, colIdx) => {
                                 if (sfName === 'ID' || sfName === 'bu' || sfName === '_memo') return;
                                 const fieldId = sfToId[sfName];
-                                if (!fieldId) return; // 未知のカラムは無視
-                                const rawVal = values[colIdx] || '';
-                                // multiselect の復元：「・」区切りを配列に戻す
+                                if (!fieldId) return;
+                                let rawVal = values[colIdx] || '';
                                 if (MULTISELECT_FIELD_IDS.includes(fieldId)) {
-                                    record[fieldId] = rawVal ? rawVal.split('・') : [];
+                                    const sep = isSalesforceFormat ? '、' : '・';
+                                    let vals = rawVal ? rawVal.split(sep) : [];
+                                    // Salesforce形式：「月」→「月曜日」のように「曜日」を補完
+                                    if (isSalesforceFormat && fieldId === 'regular_holiday_day') {
+                                        vals = vals.map(v => v.length === 1 ? v + '曜日' : v);
+                                    }
+                                    record[fieldId] = vals;
                                 } else {
+                                    if (isSalesforceFormat) {
+                                        // 時刻形式の変換：「H:MM:SS」→「HH:MM」
+                                        if (/^\d{1,2}:\d{2}:\d{2}$/.test(rawVal)) {
+                                            const [h, m] = rawVal.split(':');
+                                            rawVal = h.padStart(2, '0') + ':' + m;
+                                        }
+                                        // カンマ付き数値のカンマを除去
+                                        rawVal = rawVal.replace(/^[\d,]+$/, v => v.replace(/,/g, ''));
+                                        // SF値 → ツール値 の共通変換マップ
+                                        const sfValMap = {
+                                            'あり': '有', 'なし': '無',
+                                            '実費徴収': '実費',
+                                            'Male': '男性', 'Female': '女性',
+                                            '右のみ': '右', '左のみ': '左',
+                                            '既婚': '既婚可', '要': '必要',
+                                        };
+                                        if (sfValMap[rawVal] !== undefined) rawVal = sfValMap[rawVal];
+                                        // フィールド別の変換（「可」が3種類ある）
+                                        if (fieldId === 'tattoo'   && rawVal === '可') rawVal = '完全に洋服や作業着で隠せる場合は可';
+                                        if (fieldId === 'smoking'  && rawVal === '可') rawVal = '所定のルールや場所を守れる場合は可';
+                                        if (fieldId === 'drinking' && rawVal === '可') rawVal = 'ルール・法令厳守を守れる場合は可';
+                                    }
                                     record[fieldId] = rawVal;
                                 }
                             });
 
-                            // _memo の復元
-                            if (idxMemo >= 0) record._memo = values[idxMemo] || '';
+                        // _memo の復元（ツール出力形式のみ）
+                        if (idxMemo >= 0) record._memo = values[idxMemo] || '';
 
-                            newRecords.push(record);
-                            importedCount++;
-                        }
-
-                        if (importedCount === 0) {
-                            notify(`読み込めるレコードがありませんでした（${skippedCount}件はモード不一致でスキップ）`, 'warning');
-                            return;
-                        }
-
-                        setDataList(prev => [...prev, ...newRecords]);
-                        // 最初に読み込んだレコードを選択状態にする
-                        setCurrentId(newRecords[0].id);
-                        setCurrentTab(1);
-
-                        const msg = skippedCount > 0
-                            ? `${importedCount}件を読み込みました（${skippedCount}件はモード不一致でスキップ）`
-                            : `${importedCount}件を読み込みました`;
-                        notify(msg);
-                    } catch (err) {
-                        console.error(err);
-                        notify('CSVの読み込みに失敗しました', 'error');
+                        newRecords.push(record);
+                        importedCount++;
                     }
-                };
-                reader.readAsText(file, 'UTF-8');
+
+                    if (importedCount === 0) {
+                        const detail = skippedCount > 0 ? `（${skippedCount}件はモード不一致でスキップ）` : '';
+                        notify(`読み込めるレコードがありませんでした${detail}`, 'warning');
+                        return;
+                    }
+
+                    setDataList(prev => [...prev, ...newRecords]);
+                    setCurrentId(newRecords[0].id);
+                    setCurrentTab(1);
+
+                    const formatLabel = isSalesforceFormat ? '（Salesforce形式）' : '';
+                    const skipLabel = skippedCount > 0 ? `（${skippedCount}件はモード不一致でスキップ）` : '';
+                    notify(`${importedCount}件を読み込みました${formatLabel}${skipLabel}`);
+                } catch (err) {
+                    console.error(err);
+                    notify('CSVの読み込みに失敗しました', 'error');
+                }
             };
+            reader.readAsText(file, 'UTF-8');
+        };
 
             const validate = (data) => {
                 const errors = [];
