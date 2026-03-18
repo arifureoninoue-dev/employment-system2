@@ -295,7 +295,7 @@
             { id: 'postal_code', label: '所在地(郵便番号)', sf: 'Address__PostalCode__s__c', type: 'text', req: true, val: 'num', bu: ['intern', 'skilled'], tab: 1 },
             { id: 'address', label: '所在地(拠点)', sf: 'Address__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 1 },
             { id: 'address_en', label: '住所(英)', sf: 'AddressInEnglish__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1, help:<span><a href="https://kimini.jp/" target="_blank" rel="noopener noreferrer">君に届け(住所変換サイト)</a></span>},
-            { id: 'desired_start_date', label: '配属希望日', sf: 'DesiredStartMonth__c', type: 'date', req: false, bu: ['intern'], tab: 1 },
+            { id: 'desired_start_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: false, bu: ['intern'], tab: 1 },
             { id: 'job_type', label: '職種(技能実習)', sf: 'Occupation_TT__c', type: 'searchable', req: true, bu: ['intern'], tab: 1, opts: [
                 '耕種農業', '畜産農業', 'さく井', '建築板金', '冷凍空気調和機器施工',
                 '建築大工', '型枠施工', '鉄筋施工', 'とび', '石材施工', 'タイル張り',
@@ -344,10 +344,10 @@
             { id: 'daily_work_minutes', label: '1日の所定労働時間(分)', sf: 'dk_ScheduledWorkingMinutesPerDay__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
             { id: 'weekly_work_hours', label: '週所定労働時間(時間)', sf: '_weekly_work_hours', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
             { id: 'weekly_work_minutes', label: '週所定労働時間(分)', sf: '_weekly_work_minutes', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
+            { id: 'monthly_work_hours', label: '月所定労働時間(時間)', sf: '_monthly_work_hours', type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== '有'},
+            { id: 'monthly_work_minutes', label: '月所定労働時間(分)', sf: '_monthly_work_minutes', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== '有'},
             { id: 'annual_work_hours', label: '年所定労働時間(時間)', sf: 'dk_AnnualScheduledWorkingHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'annual_work_minutes', label: '年所定労働時間(分)', sf: 'dk_AnnualScheduledWorkingMinutes__c', type: 'number', req: true, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'monthly_work_hours', label: '月所定労働時間(時間)', sf: '_monthly_work_hours', type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'monthly_work_minutes', label: '月所定労働時間(分)', sf: '_monthly_work_minutes', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'annual_holidays', label: '年間合計休日数(日)', sf: 'TotalAnnualHoliday__c', type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: 3 },
 
             { type: 'section', label: '【土曜日の労働時間】', bu: ['intern', 'skilled'], tab: 3 },
@@ -397,9 +397,9 @@
             { id: 'daily_salary_1', label: '日給額(実習1号)', sf: 'dk_DailyWage1__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, showIf: (data) => data.payment_type === '日給' && data.residence_status === '実習1号' },
             { id: 'daily_salary_2', label: '日給額(実習2号)', sf: 'dk_DailyWage2__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, showIf: (data) => data.payment_type === '日給' && data.residence_status === '実習2号' },
             { id: 'daily_salary_3', label: '日給額(実習3号)', sf: 'dk_DailyWage3__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, showIf: (data) => data.payment_type === '日給' && data.residence_status === '実習3号' },
-            { id: 'hourly_salary_1', label: '時給額(実習1号)', sf: '_hourly_salary_1', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_1); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習1号' },
-            { id: 'hourly_salary_2', label: '時給額(実習2号)', sf: '_hourly_salary_2', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_2); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習2号' },
-            { id: 'hourly_salary_3', label: '時給額(実習3号)', sf: '_hourly_salary_3', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_3); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習3号' },
+            { id: 'hourly_salary_1', label: '時給額(実習1号)', sf: 'dk_HourlyWage1__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_1); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習1号' },
+            { id: 'hourly_salary_2', label: '時給額(実習2号)', sf: 'dk_HourlyWage2__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_2); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習2号' },
+            { id: 'hourly_salary_3', label: '時給額(実習3号)', sf: 'dk_HourlyWage3__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_3); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習3号' },
             { id: 'has_bonus', label: '賞与有無', sf: 'Bonus__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
             { id: 'has_raise', label: '昇給有無', sf: 'WageRaise__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
             { id: 'has_retirement', label: '退職金有無', sf: 'RetirementAllowance__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
@@ -414,7 +414,7 @@
             { id: 'labor_insurance_total', label: '労働保険控除総額(雇用保険)', sf: 'dk_TotalEmploymentInsuranceDeduction__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「雇用保険」が該当する項目です', showIf: (data) => data.has_wage_deduction === '有' },
             { id: 'income_tax', label: '所得税', sf: 'dk_IncomeTax__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「源泉所得税:扶養」が該当する項目です', showIf: (data) => data.has_wage_deduction === '有' },
             { id: 'pension_standard_remuneration', label: '厚生年金：標準報酬', sf: '_pension_standard_remuneration', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「厚生年金:標準報酬」が該当する項目です', showIf: (data) => data.has_wage_deduction === '有' },
-            { id: 'health_standard_remuneration', label: '健康保険：標準報酬', sf: '_health_standard_remuneration', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「健康保険:標準報酬」が該当する項目です。国民健康保険および土建国保の場合は金額を参照できません。控除する金額とそもそも給与から控除するかを企業様に確認してください', showIf: (data) => data.has_wage_deduction === '有' },
+            { id: 'health_standard_remuneration', label: '健康保険：標準報酬', sf: 'health_standard_remuneration', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「健康保険:標準報酬」が該当する項目です。国民健康保険および土建国保の場合は金額を参照できません。控除する金額とそもそも給与から控除するかを企業様に確認してください', showIf: (data) => data.has_wage_deduction === '有' },
             { id: 'social_insurance_total', label: '社会保険控除総額', sf: 'dk_TotalSocialInsuranceDeduction__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, readOnly: true, help: '厚生年金標準報酬＋健康保険標準報酬から自動計算されます', showIf: (data) => data.has_wage_deduction === '有' },
             { id: 'provides_meals', label: '食事食材等の提供有無', sf: 'ProvisionOfFood__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'housing_fee_monthly', label: '居住費徴収額（月）', sf: 'dk_CollectionFeeOfHousingCosts__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
@@ -428,6 +428,8 @@
             ...generateOtherCostFields(4),
             { id: 'other_cost_benefits', label: 'その他負担費用に対する便益', sf: 'dk_BenefitOfOtherBurdenCosts__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
             { id: 'other_cost_explanation', label: 'その他の負担費用が実費に相当する額であることの説明', sf: 'OtherBurdenCostExplanation__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
+            
+            { id: 'net_income', label: '手取り額(約)', sf: '_net_income', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, help: '月給額 - (社会保険控除総額 + 所得税 + 雇用保険 + 居住費 + その他負担費用合計) で自動計算されます。手動での修正も可能です。',  showIf: (data) => data.payment_type === '月給' || data.payment_type === '時給' },
 
             { type: 'section', label: '【支払い方法】', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'wage_payment_method', label: '賃金支払方法', sf: 'WagePaymentMethod__c', type: 'select', req: true, opts: ['口座振込', '通貨払'], bu: ['intern', 'skilled'], tab: 4 },
@@ -554,6 +556,7 @@
             const [currentTab, setCurrentTab] = useState(1);
             const [notification, setNotification] = useState(null);
             const fileInputRef = useRef(null);
+            const mainScrollRef = useRef(null);
 
             const currentData = useMemo(() => dataList.find(d => d.id === currentId) || null, [dataList, currentId]);
             const notify = (msg, type = 'success') => setNotification({ msg, type });
@@ -580,6 +583,9 @@
                     if (d.id !== currentId) return d;
                     let newData = { ...d, [fieldId]: value };
                     if (fieldId === 'job_type') newData.work_name = '';
+                    // 配属希望日の連動（基本情報タブ ↔ 募集要件タブ）
+                    if (fieldId === 'desired_start_date') newData.placement_date = value;
+                    if (fieldId === 'placement_date') newData.desired_start_date = value;
                     const hasCoLtd = (newData.company_name_en || '').includes("Co., Ltd.");
                     if (!hasCoLtd) newData.rep_position = '代表';
                     if (fieldId === 'business_type' && newData.business_type === '法人') newData.pension_type = '厚生年金';
@@ -614,6 +620,10 @@
                         const weeklyTotal = Math.round(totalAnnualMin / 12);
                         newData.weekly_work_hours = String(Math.floor(weeklyTotal / 60));
                         newData.weekly_work_minutes = String(weeklyTotal % 60);
+                        // 月所定労働時間：年÷12（変形労働制「有」の場合は手動修正も可）
+                        const monthlyTotal = Math.round(totalAnnualMin / 12);
+                        newData.monthly_work_hours = String(Math.floor(monthlyTotal / 60));
+                        newData.monthly_work_minutes = String(monthlyTotal % 60);
                     }
 
                     const otherBreakFields = ['other_break_start_1','other_break_end_1','other_break_start_2','other_break_end_2','other_break_start_3','other_break_end_3'];
@@ -677,6 +687,34 @@
                             [1,2,3].forEach(n => { const h = parseFloat(newData[`hourly_salary_${n}`]); if (!isNaN(h) && h > 0) newData[`monthly_salary_${n}`] = (h * (monthlyMin / 60)).toFixed(0); });
                         }
                     }
+                     // --- 手取り額の自動計算 ---
+                    const netTriggers = [
+                        'monthly_salary_1','monthly_salary_2','monthly_salary_3',
+                        'social_insurance_total','income_tax','labor_insurance_total',
+                        'housing_fee_monthly','other_cost_amount_1','other_cost_amount_2',
+                        'other_cost_amount_3','other_cost_amount_4','has_other_fees',
+                        'residence_status'
+                    ];
+                    if (netTriggers.includes(fieldId)) {
+                        const salaryKey = newData.residence_status === '実習2号' ? 'monthly_salary_2'
+                                        : newData.residence_status === '実習3号' ? 'monthly_salary_3'
+                                        : 'monthly_salary_1';
+                        const monthlySalary = parseFloat(newData[salaryKey]) || 0;
+                        const socialInsurance = parseFloat(newData.social_insurance_total) || 0;
+                        const incomeTax       = parseFloat(newData.income_tax) || 0;
+                        const laborInsurance  = parseFloat(newData.labor_insurance_total) || 0;
+                        const housingFee      = parseFloat(newData.housing_fee_monthly) || 0;
+                        let otherCostTotal = 0;
+                        if (newData.has_other_fees === '有') {
+                            [1,2,3,4].forEach(n => {
+                                otherCostTotal += parseFloat(newData[`other_cost_amount_${n}`]) || 0;
+                            });
+                        }
+                        if (monthlySalary > 0) {
+                            const net = monthlySalary - socialInsurance - incomeTax - laborInsurance - housingFee - otherCostTotal;
+                            newData.net_income = String(Math.round(net));
+                        }
+                    }
                     return newData;
                 }));
             };
@@ -695,27 +733,151 @@
             // ─── 【変更①】CSVエクスポート：bu列・_memo列を追加 ──────────────────
             const exportCSV = () => {
                 try {
-                    const fields = FIELDS.filter(f => f.bu?.includes(appMode) && f.type !== 'section');
+                    // CSVのLogicファイルに合わせた固定列定義（col[2]〜col[189]）
+                    const CSV_COLUMNS = [
+                        '_business_type','Name','EnglishName__c','',
+                        'NameOfRepresentative__c','RepresentativeNameInEnglish__c','RepresentativePosition__c',
+                        'Address__PostalCode__s__c','Address__c','AddressInEnglish__c',
+                        'PlacementDate__c','Occupation_TT__c','WorkName_TT__c','dk_OfficeName__c',
+                        'dk_Accommodations__c','dk_AccommodationId__c','ResidentialPropertyType__c',
+                        'dk_AccommodationPostalCode__c','AccommodationName__c','AccommodationsAddress__c',
+                        'AccommodationsArea__c','AccommodationCapacity__c','',
+                        'OverTimeWork__c','WorkRules__c','dk_RegularDaysOff__c','dk_OtherRegularDaysOff__c',
+                        'dk_JapaneseNationalHolidays__c','dk_AdditionalDaysOff__c','dk_NumberOfAdditionalDaysOff__c',
+                        'dk_BasicOpeningTime__c','dk_BasicClosingTime__c',
+                        'dk_BasicBreakStartTime__c','dk_BasicBreakEndTime1__c',
+                        'dk_BasicBreakStartTime2__c','dk_BasicBreakEndTime2__c',
+                        'dk_BasicBreakStartTime3__c','dk_BasicBreakEndTime3__c',
+                        'dk_TotalBasicBreakTime__c','dk_ScheduledWorkingHoursPerDay__c','dk_ScheduledWorkingMinutesPerDay__c',
+                        '','','','',
+                        'dk_AnnualScheduledWorkingHours__c','dk_AnnualScheduledWorkingMinutes__c','TotalAnnualHoliday__c',
+                        'dk_SaturdayWork__c','dk_OtherStartingTime__c','dk_OtherClosingTime__c',
+                        'dk_OtherBreakStartTime1__c','dk_OtherBreakEndTime1__c',
+                        'dk_OtherBreakStartTime2__c','dk_OtherBreakEndTime2__c',
+                        'dk_OtherBreakStartTime3__c','dk_OtherBreakEndTime3__c','',
+                        'dk_ShiftSystem__c',
+                        'dk_ShiftOpeningTime1__c','dk_ShiftClosingTime1__c','dk_ShiftSystemApplicationDate1__c',
+                        'dk_ShiftBreakStartTime1__c','dk_ShiftBreakEndTime1__c',
+                        'dk_ShiftBreakStartTime1_2__c','dk_ShiftBreakEndTime1_2__c',
+                        'dk_ShiftBreakStartTime1_3__c','dk_ShiftBreakEndTime1_3__c',
+                        'dk_TotalShiftBreakTime1__c','dk_ScheduledWorkingHoursPerDay1__c','',
+                        'dk_ShiftOpeningTime2__c','dk_ShiftClosingTime2__c','dk_ShiftSystemApplicationDate2__c',
+                        'dk_ShiftBreakStartTime2__c','dk_ShiftBreakEndTime2__c',
+                        'dk_ShiftBreakStartTime2_2__c','dk_ShiftBreakEndTime2_2__c',
+                        'dk_ShiftBreakStartTime2_3__c','dk_ShiftBreakEndTime2_3__c',
+                        'dk_TotalShiftBreakTime2__c','dk_ScheduledWorkingHoursPerDay2__c','',
+                        'dk_ShiftOpeningTime3__c','dk_ShiftClosingTime3__c','dk_ShiftSystemApplicationDate3__c',
+                        'dk_ShiftBreakStartTime3__c','dk_ShiftBreakEndTime3__c',
+                        'dk_ShiftBreakStartTime3_2__c','dk_ShiftBreakEndTime3_2__c',
+                        'dk_ShiftBreakStartTime3_3__c','dk_ShiftBreakEndTime3_3__c',
+                        'dk_TotalShiftBreakTime3__c','dk_ScheduledWorkingHoursPerDay3__c','',
+                        'dk_ShiftOpeningTime4__c','dk_ShiftClosingTime4__c','dk_ShiftSystemApplicationDate4__c',
+                        'dk_ShiftBreakStartTime4__c','dk_ShiftBreakEndTime4__c',
+                        'dk_ShiftBreakStartTime4_2__c','dk_ShiftBreakEndTime4_2__c',
+                        'dk_ShiftBreakStartTime4_3__c','dk_ShiftBreakEndTime4_3__c',
+                        'dk_TotalShiftBreakTime4__c','dk_ScheduledWorkingHoursPerDay4__c','',
+                        'dk_ShiftOpeningTime5__c','dk_ShiftClosingTime5__c','dk_ShiftSystemApplicationDate5__c',
+                        'dk_ShiftBreakStartTime5__c','dk_ShiftBreakEndTime5__c',
+                        'dk_ShiftBreakStartTime5_2__c','dk_ShiftBreakEndTime5_2__c',
+                        'dk_ShiftBreakStartTime5_3__c','dk_ShiftBreakEndTime5_3__c',
+                        'dk_TotalShiftBreakTime5__c','dk_ScheduledWorkingHoursPerDay5__c','',
+                        'AnnualPaidLeave__c','dk_PaymentCategory__c','-',
+                        'dk_MonthlyWage1__c','dk_DailyWage1__c','dk_HourlyWage1__c',
+                        'dk_MonthlyWage2__c','dk_DailyWage2__c','dk_HourlyWage2__c',
+                        'dk_MonthlyWage3__c','dk_DailyWage3__c','dk_HourlyWage3__c',
+                        'Bonus__c','WageRaise__c','RetirementAllowance__c','-',
+                        'AllowanceName1__c','dk_AllowanceAmount1__c','dk_AllowanceCalculationMethod1__c',
+                        'AllowanceName2__c','dk_AllowanceAmount2__c','dk_AllowanceCalculationMethod2__c',
+                        'AllowanceName3__c','dk_AllowanceAmount3__c','dk_AllowanceCalculationMethod3__c',
+                        'AllowanceName4__c','dk_AllowanceAmount4__c','dk_AllowanceCalculationMethod4__c',
+                        'dk_WagePaymentDeduction__c','dk_PensionInsurance__c','dk_HealthInsurance__c',
+                        'OtherInsurance__c','dk_TotalEmploymentInsuranceDeduction__c','dk_IncomeTax__c',
+                        '_pension_standard_remuneration','health_standard_remuneration',
+                        'dk_TotalSocialInsuranceDeduction__c','',
+                        'dk_CollectionFeeOfHousingCosts__c','dk_HousingCostsExplanation__c',
+                        'UtilityCost__c','UtilityCostType__c','dk_UtilityCostDetails__c',
+                        'dk_CommunicationsCostType__c','dk_CommunicationsCostBurden__c',
+                        'dk_OtherRecurringCosts__c',
+                        'OtherBurdenCost1__c','dk_OtherBurdenCostType1__c','OtherBurdenCostAmount1__c',
+                        'OtherBurdenCost2__c','dk_OtherBurdenCostType2__c','OtherBurdenCostAmount2__c',
+                        'OtherBurdenCost3__c','dk_OtherBurdenCostType3__c','OtherBurdenCostAmount3__c',
+                        'dk_OtherBurdenCostName4__c','dk_OtherBurdenCostType4__c','OtherBurdenCostAmount4__c',
+                        'dk_BenefitOfOtherBurdenCosts__c','OtherBurdenCostExplanation__c',
+                        '_net_income','WagePaymentMethod__c',
+                        'WageDeadline__c','WagePaymentDate__c','dk_WageDeadline2__c','dk_WagePaymentDate2__c',
+                        'GraceDaysOfResignation__c','DateOfHealthCheckupForEmployment__c',
+                        '_health_checkup_first','HealthCheckupPeriod__c',
+                        'PlacementDate__c','CompanyCulture_TT__c','RecordOfAcceptingForeigners_TT__c',
+                        'TrainingContent_TT__c','TrainingPeriod_TT__c',
+                        'HighPlaceWork_TT__c','HighAltitudeHeight__c','OutdoorIndoorWorkRate_TT__c',
+                        'OverTimeAndNightShift_TT__c','AvgOvertimeHours__c','NightshiftCount__c',
+                        'SharedMattersToSendingAgency__c','Gender__c','DesiredAge__c','BloodType__c',
+                        'DesiredHeight__c','DesiredBodyWeight__c',
+                        'DominantHand_TT__c','Glasses__c','Tattoo__c','Marriage_TT__c',
+                        'Smoking__c','Drinking__c','FieldExperience_TT__c',
+                        'Priority1__c','Priority2__c','Priority3__c',
+                    ];
+                    // sf名 → field id の逆引きマップ
+                    const sfToId = {};
+                    FIELDS.filter(f => f.type !== 'section').forEach(f => { sfToId[f.sf] = f.id; });
+
+                    // 締切日・支払日の文字列合成
                     const buildWageText = (cutoffType, cutoffDay, paymentMonth, paymentDayType, paymentDay) => {
                         const cutoff = cutoffType === '末日' ? '末日' : (cutoffDay ? `当月${cutoffDay}日` : '');
                         const payment = paymentMonth && (paymentDayType === '末日' ? `${paymentMonth}末日` : (paymentDay ? `${paymentMonth}${paymentDay}日` : ''));
                         return { cutoff, payment };
                     };
-                    // ヘッダー：ID, bu, ...SFフィールド名, _memo
-                    const header = ['ID', 'bu', ...fields.map(f => f.sf), '_memo'].join(',');
+
+                    // ヘッダー：ID, bu, CSV_COLUMNSのAPI名, _memo
+                    // ツール再ロード用：合成前の賃金パーツを追加列として末尾に保存
+                    const WAGE_EXTRA_COLS = [
+                        '_wage_cutoff_day_1', '_wage_payment_month_1', '_wage_payment_day_type_1',
+                        '_wage_cutoff_day_2', '_wage_payment_month_2', '_wage_payment_day_type_2',
+                    ];
+                    const header = ['ID', 'bu', ...CSV_COLUMNS, ...WAGE_EXTRA_COLS, '_memo'].join(',');
+
                     const rows = dataList.filter(d => d.bu === appMode).map(d => {
                         const w1 = buildWageText(d.wage_cutoff_type_1, d.wage_cutoff_day_1, d.wage_payment_month_1, d.wage_payment_day_type_1, d.wage_payment_day_1);
                         const w2 = buildWageText(d.wage_cutoff_type_2, d.wage_cutoff_day_2, d.wage_payment_month_2, d.wage_payment_day_type_2, d.wage_payment_day_2);
-                        const wageOverride = { 'WageCutoffDay__c': w1.cutoff, 'WagePaymentDay__c': w1.payment, 'WageCutoffDay2__c': w2.cutoff, 'WagePaymentDay2__c': w2.payment };
-                        const fieldValues = fields.map(f => {
-                            if (wageOverride[f.sf] !== undefined) return escapeCSV(wageOverride[f.sf]);
-                            const val = d[f.id];
+                        const wageOverride = {
+                            'WageDeadline__c': w1.cutoff, 'WagePaymentDate__c': w1.payment,
+                            'dk_WageDeadline2__c': w2.cutoff, 'dk_WagePaymentDate2__c': w2.payment,
+                        };
+
+                        // ツール値 → SF値 の逆変換マップ
+                        const toolToSfMap = {
+                            '有': 'あり', '無': 'なし',
+                            '実費': '実費徴収',
+                            '男性': 'Male', '女性': 'Female',
+                            '右': '右のみ', '左': '左のみ',
+                            '既婚可': '既婚', '必要': '要',
+                        };
+                        // フィールド別逆変換
+                        const fieldSpecificToSf = {
+                            'tattoo':   { '完全に洋服や作業着で隠せる場合は可': '可' },
+                            'smoking':  { '所定のルールや場所を守れる場合は可': '可' },
+                            'drinking': { 'ルール・法令厳守を守れる場合は可': '可' },
+                        };
+                        const fieldValues = CSV_COLUMNS.map(sf => {
+                            if (sf === '' || sf === '-') return '';
+                            if (wageOverride[sf] !== undefined) return escapeCSV(wageOverride[sf]);
+                            const fieldId = sfToId[sf];
+                            if (!fieldId) return '';
+                            let val = d[fieldId];
                             if (Array.isArray(val)) return escapeCSV(val.join('・'));
-                            return escapeCSV(val);
+                            let strVal = val != null ? String(val) : '';
+                            // フィールド別変換を優先
+                            if (fieldSpecificToSf[fieldId] && fieldSpecificToSf[fieldId][strVal] !== undefined) {
+                                strVal = fieldSpecificToSf[fieldId][strVal];
+                            } else if (toolToSfMap[strVal] !== undefined) {
+                                strVal = toolToSfMap[strVal];
+                            }
+                            return escapeCSV(strVal);
                         });
-                        // bu列 と _memo列 を追加
-                        return [escapeCSV(d.id), escapeCSV(d.bu), ...fieldValues, escapeCSV(d._memo || '')].join(',');
+                        const wageExtraValues = WAGE_EXTRA_COLS.map(fieldId => escapeCSV(d[fieldId]));
+                        return [escapeCSV(d.id), escapeCSV(d.bu), ...fieldValues, ...wageExtraValues, escapeCSV(d._memo || '')].join(',');
                     });
+
                     const csv = '\uFEFF' + [header, ...rows].join('\n');
                     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
                     const a = document.createElement('a');
@@ -845,6 +1007,36 @@
                         // _memo の復元（ツール出力形式のみ）
                         if (idxMemo >= 0) record._memo = values[idxMemo] || '';
 
+                        // 年所定労働時間から月所定労働時間を自動計算
+                        if (isSalesforceFormat) {
+                            const annMin = (parseInt(record.annual_work_hours) || 0) * 60 + (parseInt(record.annual_work_minutes) || 0);
+                            if (annMin > 0) {
+                                const mTotal = Math.round(annMin / 12);
+                                record.monthly_work_hours = String(Math.floor(mTotal / 60));
+                                record.monthly_work_minutes = String(mTotal % 60);
+                            }
+                        }
+                        // 手取り額の自動計算（インポート時）
+                        if (isSalesforceFormat) {
+                            const salaryKey = record.residence_status === '実習2号' ? 'monthly_salary_2'
+                                            : record.residence_status === '実習3号' ? 'monthly_salary_3'
+                                            : 'monthly_salary_1';
+                            const monthlySalary = parseFloat(record[salaryKey]) || 0;
+                            const socialInsurance = parseFloat(record.social_insurance_total) || 0;
+                            const incomeTax       = parseFloat(record.income_tax) || 0;
+                            const laborInsurance  = parseFloat(record.labor_insurance_total) || 0;
+                            const housingFee      = parseFloat(record.housing_fee_monthly) || 0;
+                            let otherCostTotal = 0;
+                            if (record.has_other_fees === '有') {
+                                [1,2,3,4].forEach(n => {
+                                    otherCostTotal += parseFloat(record[`other_cost_amount_${n}`]) || 0;
+                                });
+                            }
+                            if (monthlySalary > 0) {
+                                const net = monthlySalary - socialInsurance - incomeTax - laborInsurance - housingFee - otherCostTotal;
+                                record.net_income = String(Math.round(net));
+                            }
+                        }
                         newRecords.push(record);
                         importedCount++;
                     }
@@ -991,14 +1183,14 @@
                         </div>
                     </div>
 
-                    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+                    <div ref={mainScrollRef} style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
                         {currentData ? (
                             <>
                                 <div style={{ padding: '24px 32px', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, background: 'white', zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,.08)' }}>
                                     <h2 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.04em', margin: '0 0 16px 0' }}>{currentData.company_name || 'New Item'}</h2>
                                     <div className="tab-nav">
                                         {TABS.map(tab => (
-                                            <button key={tab.id} className={`tab-btn ${currentTab === tab.id ? 'active' : ''}`} onClick={() => setCurrentTab(tab.id)}>
+                                            <button key={tab.id} className={`tab-btn ${currentTab === tab.id ? 'active' : ''}`} onClick={() => { setCurrentTab(tab.id); if (mainScrollRef.current) mainScrollRef.current.scrollTop = 0; }}>
                                                 <span style={{ marginRight: 6 }}>{tab.icon}</span> {tab.name}
                                             </button>
                                         ))}
