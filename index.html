@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employment Contract Builder - Enhanced</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
@@ -211,8 +212,8 @@
             for (let i = 1; i <= count; i++) {
                 fields.push(
                     { id: `other_cost_name_${i}`, label: `その他の負担費用名${i}`, sf: i < 4 ? `OtherBurdenCost${i}__c` : `dk_OtherBurdenCostName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
-                    { id: `other_cost_type_${i}`, label: `その他負担費用${i} 種別`, sf: `dk_OtherBurdenCostType${i}__c`, type: 'select', req: false, opts: ['実費', '定額'], bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
-                    { id: `other_cost_amount_${i}`, label: `その他の負担費用額${i}`, sf: `OtherBurdenCostAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === '有' }
+                    { id: `other_cost_type_${i}`, label: `その他負担費用${i} 種別`, sf: `dk_OtherBurdenCostType${i}__c`, type: 'select', req: false, opts: ['実費', '実費以外'], bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
+                    { id: `other_cost_amount_${i}`, label: `その他の負担費用額${i}`, sf: `OtherBurdenCostAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === '有' && data[`other_cost_type_${i}`] === '実費以外' }
                 );
             }
             return fields;
@@ -351,10 +352,10 @@
             { id: 'break_total_minutes', label: '【基本】休憩時間合計(分)', sf: 'dk_TotalBasicBreakTime__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true },
             { id: 'daily_work_hours', label: '1日の所定労働時間(時間)', sf: 'dk_ScheduledWorkingHoursPerDay__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
             { id: 'daily_work_minutes', label: '1日の所定労働時間(分)', sf: 'dk_ScheduledWorkingMinutesPerDay__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
-            { id: 'weekly_work_hours', label: '週所定労働時間(時間)', sf: '_weekly_work_hours', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
-            { id: 'weekly_work_minutes', label: '週所定労働時間(分)', sf: '_weekly_work_minutes', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
-            { id: 'monthly_work_hours', label: '月所定労働時間(時間)', sf: '_monthly_work_hours', type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== '有'},
-            { id: 'monthly_work_minutes', label: '月所定労働時間(分)', sf: '_monthly_work_minutes', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== '有'},
+            { id: 'weekly_work_hours', label: '週所定労働時間(時間)', sf: 'dk_WeeklyScheduledWorkingHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
+            { id: 'weekly_work_minutes', label: '週所定労働時間(分)', sf: 'dk_WeeklyScheduledWorkingMinutes__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
+            { id: 'monthly_work_hours', label: '月所定労働時間(時間)', sf: 'MonthlyScheduledWorkingHours__c', type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== '有'},
+            { id: 'monthly_work_minutes', label: '月所定労働時間(分)', sf: 'MonthlyScheduledWorkingMinutes__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== '有'},
             { id: 'annual_work_hours', label: '年所定労働時間(時間)', sf: 'dk_AnnualScheduledWorkingHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'annual_work_minutes', label: '年所定労働時間(分)', sf: 'dk_AnnualScheduledWorkingMinutes__c', type: 'number', req: true, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'annual_holidays', label: '年間合計休日数(日)', sf: 'TotalAnnualHoliday__c', type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: 3 },
@@ -429,10 +430,10 @@
             { id: 'housing_fee_monthly', label: '居住費徴収額（月）', sf: 'dk_CollectionFeeOfHousingCosts__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'housing_fee_explanation', label: '居住費が実費に相当する額その他の適正な額であることの説明', sf: 'dk_HousingCostsExplanation__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
             { id: 'charges_utilities', label: '水道光熱費の徴収の有無', sf: 'UtilityCost__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'utilities_type', label: '水道光熱費種別', sf: 'UtilityCostType__c', type: 'select', req: true, opts: ['実費', '定額'], bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.charges_utilities === '有' },
-            { id: 'utilities_details', label: '水道光熱費の詳細', sf: 'dk_UtilityCostDetails__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.charges_utilities === '有' },
-            { id: 'telecom_type', label: '通信(Wi-Fi)費種別', sf: 'dk_CommunicationsCostType__c', type: 'select', req: true, opts: ['実費', '定額', '無'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'telecom_fee_monthly', label: '実費以外の時の通信費（月）', sf: 'dk_CommunicationsCostBurden__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'utilities_type', label: '水道光熱費種別', sf: 'UtilityCostType__c', type: 'select', req: true, opts: ['実費', '実費以外'], bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.charges_utilities === '有' },
+            { id: 'utilities_details', label: '水道光熱費の詳細', sf: 'dk_UtilityCostDetails__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.charges_utilities === '有' && data.utilities_type === '実費以外' },
+            { id: 'telecom_type', label: '通信(Wi-Fi)費種別', sf: 'dk_CommunicationsCostType__c', type: 'select', req: true, opts: ['実費', '実費以外', '無'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'telecom_fee_monthly', label: '実費以外の時の通信費（月）', sf: 'dk_CommunicationsCostBurden__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.telecom_type === '実費以外' },
             { id: 'has_other_fees', label: 'その他技能実習生が定期に負担する費用の有無', sf: 'dk_OtherRecurringCosts__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
             ...generateOtherCostFields(4),
             { id: 'other_cost_benefits', label: 'その他負担費用に対する便益', sf: 'dk_BenefitOfOtherBurdenCosts__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
@@ -779,7 +780,7 @@
                         'dk_BasicBreakStartTime__c','dk_BasicBreakEndTime1__c',
                         'dk_BasicBreakStartTime2__c','dk_BasicBreakEndTime2__c',
                         'dk_BasicBreakStartTime3__c','dk_BasicBreakEndTime3__c',
-                        '_weekly_work_hours','_weekly_work_minutes','_monthly_work_hours','_monthly_work_minutes',
+                        'dk_WeeklyScheduledWorkingHours__c','dk_WeeklyScheduledWorkingMinutes__c','MonthlyScheduledWorkingHours__c','MonthlyScheduledWorkingMinutes__c',
                         'dk_AnnualScheduledWorkingHours__c','dk_AnnualScheduledWorkingMinutes__c','TotalAnnualHoliday__c',
                         'dk_SaturdayWork__c',
                         'dk_OtherStartingTime__c','dk_OtherClosingTime__c',
@@ -843,9 +844,6 @@
                         'DesiredHeight__c','DesiredBodyWeight__c',
                         'DominantHand_TT__c','Glasses__c','Tattoo__c','Marriage_TT__c',
                         'Smoking__c','Drinking__c','FieldExperience_TT__c',
-                        'TotalAnnualHoliday__c', 'dk_AnnualScheduledWorkingHours__c', 'dk_AnnualScheduledWorkingMinutes__c',
-                        'dk_BasicWorkStartTime__c', 'dk_BasicWorkEndTime__c', 'dk_BasicBreakStartTime1__c', 'dk_BasicBreakEndTime1__c',
-                        'dk_BasicBreakStartTime2__c', 'dk_BasicBreakEndTime2__c', 'dk_BasicBreakStartTime3__c', 'dk_BasicBreakEndTime3__c',
                         'dk_TotalBasicBreakTime__c', 'dk_ScheduledWorkingHoursPerDay__c', 'dk_ScheduledWorkingMinutesPerDay__c',
                         
                         'RecordTypeId', 'JobStatus__c', 'JobAcquisitionDate__c', 'BusinessType__c', 'ResponsibleBranch__c'
@@ -978,10 +976,11 @@
                             'WageDeadline__c': w1.cutoff, 'WagePaymentDate__c': w1.payment,
                             'dk_WageDeadline2__c': w2.cutoff, 'dk_WagePaymentDate2__c': w2.payment,
                             'RecordTypeId': '012TL00000ASkGgYAL',
-                            'JobStatus__c': 'Open',
+                            'JobStatus__c': 'オープン',
                             'JobAcquisitionDate__c': dateStr, // エクスポートした日付（YYYY-MM-DD）
-                            'BusinessType__c': '技能実習',
-                            'ResponsibleBranch__c': 'GS'
+                            'BusinessType__c': 'TechnicalInternTraining',
+                            'ResponsibleBranch__c': 'GS',
+                            'SharedMattersToSendingAgency__c': sharedMatters
                         };
                     };
                     const jobHeader = JOB_COLUMNS.join(',');
@@ -1104,10 +1103,6 @@
                                             '既婚': '既婚可', '要': '必要',
                                         };
                                         if (sfValMap[rawVal] !== undefined) rawVal = sfValMap[rawVal];
-                                        // フィールド別の変換（「可」が3種類ある）
-                                        if (fieldId === 'tattoo'   && rawVal === '可') rawVal = '完全に洋服や作業着で隠せる場合は可';
-                                        if (fieldId === 'smoking'  && rawVal === '可') rawVal = '所定のルールや場所を守れる場合は可';
-                                        if (fieldId === 'drinking' && rawVal === '可') rawVal = 'ルール・法令厳守を守れる場合は可';
                                         if (fieldId === 'irregular_holiday' && rawVal === '') rawVal = 'なし';  
                                     }
                                     record[fieldId] = rawVal;
@@ -1426,6 +1421,9 @@
                                                                                                         e.preventDefault();
                                                                                                     }
                                                                                                 }}
+                                                                                                onWheel={(e) => {
+                                                                                                if (field.type === 'number') e.target.blur();
+                                                                                                }}
                                                                                             />
                                                                                         )}
                                                                                         {field.suf && <span className="suffix">{field.suf}</span>}
@@ -1497,6 +1495,9 @@
                                                                                         e.preventDefault();
                                                                                     }
                                                                                 }}
+                                                                                onWheel={(e) => {
+                                                                                                if (f.type === 'number') e.target.blur();
+                                                                                            }}
                                                                                 />
                                                                             {f.suf && <span className="suffix">{f.suf}</span>}
                                                                         </div>
