@@ -72,6 +72,14 @@
         button { cursor: pointer; background: none; border: none; font-family: inherit; }
         button:disabled { cursor: not-allowed; opacity: 0.2; }
         input, select { font-family: inherit; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -323,6 +331,7 @@
             { type: 'section', label: '【基本情報】', bu: ['intern', 'skilled'], tab: 3 },
             { id: 'has_overtime', label: '所定時間外労働の有無', sf: 'OverTimeWork__c', type: 'select', req: true, opts: ['有', '無'], help: '残業をする可能性が少しでもある場合は「有」を選択してください', bu: ['intern', 'skilled'], tab: 3 },
             { id: 'has_flex_time', label: '【基本】変形時間労働制の有無', sf: 'dk_IrregularWorkingHoursSystem__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 3 },
+            { id: 'flex_time_type', label: '【基本】変形時間労働制のタイプ', sf: 'dk_IrregularWorkingHoursSystemType__c', type: 'select', req: true, opts: ['1年', '半年', '3ヶ月', '1ヶ月', '1週間'], bu: ['intern', 'skilled'], tab: 3, showIf: (data) => data.has_flex_time === '有' },
             { id: 'has_work_rules', label: '就業規則の有無', sf: 'WorkRules__c', type: 'select', req: true, opts: ['有', '無'], help: '常勤が10人以上の場合は「有」を選択、9人以下の場合は「無」を選択', bu: ['intern', 'skilled'], tab: 3 },
             { id: 'regular_holiday_day', label: '定例休日の曜日', sf: 'dk_RegularDaysOff__c', type: 'multiselect', req: false, opts: ['月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日', '日曜日'], value: ['土曜日', '日曜日'], help: '該当する曜日をすべて選択してください', bu: ['intern', 'skilled'], tab: 3 },
             { id: 'regular_holiday_other', label: '定例休日その他', sf: 'dk_OtherRegularDaysOff__c', type: 'multiselect', req: false, opts: ['年末年始', 'GW', '夏季休暇', '企業カレンダー通り', '会社指定日', '就業規則通り'], bu: ['intern', 'skilled'], tab: 3 },
@@ -422,7 +431,7 @@
             { id: 'charges_utilities', label: '水道光熱費の徴収の有無', sf: 'UtilityCost__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'utilities_type', label: '水道光熱費種別', sf: 'UtilityCostType__c', type: 'select', req: true, opts: ['実費', '定額'], bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.charges_utilities === '有' },
             { id: 'utilities_details', label: '水道光熱費の詳細', sf: 'dk_UtilityCostDetails__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.charges_utilities === '有' },
-            { id: 'telecom_type', label: '通信費種別', sf: 'dk_CommunicationsCostType__c', type: 'select', req: true, opts: ['実費', '定額', '無'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'telecom_type', label: '通信(Wi-Fi)費種別', sf: 'dk_CommunicationsCostType__c', type: 'select', req: true, opts: ['実費', '定額', '無'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'telecom_fee_monthly', label: '実費以外の時の通信費（月）', sf: 'dk_CommunicationsCostBurden__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'has_other_fees', label: 'その他技能実習生が定期に負担する費用の有無', sf: 'dk_OtherRecurringCosts__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
             ...generateOtherCostFields(4),
@@ -470,7 +479,7 @@
             { id: 'preferred_age', label: '希望年齢', sf: 'DesiredAge__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する年齢層を教えてください\n例:「20代前半」「25歳～35歳」など' },
             { id: 'blood_type', label: '血液型', sf: 'BloodType__c', type: 'select', req: false, opts: ['A', 'B', 'O', 'AB', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '血液型の希望がありますか？\n特に指定がない場合は「不問」を選択してください。' },
             { id: 'preferred_height', label: '希望身長', sf: 'DesiredHeight__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する身長があれば記載してください\n業務上必要な場合のみ。例:「160cm以上」' },
-            { id: 'preferred_weight', label: '希望体重', sf: 'DesiredBodyWeight__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する体重があれば記載してください\n業務上必要な場合のみ。例:「60kg以上」' },
+            { id: 'preferred_weight', label: '希望体重', sf: 'DesiredBodyWeight__c', type: 'select', req: false, opts: ['細め：47～50Kg', '普通', 'がっちり：60kg～', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '希望する体型・体重を選択してください\n業務上指定が必要な場合のみ選択してください。' },
             { id: 'dominant_hand', label: '利き手', sf: 'DominantHand_TT__c', type: 'select', req: false, opts: ['右', '左', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '利き手の指定が必要ですか？', help: '業務で使用する道具との関係で、利き手が指定される場合にのみ選択' },
             { id: 'glasses', label: 'メガネ', sf: 'Glasses__c', type: 'select', req: false, opts: ['可', '不可', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '眼鏡の着用について教えてください', help: '業務の安全上、眼鏡の着用が問題となる場合にのみ選択' },
             { id: 'tattoo', label: '刺青', sf: 'Tattoo__c', type: 'select', req: false, opts: ['完全に洋服や作業着で隠せる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '刺青(タトゥー)がある方の受入について教えてください', help: '記載例:「長袖で隠せる場合は可能」「大きさ・場所に問わず不可」' },
@@ -617,13 +626,33 @@
 
                     if (fieldId === 'annual_work_hours' || fieldId === 'annual_work_minutes') {
                         const totalAnnualMin = (parseInt(newData.annual_work_hours) || 0) * 60 + (parseInt(newData.annual_work_minutes) || 0);
-                        const weeklyTotal = Math.round(totalAnnualMin / 12);
-                        newData.weekly_work_hours = String(Math.floor(weeklyTotal / 60));
-                        newData.weekly_work_minutes = String(weeklyTotal % 60);
                         // 月所定労働時間：年÷12（変形労働制「有」の場合は手動修正も可）
                         const monthlyTotal = Math.round(totalAnnualMin / 12);
                         newData.monthly_work_hours = String(Math.floor(monthlyTotal / 60));
                         newData.monthly_work_minutes = String(monthlyTotal % 60);
+                    }
+
+                    // --- 週所定労働時間の自動計算 ---
+                    const weeklyTriggers = [
+                        'annual_holidays', 'daily_work_hours', 'daily_work_minutes',
+                        'start_time', 'end_time', 'break_start_1', 'break_end_1',
+                        'break_start_2', 'break_end_2', 'break_start_3', 'break_end_3'
+                    ];
+                    if (weeklyTriggers.includes(fieldId)) {
+                        const holidays = parseFloat(newData.annual_holidays);
+                        const dailyHours = parseFloat(newData.daily_work_hours) || 0;
+                        const dailyMinutes = parseFloat(newData.daily_work_minutes) || 0;
+                        
+                        if (!isNaN(holidays)) {
+                            const annualWorkDays = 365 - holidays; // 年間勤務日数
+                            const dailyTotalMin = dailyHours * 60 + dailyMinutes; // 1日の所定労働時間(分)
+                            if (dailyTotalMin > 0) {
+                                // （年間勤務日数 / 365 × 7）× 1日の所定労働時間
+                                const weeklyTotalMin = Math.round((annualWorkDays / 365 * 7) * dailyTotalMin);
+                                newData.weekly_work_hours = String(Math.floor(weeklyTotalMin / 60));
+                                newData.weekly_work_minutes = String(weeklyTotalMin % 60);
+                            }
+                        }
                     }
 
                     const otherBreakFields = ['other_break_start_1','other_break_end_1','other_break_start_2','other_break_end_2','other_break_start_3','other_break_end_3'];
@@ -729,71 +758,68 @@
                 if (currentId === id) setCurrentId(null);
                 notify('レコードを削除しました');
             };
-
-            // ─── 【変更①】CSVエクスポート：bu列・_memo列を追加 ──────────────────
-            const exportCSV = () => {
+            // ─── CSVエクスポート：bu列・_memo列を追加 ──────────────────
+            const exportCSV = (hasError) => {
                 try {
-                    // CSVのLogicファイルに合わせた固定列定義（col[2]〜col[189]）
-                    const CSV_COLUMNS = [
-                        '_business_type','Name','EnglishName__c','',
-                        'NameOfRepresentative__c','RepresentativeNameInEnglish__c','RepresentativePosition__c',
-                        'Address__PostalCode__s__c','Address__c','AddressInEnglish__c',
-                        'PlacementDate__c','Occupation_TT__c','WorkName_TT__c','dk_OfficeName__c',
+                    // ─── 取引先オブジェクト用列定義 ───────────────────────────────
+                    const ACCOUNT_COLUMNS = [
+                        'Name',
+                        'EnglishName__c',
+                    ];
+                    // ─── ジョブオブジェクト用列定義 ──────────────────────────────
+                    const JOB_COLUMNS = [
+                        'Occupation_TT__c','WorkName_TT__c','dk_OfficeName__c',
                         'dk_Accommodations__c','dk_AccommodationId__c','ResidentialPropertyType__c',
                         'dk_AccommodationPostalCode__c','AccommodationName__c','AccommodationsAddress__c',
-                        'AccommodationsArea__c','AccommodationCapacity__c','',
-                        'OverTimeWork__c','WorkRules__c','dk_RegularDaysOff__c','dk_OtherRegularDaysOff__c',
+                        'AccommodationsArea__c','AccommodationCapacity__c',
+                        'OverTimeWork__c','dk_IrregularWorkingHoursSystem__c','dk_IrregularWorkingHoursSystemType__c','WorkRules__c',
+                        'dk_RegularDaysOff__c','dk_OtherRegularDaysOff__c',
                         'dk_JapaneseNationalHolidays__c','dk_AdditionalDaysOff__c','dk_NumberOfAdditionalDaysOff__c',
                         'dk_BasicOpeningTime__c','dk_BasicClosingTime__c',
                         'dk_BasicBreakStartTime__c','dk_BasicBreakEndTime1__c',
                         'dk_BasicBreakStartTime2__c','dk_BasicBreakEndTime2__c',
                         'dk_BasicBreakStartTime3__c','dk_BasicBreakEndTime3__c',
-                        'dk_TotalBasicBreakTime__c','dk_ScheduledWorkingHoursPerDay__c','dk_ScheduledWorkingMinutesPerDay__c',
-                        '','','','',
+                        '_weekly_work_hours','_weekly_work_minutes','_monthly_work_hours','_monthly_work_minutes',
                         'dk_AnnualScheduledWorkingHours__c','dk_AnnualScheduledWorkingMinutes__c','TotalAnnualHoliday__c',
-                        'dk_SaturdayWork__c','dk_OtherStartingTime__c','dk_OtherClosingTime__c',
+                        'dk_SaturdayWork__c',
+                        'dk_OtherStartingTime__c','dk_OtherClosingTime__c',
                         'dk_OtherBreakStartTime1__c','dk_OtherBreakEndTime1__c',
                         'dk_OtherBreakStartTime2__c','dk_OtherBreakEndTime2__c',
-                        'dk_OtherBreakStartTime3__c','dk_OtherBreakEndTime3__c','',
+                        'dk_OtherBreakStartTime3__c','dk_OtherBreakEndTime3__c',
                         'dk_ShiftSystem__c',
                         'dk_ShiftOpeningTime1__c','dk_ShiftClosingTime1__c','dk_ShiftSystemApplicationDate1__c',
                         'dk_ShiftBreakStartTime1__c','dk_ShiftBreakEndTime1__c',
                         'dk_ShiftBreakStartTime1_2__c','dk_ShiftBreakEndTime1_2__c',
                         'dk_ShiftBreakStartTime1_3__c','dk_ShiftBreakEndTime1_3__c',
-                        'dk_TotalShiftBreakTime1__c','dk_ScheduledWorkingHoursPerDay1__c','',
                         'dk_ShiftOpeningTime2__c','dk_ShiftClosingTime2__c','dk_ShiftSystemApplicationDate2__c',
                         'dk_ShiftBreakStartTime2__c','dk_ShiftBreakEndTime2__c',
                         'dk_ShiftBreakStartTime2_2__c','dk_ShiftBreakEndTime2_2__c',
                         'dk_ShiftBreakStartTime2_3__c','dk_ShiftBreakEndTime2_3__c',
-                        'dk_TotalShiftBreakTime2__c','dk_ScheduledWorkingHoursPerDay2__c','',
                         'dk_ShiftOpeningTime3__c','dk_ShiftClosingTime3__c','dk_ShiftSystemApplicationDate3__c',
                         'dk_ShiftBreakStartTime3__c','dk_ShiftBreakEndTime3__c',
                         'dk_ShiftBreakStartTime3_2__c','dk_ShiftBreakEndTime3_2__c',
                         'dk_ShiftBreakStartTime3_3__c','dk_ShiftBreakEndTime3_3__c',
-                        'dk_TotalShiftBreakTime3__c','dk_ScheduledWorkingHoursPerDay3__c','',
                         'dk_ShiftOpeningTime4__c','dk_ShiftClosingTime4__c','dk_ShiftSystemApplicationDate4__c',
                         'dk_ShiftBreakStartTime4__c','dk_ShiftBreakEndTime4__c',
                         'dk_ShiftBreakStartTime4_2__c','dk_ShiftBreakEndTime4_2__c',
                         'dk_ShiftBreakStartTime4_3__c','dk_ShiftBreakEndTime4_3__c',
-                        'dk_TotalShiftBreakTime4__c','dk_ScheduledWorkingHoursPerDay4__c','',
                         'dk_ShiftOpeningTime5__c','dk_ShiftClosingTime5__c','dk_ShiftSystemApplicationDate5__c',
                         'dk_ShiftBreakStartTime5__c','dk_ShiftBreakEndTime5__c',
                         'dk_ShiftBreakStartTime5_2__c','dk_ShiftBreakEndTime5_2__c',
                         'dk_ShiftBreakStartTime5_3__c','dk_ShiftBreakEndTime5_3__c',
-                        'dk_TotalShiftBreakTime5__c','dk_ScheduledWorkingHoursPerDay5__c','',
-                        'AnnualPaidLeave__c','dk_PaymentCategory__c','-',
+                        'AnnualPaidLeave__c',
+                        'dk_PaymentCategory__c',
                         'dk_MonthlyWage1__c','dk_DailyWage1__c','dk_HourlyWage1__c',
                         'dk_MonthlyWage2__c','dk_DailyWage2__c','dk_HourlyWage2__c',
                         'dk_MonthlyWage3__c','dk_DailyWage3__c','dk_HourlyWage3__c',
-                        'Bonus__c','WageRaise__c','RetirementAllowance__c','-',
+                        'Bonus__c','WageRaise__c','RetirementAllowance__c',
                         'AllowanceName1__c','dk_AllowanceAmount1__c','dk_AllowanceCalculationMethod1__c',
                         'AllowanceName2__c','dk_AllowanceAmount2__c','dk_AllowanceCalculationMethod2__c',
                         'AllowanceName3__c','dk_AllowanceAmount3__c','dk_AllowanceCalculationMethod3__c',
                         'AllowanceName4__c','dk_AllowanceAmount4__c','dk_AllowanceCalculationMethod4__c',
                         'dk_WagePaymentDeduction__c','dk_PensionInsurance__c','dk_HealthInsurance__c',
-                        'OtherInsurance__c','dk_TotalEmploymentInsuranceDeduction__c','dk_IncomeTax__c',
-                        '_pension_standard_remuneration','health_standard_remuneration',
-                        'dk_TotalSocialInsuranceDeduction__c','',
+                        'OtherInsurance__c',
+                        'ProvisionOfFood__c',
                         'dk_CollectionFeeOfHousingCosts__c','dk_HousingCostsExplanation__c',
                         'UtilityCost__c','UtilityCostType__c','dk_UtilityCostDetails__c',
                         'dk_CommunicationsCostType__c','dk_CommunicationsCostBurden__c',
@@ -803,95 +829,172 @@
                         'OtherBurdenCost3__c','dk_OtherBurdenCostType3__c','OtherBurdenCostAmount3__c',
                         'dk_OtherBurdenCostName4__c','dk_OtherBurdenCostType4__c','OtherBurdenCostAmount4__c',
                         'dk_BenefitOfOtherBurdenCosts__c','OtherBurdenCostExplanation__c',
-                        '_net_income','WagePaymentMethod__c',
-                        'WageDeadline__c','WagePaymentDate__c','dk_WageDeadline2__c','dk_WagePaymentDate2__c',
-                        'GraceDaysOfResignation__c','DateOfHealthCheckupForEmployment__c',
-                        '_health_checkup_first','HealthCheckupPeriod__c',
-                        'PlacementDate__c','CompanyCulture_TT__c','RecordOfAcceptingForeigners_TT__c',
+                        'WagePaymentMethod__c',
+                        'WageDeadline__c','WagePaymentDate__c',
+                        'dk_WageDeadline2__c','dk_WagePaymentDate2__c',
+                        'GraceDaysOfResignation__c',
+                        'HealthCheckupPeriod__c',
+                        'CompanyCulture_TT__c','RecordOfAcceptingForeigners_TT__c',
                         'TrainingContent_TT__c','TrainingPeriod_TT__c',
-                        'HighPlaceWork_TT__c','HighAltitudeHeight__c','OutdoorIndoorWorkRate_TT__c',
-                        'OverTimeAndNightShift_TT__c','AvgOvertimeHours__c','NightshiftCount__c',
-                        'SharedMattersToSendingAgency__c','Gender__c','DesiredAge__c','BloodType__c',
+                        'HighPlaceWork_TT__c','OutdoorIndoorWorkRate_TT__c',
+                        'OverTimeAndNightShift_TT__c',
+                        'SharedMattersToSendingAgency__c',
+                        'Gender__c','DesiredAge__c','BloodType__c',
                         'DesiredHeight__c','DesiredBodyWeight__c',
                         'DominantHand_TT__c','Glasses__c','Tattoo__c','Marriage_TT__c',
                         'Smoking__c','Drinking__c','FieldExperience_TT__c',
-                        'Priority1__c','Priority2__c','Priority3__c',
+                        'TotalAnnualHoliday__c', 'dk_AnnualScheduledWorkingHours__c', 'dk_AnnualScheduledWorkingMinutes__c',
+                        'dk_BasicWorkStartTime__c', 'dk_BasicWorkEndTime__c', 'dk_BasicBreakStartTime1__c', 'dk_BasicBreakEndTime1__c',
+                        'dk_BasicBreakStartTime2__c', 'dk_BasicBreakEndTime2__c', 'dk_BasicBreakStartTime3__c', 'dk_BasicBreakEndTime3__c',
+                        'dk_TotalBasicBreakTime__c', 'dk_ScheduledWorkingHoursPerDay__c', 'dk_ScheduledWorkingMinutesPerDay__c',
+                        
+                        'RecordTypeId', 'JobStatus__c', 'JobAcquisitionDate__c', 'BusinessType__c', 'ResponsibleBranch__c'
                     ];
-                    // sf名 → field id の逆引きマップ
-                    const sfToId = {};
-                    FIELDS.filter(f => f.type !== 'section').forEach(f => { sfToId[f.sf] = f.id; });
 
-                    // 締切日・支払日の文字列合成
+                    // ─── 一時保存用列定義（既存のCSV_COLUMNS）────────────────────
+                    const CSV_COLUMNS = FIELDS.filter(f => f.type !== 'section').map(f => f.sf);
+                    const sfToId = {};
+                    const fieldTypeMap = {};
+                    const fieldDefMap = {};
+                    FIELDS.filter(f => f.type !== 'section').forEach(f => { 
+                        sfToId[f.sf] = f.id;
+                        fieldTypeMap[f.id] = f.type;
+                        fieldDefMap[f.id] = f;
+                     });
+                    sfToId['dk_IrregularWorkingHoursSystem__c'] = 'has_flex_time';  
+                    sfToId['ProvisionOfFood__c'] = 'provides_meals';                
+                    fieldTypeMap['has_flex_time'] = 'select'; 
+                    fieldTypeMap['provides_meals'] = 'select';
+
+                    // ─── 共通：行データ生成関数 ──────────────────────────────────
                     const buildWageText = (cutoffType, cutoffDay, paymentMonth, paymentDayType, paymentDay) => {
                         const cutoff = cutoffType === '末日' ? '末日' : (cutoffDay ? `当月${cutoffDay}日` : '');
                         const payment = paymentMonth && (paymentDayType === '末日' ? `${paymentMonth}末日` : (paymentDay ? `${paymentMonth}${paymentDay}日` : ''));
                         return { cutoff, payment };
                     };
 
-                    // ヘッダー：ID, bu, CSV_COLUMNSのAPI名, _memo
-                    // ツール再ロード用：合成前の賃金パーツを追加列として末尾に保存
-                    const WAGE_EXTRA_COLS = [
-                        '_wage_cutoff_day_1', '_wage_payment_month_1', '_wage_payment_day_type_1',
-                        '_wage_cutoff_day_2', '_wage_payment_month_2', '_wage_payment_day_type_2',
-                    ];
-                    const header = ['ID', 'bu', ...CSV_COLUMNS, ...WAGE_EXTRA_COLS, '_memo'].join(',');
+                    const toolToSfMap = {
+                        '有': 'あり', '無': 'なし', '実費': '実費徴収',
+                        '男性': 'Male', '女性': 'Female',
+                        '右': '右のみ', '左': '左のみ',
+                        '既婚可': '既婚', '必要': '要',
+                    };
 
-                    const rows = dataList.filter(d => d.bu === appMode).map(d => {
-                        const w1 = buildWageText(d.wage_cutoff_type_1, d.wage_cutoff_day_1, d.wage_payment_month_1, d.wage_payment_day_type_1, d.wage_payment_day_1);
-                        const w2 = buildWageText(d.wage_cutoff_type_2, d.wage_cutoff_day_2, d.wage_payment_month_2, d.wage_payment_day_type_2, d.wage_payment_day_2);
-                        const wageOverride = {
-                            'WageDeadline__c': w1.cutoff, 'WagePaymentDate__c': w1.payment,
-                            'dk_WageDeadline2__c': w2.cutoff, 'dk_WagePaymentDate2__c': w2.payment,
-                        };
+                    const fieldSpecificToSf = {
+                        'irregular_holiday': { 'なし': '' }, // ★ 追加: 非定休日が「なし」なら空欄を出力
+                    };
 
-                        // ツール値 → SF値 の逆変換マップ
-                        const toolToSfMap = {
-                            '有': 'あり', '無': 'なし',
-                            '実費': '実費徴収',
-                            '男性': 'Male', '女性': 'Female',
-                            '右': '右のみ', '左': '左のみ',
-                            '既婚可': '既婚', '必要': '要',
-                        };
-                        // フィールド別逆変換
-                        const fieldSpecificToSf = {
-                            'tattoo':   { '完全に洋服や作業着で隠せる場合は可': '可' },
-                            'smoking':  { '所定のルールや場所を守れる場合は可': '可' },
-                            'drinking': { 'ルール・法令厳守を守れる場合は可': '可' },
-                        };
-                        const fieldValues = CSV_COLUMNS.map(sf => {
+                    const buildRow = (d, columns, wageOverride, isSfExport = false) => {
+                        const values = columns.map(sf => {
                             if (sf === '' || sf === '-') return '';
-                            if (wageOverride[sf] !== undefined) return escapeCSV(wageOverride[sf]);
+                            if (wageOverride && wageOverride[sf] !== undefined) return escapeCSV(wageOverride[sf]);
                             const fieldId = sfToId[sf];
                             if (!fieldId) return '';
+                            
+                            // ★ 変更：Salesforce向け出力の時だけ、非表示項目を空欄にする
+                            if (isSfExport) {
+                                const fieldDef = fieldDefMap[fieldId];
+                                if (fieldDef && fieldDef.showIf && !fieldDef.showIf(d)) {
+                                    return '';
+                                }
+                            }
+                            
                             let val = d[fieldId];
+                            if (isSfExport && fieldTypeMap[fieldId] === 'time' && val) {
+                                // "09:00" のような形式を "09:00:00.000Z" に変換
+                                if (/^\d{2}:\d{2}$/.test(val)) {
+                                    val = `${val}:00.000Z`;
+                                } else if (/^\d{2}:\d{2}:\d{2}$/.test(val)) {
+                                    val = `${val}.000Z`;
+                                }
+                            }
+
                             if (Array.isArray(val)) return escapeCSV(val.join('・'));
                             let strVal = val != null ? String(val) : '';
-                            // フィールド別変換を優先
-                            if (fieldSpecificToSf[fieldId] && fieldSpecificToSf[fieldId][strVal] !== undefined) {
-                                strVal = fieldSpecificToSf[fieldId][strVal];
-                            } else if (toolToSfMap[strVal] !== undefined) {
-                                strVal = toolToSfMap[strVal];
+                            
+                            // ★ 変更: Salesforce出力の時のみ、文言の変換（あり/なし/空欄など）を実行する
+                            if (isSfExport) {
+                                if (fieldSpecificToSf[fieldId] && fieldSpecificToSf[fieldId][strVal] !== undefined) {
+                                    strVal = fieldSpecificToSf[fieldId][strVal];
+                                } else if (toolToSfMap[strVal] !== undefined) {
+                                    strVal = toolToSfMap[strVal];
+                                }
                             }
                             return escapeCSV(strVal);
                         });
-                        const wageExtraValues = WAGE_EXTRA_COLS.map(fieldId => escapeCSV(d[fieldId]));
-                        return [escapeCSV(d.id), escapeCSV(d.bu), ...fieldValues, ...wageExtraValues, escapeCSV(d._memo || '')].join(',');
-                    });
+                        return values;
+                    };
 
-                    const csv = '\uFEFF' + [header, ...rows].join('\n');
-                    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `SF_Import_${appMode}_${new Date().toISOString().split('T')[0]}.csv`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                    notify('CSVを出力しました');
+                    const targetRecords = dataList.filter(d => d.bu === appMode);
+                    const dateStr = new Date().toISOString().split('T')[0];
+
+                    const downloadCSV = (filename, header, rows) => {
+                        const csv = '\uFEFF' + [header, ...rows].join('\n');
+                        const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    };
+
+                    const saveHeader = ['ID', 'bu', ...CSV_COLUMNS,  '_memo'].join(',');
+                    const saveRows = targetRecords.map(d => {
+                        const fieldValues = buildRow(d, CSV_COLUMNS, null, false);
+                        return [escapeCSV(d.id), escapeCSV(d.bu), ...fieldValues, escapeCSV(d._memo || '')].join(',');
+                    });
+                    downloadCSV(`SF_Save_${appMode}_${dateStr}.csv`, saveHeader, saveRows);
+                    // ★ エラーがある場合はここで処理を終了し、メッセージを表示
+                    if (hasError) {
+                        notify('エラーがあるため、一時保存用CSVのみ出力しました', 'warning');
+                        return;
+                    }
+
+                    // ※ 取引先はNameが必須IDとして先頭に来ることが多いため、headerはAPI名のみ
+                    const accountHeader2 = ACCOUNT_COLUMNS.join(',');
+                    const accountRows = targetRecords.map(d =>
+                        buildRow(d, ACCOUNT_COLUMNS, null, true).join(',')
+                    );
+                    downloadCSV(`SF_Account_${appMode}_${dateStr}.csv`, accountHeader2, accountRows);
+
+                    // ③ ジョブ用CSV
+                    const jobWageOverrideFor = (d) => {
+                        const w1 = buildWageText(d.wage_cutoff_type_1, d.wage_cutoff_day_1, d.wage_payment_month_1, d.wage_payment_day_type_1, d.wage_payment_day_1);
+                        const w2 = buildWageText(d.wage_cutoff_type_2, d.wage_cutoff_day_2, d.wage_payment_month_2, d.wage_payment_day_type_2, d.wage_payment_day_2);
+                        const extraNotes = [];
+                        if (d.high_altitude_height) extraNotes.push(`高所作業の高さ: ${d.high_altitude_height}m`);
+                        if (d.avg_overtime_hours) extraNotes.push(`残業月平均: ${d.avg_overtime_hours}時間`);
+                        if (d.nightshift_count) extraNotes.push(`夜勤月回数: ${d.nightshift_count}回`);
+                        if (d.priority_1) extraNotes.push(`優先順位1: ${d.priority_1}`);
+                        if (d.priority_2) extraNotes.push(`優先順位2: ${d.priority_2}`);
+                        if (d.priority_3) extraNotes.push(`優先順位3: ${d.priority_3}`);
+                        // もともと「送出機関への共有事項」に入力されていたテキストがあれば繋げる
+                        let sharedMatters = d.sending_org_notes || '';
+                        if (extraNotes.length > 0) {
+                            if (sharedMatters) sharedMatters += '\n\n';
+                            sharedMatters += extraNotes.join('\n');
+                        }
+                        return {
+                            'WageDeadline__c': w1.cutoff, 'WagePaymentDate__c': w1.payment,
+                            'dk_WageDeadline2__c': w2.cutoff, 'dk_WagePaymentDate2__c': w2.payment,
+                            'RecordTypeId': '012TL00000ASkGgYAL',
+                            'JobStatus__c': 'Open',
+                            'JobAcquisitionDate__c': dateStr, // エクスポートした日付（YYYY-MM-DD）
+                            'BusinessType__c': '技能実習',
+                            'ResponsibleBranch__c': 'GS'
+                        };
+                    };
+                    const jobHeader = JOB_COLUMNS.join(',');
+                    const jobRows = targetRecords.map(d =>
+                        buildRow(d, JOB_COLUMNS, jobWageOverrideFor(d), true).join(',')
+                    );
+                    downloadCSV(`SF_Job_${appMode}_${dateStr}.csv`, jobHeader, jobRows);
+                    notify('Salesforceインポート用を含む3ファイルを出力しました', 'success');
                 } catch (e) {
                     console.error(e);
                     notify('CSVの出力に失敗しました', 'error');
                 }
             };
-
             // ─── 【変更②】CSVインポート ──────────────────────────────────────────
             const importCSV = (e) => {
             const file = e.target.files[0];
@@ -928,7 +1031,11 @@
 
                     // sf → id の逆引きマップを生成
                     const sfToId = {};
-                    FIELDS.filter(f => f.type !== 'section').forEach(f => { sfToId[f.sf] = f.id; });
+                    const fieldTypeMap = {}; // ★フィールドの型を判定するためのマップ
+                    FIELDS.filter(f => f.type !== 'section').forEach(f => { 
+                        sfToId[f.sf] = f.id; 
+                        fieldTypeMap[f.id] = f.type;
+                    });
 
                     // 列インデックスを取得（ツール出力形式のみ存在）
                     const idxId   = apiHeaders.indexOf('ID');
@@ -979,13 +1086,15 @@
                                     record[fieldId] = vals;
                                 } else {
                                     if (isSalesforceFormat) {
-                                        // 時刻形式の変換：「H:MM:SS」→「HH:MM」
-                                        if (/^\d{1,2}:\d{2}:\d{2}$/.test(rawVal)) {
-                                            const [h, m] = rawVal.split(':');
-                                            rawVal = h.padStart(2, '0') + ':' + m;
+                                        // ★ 変更：時刻の復元処理を isSalesforceFormat の中に移動
+                                        if (fieldTypeMap[fieldId] === 'time' && rawVal) {
+                                            const timeMatch = rawVal.match(/^(\d{1,2}):(\d{1,2})/);
+                                            if (timeMatch) {
+                                                rawVal = timeMatch[1].padStart(2, '0') + ':' + timeMatch[2].padStart(2, '0');
+                                            }
                                         }
-                                        // カンマ付き数値のカンマを除去
-                                        rawVal = rawVal.replace(/^[\d,]+$/, v => v.replace(/,/g, ''));
+                                            // カンマ付き数値のカンマを除去
+                                            rawVal = rawVal.replace(/^[\d,]+$/, v => v.replace(/,/g, ''));
                                         // SF値 → ツール値 の共通変換マップ
                                         const sfValMap = {
                                             'あり': '有', 'なし': '無',
@@ -999,6 +1108,7 @@
                                         if (fieldId === 'tattoo'   && rawVal === '可') rawVal = '完全に洋服や作業着で隠せる場合は可';
                                         if (fieldId === 'smoking'  && rawVal === '可') rawVal = '所定のルールや場所を守れる場合は可';
                                         if (fieldId === 'drinking' && rawVal === '可') rawVal = 'ルール・法令厳守を守れる場合は可';
+                                        if (fieldId === 'irregular_holiday' && rawVal === '') rawVal = 'なし';  
                                     }
                                     record[fieldId] = rawVal;
                                 }
@@ -1059,7 +1169,7 @@
                     notify('CSVの読み込みに失敗しました', 'error');
                 }
             };
-            reader.readAsText(file, 'UTF-8');
+            reader.readAsText(file, 'Shift_JIS');
         };
 
             const validate = (data) => {
@@ -1179,7 +1289,21 @@
                         </div>
 
                         <div style={{ padding: 20, background: 'white', borderTop: '1px solid #e2e8f0' }}>
-                            <button className="btn-export" disabled={buRecords.length === 0} onClick={exportCSV}>💾 Export CSV</button>
+                            {/* ★ エラーの有無でボタンのデザインとテキストを切り替え、引数を渡す */}
+                            <button 
+                                className="btn-export" 
+                                disabled={buRecords.length === 0} 
+                                onClick={() => exportCSV(validationErrors.length > 0)}
+                                style={
+                                    buRecords.length === 0 ? {} :
+                                    validationErrors.length > 0 
+                                        ? { background: '#f59e0b', color: 'white' } // エラーあり：オレンジ系
+                                        : { background: '#10b981', color: 'white' } // エラーなし：グリーン系
+                                }
+                            >
+                                {buRecords.length === 0 ? '💾 Export CSV' :
+                                 validationErrors.length > 0 ? '💾 一時保存のみ（エラーあり）' : '🚀 Salesforce用出力（3ファイル）'}
+                            </button>
                         </div>
                     </div>
 
@@ -1290,7 +1414,19 @@
                                                                                                 {(typeof field.opts === 'function' ? field.opts(currentData) : (field.opts || [])).map(o => <option key={o} value={o}>{o}</option>)}
                                                                                             </select>
                                                                                         ) : (
-                                                                                            <input className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`} type={field.type} value={currentData[field.id] || ''} onChange={e => updateField(field.id, e.target.value)} readOnly={isReadOnly} style={isReadOnly ? { background: '#fef9c3', cursor: 'not-allowed', color: '#854d0e', borderColor: '#fde047' } : {}} />
+                                                                                            <input 
+                                                                                                className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`} 
+                                                                                                type={field.type} 
+                                                                                                value={currentData[field.id] || ''} 
+                                                                                                onChange={e => updateField(field.id, e.target.value)} 
+                                                                                                readOnly={isReadOnly} 
+                                                                                                style={isReadOnly ? { background: '#fef9c3', cursor: 'not-allowed', color: '#854d0e', borderColor: '#fde047' } : {}}
+                                                                                                onKeyDown={(e) => {
+                                                                                                    if (field.type === 'number' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                                                                                                        e.preventDefault();
+                                                                                                    }
+                                                                                                }}
+                                                                                            />
                                                                                         )}
                                                                                         {field.suf && <span className="suffix">{field.suf}</span>}
                                                                                     </div>
@@ -1341,12 +1477,27 @@
                                                                         </select>
                                                                     ) : f.type === 'searchable' ? (
                                                                         <div className="relative">
-                                                                            <input className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`} type="text" list={`${f.id}-list`} value={currentData[f.id] || ''} onChange={e => updateField(f.id, e.target.value)} />
+                                                                            <input 
+                                                                                className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`} 
+                                                                                type="text" list={`${f.id}-list`} 
+                                                                                value={currentData[f.id] || ''} 
+                                                                                onChange={e => updateField(f.id, e.target.value)} />
                                                                             <datalist id={`${f.id}-list`}>{(f.id === 'work_name' ? (JOB_WORK_MAP[currentData.job_type] || []) : (f.opts || [])).map(o => <option key={o} value={o} />)}</datalist>
                                                                         </div>
                                                                     ) : (
                                                                         <div className="relative">
-                                                                            <input className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`} type={f.type} value={currentData[f.id] || ''} onChange={e => updateField(f.id, e.target.value)} readOnly={isReadOnly} style={isReadOnly ? { background: '#fef9c3', cursor: 'not-allowed', color: '#854d0e', borderColor: '#fde047' } : {}} />
+                                                                            <input 
+                                                                                className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`} 
+                                                                                type={f.type} value={currentData[f.id] || ''} 
+                                                                                onChange={e => updateField(f.id, e.target.value)} 
+                                                                                readOnly={isReadOnly} 
+                                                                                style={isReadOnly ? { background: '#fef9c3', cursor: 'not-allowed', color: '#854d0e', borderColor: '#fde047' } : {}} 
+                                                                                onKeyDown={(e) => {
+                                                                                    if (f.type === 'number' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                                                                                        e.preventDefault();
+                                                                                    }
+                                                                                }}
+                                                                                />
                                                                             {f.suf && <span className="suffix">{f.suf}</span>}
                                                                         </div>
                                                                     )}
