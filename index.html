@@ -199,9 +199,9 @@
             const fields = [];
             for (let i = 1; i <= count; i++) {
                 fields.push(
-                    { id: `allowance_name_${i}`, label: `手当名${i}`, sf: `AllowanceName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, paired: true, showIf: (data) => data.has_allowance === '有' },
-                    { id: `allowance_amount_${i}`, label: `手当額${i}`, sf: `dk_AllowanceAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, paired: true, showIf: (data) => data.has_allowance === '有' },
-                    { id: `allowance_calc_${i}`, label: `手当の計算方法${i}`, sf: `dk_AllowanceCalculationMethod${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_allowance === '有' }
+                    { id: `allowance_name_${i}`, label: `手当名${i}`, sf: `AllowanceName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, paired: true, showIf: (data) => data.has_allowance === 'あり' },
+                    { id: `allowance_amount_${i}`, label: `手当額${i}`, sf: `dk_AllowanceAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, paired: true, showIf: (data) => data.has_allowance === 'あり' },
+                    { id: `allowance_calc_${i}`, label: `手当の計算方法${i}`, sf: `dk_AllowanceCalculationMethod${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_allowance === 'あり' }
                 );
             }
             return fields;
@@ -211,9 +211,9 @@
             const fields = [];
             for (let i = 1; i <= count; i++) {
                 fields.push(
-                    { id: `other_cost_name_${i}`, label: `その他の負担費用名${i}`, sf: i < 4 ? `OtherBurdenCost${i}__c` : `dk_OtherBurdenCostName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
-                    { id: `other_cost_type_${i}`, label: `その他負担費用${i} 種別`, sf: `dk_OtherBurdenCostType${i}__c`, type: 'select', req: false, opts: ['実費', '実費以外'], bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
-                    { id: `other_cost_amount_${i}`, label: `その他の負担費用額${i}`, sf: `OtherBurdenCostAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === '有' && data[`other_cost_type_${i}`] === '実費以外' }
+                    { id: `other_cost_name_${i}`, label: `その他の負担費用名${i}`, sf: i < 4 ? `OtherBurdenCost${i}__c` : `dk_OtherBurdenCostName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
+                    { id: `other_cost_type_${i}`, label: `その他負担費用${i} 種別`, sf: `dk_OtherBurdenCostType${i}__c`, type: 'select', req: false, opts: ['実費', '実費以外'], bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
+                    { id: `other_cost_amount_${i}`, label: `その他の負担費用額${i}`, sf: `OtherBurdenCostAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' && data[`other_cost_type_${i}`] === '実費以外' }
                 );
             }
             return fields;
@@ -330,10 +330,10 @@
             { id: 'area_per_person', label: '1人あたり居室面積', sf: 'RoomsPerPerson__c', type: 'number', req: true, suf: '㎡', bu: ['intern', 'skilled'], tab: 2, help: '物件の総面積と居住者人数から自動計算されます', showIf: (data) => data.housing_status === '確定' },
 
             { type: 'section', label: '【基本情報】', bu: ['intern', 'skilled'], tab: 3 },
-            { id: 'has_overtime', label: '所定時間外労働の有無', sf: 'OverTimeWork__c', type: 'select', req: true, opts: ['有', '無'], help: '残業をする可能性が少しでもある場合は「有」を選択してください', bu: ['intern', 'skilled'], tab: 3 },
-            { id: 'has_flex_time', label: '【基本】変形時間労働制の有無', sf: 'dk_IrregularWorkingHoursSystem__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 3 },
-            { id: 'flex_time_type', label: '【基本】変形時間労働制のタイプ', sf: 'dk_IrregularWorkingHoursSystemType__c', type: 'select', req: true, opts: ['1年', '半年', '3ヶ月', '1ヶ月', '1週間'], bu: ['intern', 'skilled'], tab: 3, showIf: (data) => data.has_flex_time === '有' },
-            { id: 'has_work_rules', label: '就業規則の有無', sf: 'WorkRules__c', type: 'select', req: true, opts: ['有', '無'], help: '常勤が10人以上の場合は「有」を選択、9人以下の場合は「無」を選択', bu: ['intern', 'skilled'], tab: 3 },
+            { id: 'has_overtime', label: '所定時間外労働の有無', sf: 'OverTimeWork__c', type: 'select', req: true, opts: ['あり', 'なし'], help: '残業をする可能性が少しでもある場合は「あり」を選択してください', bu: ['intern', 'skilled'], tab: 3 },
+            { id: 'has_flex_time', label: '【基本】変形時間労働制の有無', sf: 'dk_IrregularWorkingHoursSystem__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 3 },
+            { id: 'flex_time_type', label: '【基本】変形時間労働制のタイプ', sf: 'dk_IrregularWorkingHoursSystemType__c', type: 'select', req: true, opts: ['1年', '半年', '3ヶ月', '1ヶ月', '1週間'], bu: ['intern', 'skilled'], tab: 3, showIf: (data) => data.has_flex_time === 'あり' },
+            { id: 'has_work_rules', label: '就業規則の有無', sf: 'WorkRules__c', type: 'select', req: true, opts: ['あり', 'なし'], help: '常勤が10人以上の場合は「有」を選択、9人以下の場合は「なし」を選択', bu: ['intern', 'skilled'], tab: 3 },
             { id: 'regular_holiday_day', label: '定例休日の曜日', sf: 'dk_RegularDaysOff__c', type: 'multiselect', req: false, opts: ['月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日', '日曜日'], value: ['土曜日', '日曜日'], help: '該当する曜日をすべて選択してください', bu: ['intern', 'skilled'], tab: 3 },
             { id: 'regular_holiday_other', label: '定例休日その他', sf: 'dk_OtherRegularDaysOff__c', type: 'multiselect', req: false, opts: ['年末年始', 'GW', '夏季休暇', '企業カレンダー通り', '会社指定日', '就業規則通り'], bu: ['intern', 'skilled'], tab: 3 },
             { id: 'national_holidays', label: '日本の国民の祝日', sf: 'dk_JapaneseNationalHolidays__c', type: 'select', req: true, opts: ['祝日休み', '祝日勤務'], bu: ['intern', 'skilled'], tab: 3 },
@@ -354,42 +354,42 @@
             { id: 'daily_work_minutes', label: '1日の所定労働時間(分)', sf: 'dk_ScheduledWorkingMinutesPerDay__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
             { id: 'weekly_work_hours', label: '週所定労働時間(時間)', sf: 'dk_WeeklyScheduledWorkingHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
             { id: 'weekly_work_minutes', label: '週所定労働時間(分)', sf: 'dk_WeeklyScheduledWorkingMinutes__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
-            { id: 'monthly_work_hours', label: '月所定労働時間(時間)', sf: 'MonthlyScheduledWorkingHours__c', type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== '有'},
-            { id: 'monthly_work_minutes', label: '月所定労働時間(分)', sf: 'MonthlyScheduledWorkingMinutes__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== '有'},
+            { id: 'monthly_work_hours', label: '月所定労働時間(時間)', sf: 'MonthlyScheduledWorkingHours__c', type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== 'あり'},
+            { id: 'monthly_work_minutes', label: '月所定労働時間(分)', sf: 'MonthlyScheduledWorkingMinutes__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== 'あり'},
             { id: 'annual_work_hours', label: '年所定労働時間(時間)', sf: 'dk_AnnualScheduledWorkingHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'annual_work_minutes', label: '年所定労働時間(分)', sf: 'dk_AnnualScheduledWorkingMinutes__c', type: 'number', req: true, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'annual_holidays', label: '年間合計休日数(日)', sf: 'TotalAnnualHoliday__c', type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: 3 },
 
             { type: 'section', label: '【土曜日の労働時間】', bu: ['intern', 'skilled'], tab: 3 },
-            { id: 'saturday_work', label: '【基本】土曜日勤務の有無', sf: 'dk_SaturdayWork__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 3 },
-            { id: 'other_start_time', label: '【その他】始業時刻', sf: 'dk_OtherStartingTime__c', type: 'time', req: true, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === '有' },
-            { id: 'other_end_time', label: '【その他】終業時刻', sf: 'dk_OtherClosingTime__c', type: 'time', req: true, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === '有' },
-            { id: 'other_break_start_1', label: '【その他】休憩開始時間1', sf: 'dk_OtherBreakStartTime1__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === '有' },
-            { id: 'other_break_end_1', label: '【その他】休憩終了時間1', sf: 'dk_OtherBreakEndTime1__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === '有' },
-            { id: 'other_break_start_2', label: '【その他】休憩開始時間2', sf: 'dk_OtherBreakStartTime2__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === '有' },
-            { id: 'other_break_end_2', label: '【その他】休憩終了時間2', sf: 'dk_OtherBreakEndTime2__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === '有' },
-            { id: 'other_break_start_3', label: '【その他】休憩開始時間3', sf: 'dk_OtherBreakStartTime3__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === '有' },
-            { id: 'other_break_end_3', label: '【その他】休憩終了時間3', sf: 'dk_OtherBreakEndTime3__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === '有' },
-            { id: 'other_break_total_minutes', label: '【その他】休憩時間合計(分)', sf: 'dk_TotalOtherBreakTime__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, showIf: (data) => data.saturday_work === '有' },
+            { id: 'saturday_work', label: '【基本】土曜日勤務の有無', sf: 'dk_SaturdayWork__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 3 },
+            { id: 'other_start_time', label: '【その他】始業時刻', sf: 'dk_OtherStartingTime__c', type: 'time', req: true, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_end_time', label: '【その他】終業時刻', sf: 'dk_OtherClosingTime__c', type: 'time', req: true, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_start_1', label: '【その他】休憩開始時間1', sf: 'dk_OtherBreakStartTime1__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_end_1', label: '【その他】休憩終了時間1', sf: 'dk_OtherBreakEndTime1__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_start_2', label: '【その他】休憩開始時間2', sf: 'dk_OtherBreakStartTime2__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_end_2', label: '【その他】休憩終了時間2', sf: 'dk_OtherBreakEndTime2__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_start_3', label: '【その他】休憩開始時間3', sf: 'dk_OtherBreakStartTime3__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_end_3', label: '【その他】休憩終了時間3', sf: 'dk_OtherBreakEndTime3__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_total_minutes', label: '【その他】休憩時間合計(分)', sf: 'dk_TotalOtherBreakTime__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, showIf: (data) => data.saturday_work === 'あり' },
 
             { type: 'section', label: '【交代制の労働時間】', bu: ['intern', 'skilled'], tab: 3 },
-            { id: 'has_shift', label: '交代制の有無', sf: 'dk_ShiftSystem__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 3 },
+            { id: 'has_shift', label: '交代制の有無', sf: 'dk_ShiftSystem__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 3 },
             ...(() => {
                 const fields = [];
                 for (let i = 1; i <= 5; i++) {
                     fields.push(
-                        { id: `shift_start_${i}`, label: `【交代制】始業時刻${i}`, sf: `dk_ShiftOpeningTime${i}__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_end_${i}`, label: `【交代制】終業時刻${i}`, sf: `dk_ShiftClosingTime${i}__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_days_${i}`, label: `【交代制】交代制の適用日${i}`, sf: `dk_ShiftSystemApplicationDate${i}__c`, type: 'text', req: false, bu: ['intern', 'skilled'], tab: 3, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_break_start_${i}_1`, label: `【交代制】休憩開始時間${i}`, sf: `dk_ShiftBreakStartTime${i}__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_break_end_${i}_1`, label: `【交代制】休憩終了時間${i}`, sf: `dk_ShiftBreakEndTime${i}__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_break_start_${i}_2`, label: `【交代制】休憩開始時間${i}-2`, sf: `dk_ShiftBreakStartTime${i}_2__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_break_end_${i}_2`, label: `【交代制】休憩終了時間${i}-2`, sf: `dk_ShiftBreakEndTime${i}_2__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_break_start_${i}_3`, label: `【交代制】休憩開始時間${i}-3`, sf: `dk_ShiftBreakStartTime${i}_3__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_break_end_${i}_3`, label: `【交代制】休憩終了時間${i}-3`, sf: `dk_ShiftBreakEndTime${i}_3__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_break_total_${i}`, label: `【交代制】休憩時間合計${i}（分）`, sf: `dk_TotalShiftBreakTime${i}__c`, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_daily_hours_${i}`, label: `【交代制】1日の所定労働時間${i}(時間)`, sf: `dk_ScheduledWorkingHoursPerDay${i}__c`, type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true, showIf: (data) => data.has_shift === '有' },
-                        { id: `shift_daily_minutes_${i}`, label: `【交代制】1日の所定労働時間${i}(分)`, sf: `_shift_daily_minutes_${i}`, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true, showIf: (data) => data.has_shift === '有' },
+                        { id: `shift_start_${i}`, label: `【交代制】始業時刻${i}`, sf: `dk_ShiftOpeningTime${i}__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_end_${i}`, label: `【交代制】終業時刻${i}`, sf: `dk_ShiftClosingTime${i}__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_days_${i}`, label: `【交代制】交代制の適用日${i}`, sf: `dk_ShiftSystemApplicationDate${i}__c`, type: 'text', req: false, bu: ['intern', 'skilled'], tab: 3, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_start_${i}_1`, label: `【交代制】休憩開始時間${i}`, sf: `dk_ShiftBreakStartTime${i}__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_end_${i}_1`, label: `【交代制】休憩終了時間${i}`, sf: `dk_ShiftBreakEndTime${i}__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_start_${i}_2`, label: `【交代制】休憩開始時間${i}-2`, sf: `dk_ShiftBreakStartTime${i}_2__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_end_${i}_2`, label: `【交代制】休憩終了時間${i}-2`, sf: `dk_ShiftBreakEndTime${i}_2__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_start_${i}_3`, label: `【交代制】休憩開始時間${i}-3`, sf: `dk_ShiftBreakStartTime${i}_3__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_end_${i}_3`, label: `【交代制】休憩終了時間${i}-3`, sf: `dk_ShiftBreakEndTime${i}_3__c`, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_total_${i}`, label: `【交代制】休憩時間合計${i}（分）`, sf: `dk_TotalShiftBreakTime${i}__c`, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_daily_hours_${i}`, label: `【交代制】1日の所定労働時間${i}(時間)`, sf: `dk_ScheduledWorkingHoursPerDay${i}__c`, type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_daily_minutes_${i}`, label: `【交代制】1日の所定労働時間${i}(分)`, sf: `_shift_daily_minutes_${i}`, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true, showIf: (data) => data.has_shift === 'あり' },
                     );
                 }
                 return fields;
@@ -410,34 +410,34 @@
             { id: 'hourly_salary_1', label: '時給額(実習1号)', sf: 'dk_HourlyWage1__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_1); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習1号' },
             { id: 'hourly_salary_2', label: '時給額(実習2号)', sf: 'dk_HourlyWage2__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_2); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習2号' },
             { id: 'hourly_salary_3', label: '時給額(実習3号)', sf: 'dk_HourlyWage3__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_3); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習3号' },
-            { id: 'has_bonus', label: '賞与有無', sf: 'Bonus__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
-            { id: 'has_raise', label: '昇給有無', sf: 'WageRaise__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
-            { id: 'has_retirement', label: '退職金有無', sf: 'RetirementAllowance__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
-            { id: 'has_allowance', label: '手当の有無', sf: '_has_allowance', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4, tripled: false },
+            { id: 'has_bonus', label: '賞与有無', sf: 'Bonus__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
+            { id: 'has_raise', label: '昇給有無', sf: 'WageRaise__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
+            { id: 'has_retirement', label: '退職金有無', sf: 'RetirementAllowance__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
+            { id: 'has_allowance', label: '手当の有無', sf: '_has_allowance', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: false },
             ...generateAllowanceFields(4),
 
             { type: 'section', label: '【控除】', bu: ['intern', 'skilled'], tab: 4, help:<span><a href="https://e-kyu.com/" target="_blank" rel="noopener noreferrer">イージー給与計算</a></span>},
-            { id: 'has_wage_deduction', label: '賃金支払い時の控除有無', sf: 'dk_WagePaymentDeduction__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'pension_type', label: '加入年金種別', sf: 'dk_PensionInsurance__c', type: 'select', req: true, opts: (data) => data.business_type === '法人' ? ['厚生年金'] : ['厚生年金', '国民年金'], bu: ['intern', 'skilled'], tab: 4, help:'法人の場合は「厚生年金」、個人事業主の場合は「厚生年金」もしくは「国民年金」から選択してください', showIf: (data) => data.has_wage_deduction === '有' },
-            { id: 'insurance_type', label: '加入保険種別', sf: 'dk_HealthInsurance__c', type: 'select', req: false, opts: ['健康保険', '国民健康保険','その他保険'], bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_wage_deduction === '有' },
-            { id: 'other_insurance', label: 'その他の保険の詳細', sf: 'OtherInsurance__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, help:'土建国保などの場合は、加入する保険の正式名称を記載', showIf: (data) => data.has_wage_deduction === '有' && data.insurance_type === 'その他保険' },
-            { id: 'labor_insurance_total', label: '労働保険控除総額(雇用保険)', sf: 'dk_TotalEmploymentInsuranceDeduction__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「雇用保険」が該当する項目です', showIf: (data) => data.has_wage_deduction === '有' },
-            { id: 'income_tax', label: '所得税', sf: 'dk_IncomeTax__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「源泉所得税:扶養」が該当する項目です', showIf: (data) => data.has_wage_deduction === '有' },
-            { id: 'pension_standard_remuneration', label: '厚生年金：標準報酬', sf: '_pension_standard_remuneration', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「厚生年金:標準報酬」が該当する項目です', showIf: (data) => data.has_wage_deduction === '有' },
-            { id: 'health_standard_remuneration', label: '健康保険：標準報酬', sf: 'health_standard_remuneration', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「健康保険:標準報酬」が該当する項目です。国民健康保険および土建国保の場合は金額を参照できません。控除する金額とそもそも給与から控除するかを企業様に確認してください', showIf: (data) => data.has_wage_deduction === '有' },
-            { id: 'social_insurance_total', label: '社会保険控除総額', sf: 'dk_TotalSocialInsuranceDeduction__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, readOnly: true, help: '厚生年金標準報酬＋健康保険標準報酬から自動計算されます', showIf: (data) => data.has_wage_deduction === '有' },
-            { id: 'provides_meals', label: '食事食材等の提供有無', sf: 'ProvisionOfFood__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'has_wage_deduction', label: '賃金支払い時の控除有無', sf: 'dk_WagePaymentDeduction__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'pension_type', label: '加入年金種別', sf: 'dk_PensionInsurance__c', type: 'select', req: true, opts: (data) => data.business_type === '法人' ? ['厚生年金'] : ['厚生年金', '国民年金'], bu: ['intern', 'skilled'], tab: 4, help:'法人の場合は「厚生年金」、個人事業主の場合は「厚生年金」もしくは「国民年金」から選択してください', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'insurance_type', label: '加入保険種別', sf: 'dk_HealthInsurance__c', type: 'select', req: false, opts: ['健康保険', '国民健康保険','その他保険'], bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'other_insurance', label: 'その他の保険の詳細', sf: 'OtherInsurance__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, help:'土建国保などの場合は、加入する保険の正式名称を記載', showIf: (data) => data.has_wage_deduction === 'あり' && data.insurance_type === 'その他保険' },
+            { id: 'labor_insurance_total', label: '労働保険控除総額(雇用保険)', sf: 'dk_TotalEmploymentInsuranceDeduction__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「雇用保険」が該当する項目です', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'income_tax', label: '所得税', sf: 'dk_IncomeTax__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「源泉所得税:扶養」が該当する項目です', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'pension_standard_remuneration', label: '厚生年金：標準報酬', sf: '_pension_standard_remuneration', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「厚生年金:標準報酬」が該当する項目です', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'health_standard_remuneration', label: '健康保険：標準報酬', sf: 'health_standard_remuneration', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「健康保険:標準報酬」が該当する項目です。国民健康保険および土建国保の場合は金額を参照できません。控除する金額とそもそも給与から控除するかを企業様に確認してください', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'social_insurance_total', label: '社会保険控除総額', sf: 'dk_TotalSocialInsuranceDeduction__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, readOnly: true, help: '厚生年金標準報酬＋健康保険標準報酬から自動計算されます', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'provides_meals', label: '食事食材等の提供有無', sf: 'ProvisionOfFood__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'housing_fee_monthly', label: '居住費徴収額（月）', sf: 'dk_CollectionFeeOfHousingCosts__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'housing_fee_explanation', label: '居住費が実費に相当する額その他の適正な額であることの説明', sf: 'dk_HousingCostsExplanation__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'charges_utilities', label: '水道光熱費の徴収の有無', sf: 'UtilityCost__c', type: 'select', req: true, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'utilities_type', label: '水道光熱費種別', sf: 'UtilityCostType__c', type: 'select', req: true, opts: ['実費', '実費以外'], bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.charges_utilities === '有' },
-            { id: 'utilities_details', label: '水道光熱費の詳細', sf: 'dk_UtilityCostDetails__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.charges_utilities === '有' && data.utilities_type === '実費以外' },
-            { id: 'telecom_type', label: '通信(Wi-Fi)費種別', sf: 'dk_CommunicationsCostType__c', type: 'select', req: true, opts: ['実費', '実費以外', '無'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'charges_utilities', label: '水道光熱費の徴収の有無', sf: 'UtilityCost__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'utilities_type', label: '水道光熱費種別', sf: 'UtilityCostType__c', type: 'select', req: true, opts: ['実費徴収', '固定徴収'], bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.charges_utilities === 'あり' },
+            { id: 'utilities_details', label: '水道光熱費の詳細', sf: 'dk_UtilityCostDetails__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.charges_utilities === 'あり' && data.utilities_type === '固定徴収' },
+            { id: 'telecom_type', label: '通信(Wi-Fi)費種別', sf: 'dk_CommunicationsCostType__c', type: 'select', req: true, opts: ['実費', '実費以外'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'telecom_fee_monthly', label: '実費以外の時の通信費（月）', sf: 'dk_CommunicationsCostBurden__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.telecom_type === '実費以外' },
-            { id: 'has_other_fees', label: 'その他技能実習生が定期に負担する費用の有無', sf: 'dk_OtherRecurringCosts__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'has_other_fees', label: 'その他技能実習生が定期に負担する費用の有無', sf: 'dk_OtherRecurringCosts__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4 },
             ...generateOtherCostFields(4),
-            { id: 'other_cost_benefits', label: 'その他負担費用に対する便益', sf: 'dk_BenefitOfOtherBurdenCosts__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
-            { id: 'other_cost_explanation', label: 'その他の負担費用が実費に相当する額であることの説明', sf: 'OtherBurdenCostExplanation__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_other_fees === '有' },
+            { id: 'other_cost_benefits', label: 'その他負担費用に対する便益', sf: 'dk_BenefitOfOtherBurdenCosts__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
+            { id: 'other_cost_explanation', label: 'その他の負担費用が実費に相当する額であることの説明', sf: 'OtherBurdenCostExplanation__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
             
             { id: 'net_income', label: '手取り額(約)', sf: '_net_income', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, help: '月給額 - (社会保険控除総額 + 所得税 + 雇用保険 + 居住費 + その他負担費用合計) で自動計算されます。手動での修正も可能です。',  showIf: (data) => data.payment_type === '月給' || data.payment_type === '時給' },
 
@@ -461,20 +461,20 @@
             { id: 'health_checkup_first', label: '初回健康診断 受診日', sf: '_health_checkup_first', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4, readOnly: true },
             { id: 'health_checkup_schedule', label: 'その後の健康診断実施時期', sf: 'HealthCheckupPeriod__c', type: 'select', req: true, opts: ['1年', '半年'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'health_checkup_schedule_confirmed', label: '夜勤4回超・1年健診を確認済み', sf: '_health_checkup_confirmed', type: 'checkbox_confirm', req: false, bu: ['intern', 'skilled'], tab: 4,
-                showIf: (data) => { const n = parseInt(data.nightshift_count); return data.has_shift === '有' && data.health_checkup_schedule === '1年' && !isNaN(n) && n > 4; }
+                showIf: (data) => { const n = parseInt(data.nightshift_count); return data.has_shift === 'あり' && data.health_checkup_schedule === '1年' && !isNaN(n) && n > 4; }
             },
 
             { id: 'placement_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '企業様の希望する配属希望日を入力してください' },
             { id: 'company_culture', label: '会社の特徴／社風', sf: 'CompanyCulture_TT__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '会社の特徴および社風を入力してください\n記載された情報を元に人材が応募するので、よりよいマッチングのためきちんとしたヒアリングを推奨します。' },
-            { id: 'foreigner_experience', label: '外国人受入経験', sf: 'RecordOfAcceptingForeigners_TT__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 5, prompt: '外国人材の受入経験について教えてください\n経験の有無は採用時の参考情報となります。' },
+            { id: 'foreigner_experience', label: '外国人受入経験', sf: 'RecordOfAcceptingForeigners_TT__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '外国人材の受入経験について教えてください\n経験の有無は採用時の参考情報となります。' },
             { id: 'actual_work_content', label: '実際の実習内容', sf: 'TrainingContent_TT__c', type: 'text', req: false, bu: ['intern'], tab: 5, prompt: '実際にどのような実習を行うかを具体的に記載してください\nより詳細な情報が、適切な人材とのマッチングにつながります。' },
             { id: 'training_period', label: '実習期間', sf: 'TrainingPeriod_TT__c', type: 'select', req: false, opts: ['技能実習2号まで', '技能実習3号まで', '特定技能まで'], bu: ['intern'], tab: 5, prompt: '実習期間を選択してください' },
-            { id: 'high_altitude_work', label: '高所作業', sf: 'HighPlaceWork_TT__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 5, prompt: '高所での作業が含まれますか？\n安全管理の観点から正確な情報をお願いします。' },
-            { id: 'high_altitude_height', label: '高所作業の高さ', sf: 'HighAltitudeHeight__c', type: 'number', req: false, suf: 'm', bu: ['intern', 'skilled'], tab: 5, prompt: 'おおよその高さを入力してください', showIf: (data) => data.high_altitude_work === '有' },
+            { id: 'high_altitude_work', label: '高所作業', sf: 'HighPlaceWork_TT__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '高所での作業が含まれますか？\n安全管理の観点から正確な情報をお願いします。' },
+            { id: 'high_altitude_height', label: '高所作業の高さ', sf: 'HighAltitudeHeight__c', type: 'number', req: false, suf: 'm', bu: ['intern', 'skilled'], tab: 5, prompt: 'おおよその高さを入力してください', showIf: (data) => data.high_altitude_work === 'あり' },
             { id: 'outdoor_indoor_ratio', label: '屋外屋内作業比率', sf: 'OutdoorIndoorWorkRate_TT__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '屋外作業と屋内作業の比率を教えてください\n例:「屋外7割、屋内3割」「ほぼ屋内」など' },
-            { id: 'overtime_nightshift', label: '残業・夜勤の有無', sf: 'OverTimeAndNightShift_TT__c', type: 'select', req: false, opts: ['有', '無'], bu: ['intern', 'skilled'], tab: 5, prompt: '残業や夜勤の可能性について教えてください' },
-            { id: 'avg_overtime_hours', label: '残業月平均', sf: 'AvgOvertimeHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 5, prompt: '月平均の残業時間を入力してください', showIf: (data) => data.overtime_nightshift === '有' },
-            { id: 'nightshift_count', label: '夜勤月回数', sf: 'NightshiftCount__c', type: 'number', req: true, suf: '回', bu: ['intern', 'skilled'], tab: 5, prompt: '月あたりの夜勤回数を入力してください', showIf: (data) => data.overtime_nightshift === '有' },
+            { id: 'overtime_nightshift', label: '残業・夜勤の有無', sf: 'OverTimeAndNightShift_TT__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '残業や夜勤の可能性について教えてください' },
+            { id: 'avg_overtime_hours', label: '残業月平均', sf: 'AvgOvertimeHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 5, prompt: '月平均の残業時間を入力してください', showIf: (data) => data.overtime_nightshift === 'あり' },
+            { id: 'nightshift_count', label: '夜勤月回数', sf: 'NightshiftCount__c', type: 'number', req: true, suf: '回', bu: ['intern', 'skilled'], tab: 5, prompt: '月あたりの夜勤回数を入力してください', showIf: (data) => data.overtime_nightshift === 'あり' },
             { id: 'sending_org_notes', label: '送出機関への共有事項', sf: 'SharedMattersToSendingAgency__c', type: 'text', req: false, bu: ['intern'], tab: 5, prompt: '送出機関に特に伝えておきたい事項があれば記載してください\n業務上の特性や必要なスキルなど' },
             { id: 'gender', label: '性別', sf: 'Gender__c', type: 'select', req: false, opts: ['男性', '女性', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '性別の希望がありますか？\n業務内容により必要な場合のみ選択してください。' },
             { id: 'preferred_age', label: '希望年齢', sf: 'DesiredAge__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する年齢層を教えてください\n例:「20代前半」「25歳～35歳」など' },
@@ -482,12 +482,12 @@
             { id: 'preferred_height', label: '希望身長', sf: 'DesiredHeight__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する身長があれば記載してください\n業務上必要な場合のみ。例:「160cm以上」' },
             { id: 'preferred_weight', label: '希望体重', sf: 'DesiredBodyWeight__c', type: 'select', req: false, opts: ['細め：47～50Kg', '普通', 'がっちり：60kg～', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '希望する体型・体重を選択してください\n業務上指定が必要な場合のみ選択してください。' },
             { id: 'dominant_hand', label: '利き手', sf: 'DominantHand_TT__c', type: 'select', req: false, opts: ['右', '左', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '利き手の指定が必要ですか？', help: '業務で使用する道具との関係で、利き手が指定される場合にのみ選択' },
-            { id: 'glasses', label: 'メガネ', sf: 'Glasses__c', type: 'select', req: false, opts: ['可', '不可', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '眼鏡の着用について教えてください', help: '業務の安全上、眼鏡の着用が問題となる場合にのみ選択' },
+            { id: 'glasses', label: 'メガネ', sf: 'Glasses__c', type: 'select', req: false, opts: ['可', '不可'], bu: ['intern', 'skilled'], tab: 5, prompt: '眼鏡の着用について教えてください', help: '業務の安全上、眼鏡の着用が問題となる場合にのみ選択' },
             { id: 'tattoo', label: '刺青', sf: 'Tattoo__c', type: 'select', req: false, opts: ['完全に洋服や作業着で隠せる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '刺青(タトゥー)がある方の受入について教えてください', help: '記載例:「長袖で隠せる場合は可能」「大きさ・場所に問わず不可」' },
-            { id: 'marital_status', label: '結婚', sf: 'Marriage_TT__c', type: 'select', req: false, opts: ['既婚可', '未婚のみ', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '結婚の有無について条件がありますか?\n特に指定がない場合は「不問」を選択してください。' },
+            { id: 'marital_status', label: '結婚', sf: 'Marriage_TT__c', type: 'select', req: false, opts: ['既婚', '未婚', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '結婚の有無について条件がありますか?\n特に指定がない場合は「不問」を選択してください。' },
             { id: 'smoking', label: '喫煙', sf: 'Smoking__c', type: 'select', req: false, opts: ['所定のルールや場所を守れる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '喫煙者の受入について教えてください', help: '所定のルールや場所を守れる場合はどうか、など緩和を行う' },
             { id: 'drinking', label: '飲酒', sf: 'Drinking__c', type: 'select', req: false, opts: ['ルール・法令厳守を守れる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '飲酒について教えてください', help: '所定のルールや場所を守れる場合はどうか、など緩和を行う' },
-            { id: 'work_experience', label: '現場経験', sf: 'FieldExperience_TT__c', type: 'select', req: false, opts: ['必要', '不要', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '職種に関連する現場経験は必要ですか?\n未経験者でも可能な場合は「不要」を選択してください。' },
+            { id: 'work_experience', label: '現場経験', sf: 'FieldExperience_TT__c', type: 'select', req: false, opts: ['要', '不要'], bu: ['intern', 'skilled'], tab: 5, prompt: '職種に関連する現場経験は必要ですか?\n未経験者でも可能な場合は「不要」を選択してください。' },
             { id: 'hometown', label: '出身地', sf: 'Birthplace__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する出身地があれば記載してください\n例:「ベトナム北部」「フィリピン・セブ地域」など' },
             { id: 'priority_1', label: '優先順位1', sf: 'Priority1__c', type: 'select', req: false, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern', 'skilled'], tab: 5, prompt: '人材選定において最も重視する項目を選択してください', help: '最も重視する項目を選択してください' },
             { id: 'priority_2', label: '優先順位2', sf: 'Priority2__c', type: 'select', req: false, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern', 'skilled'], tab: 5, prompt: '2番目に重視する項目を選択してください', help: '2番目に重視する項目を選択してください' },
@@ -578,9 +578,9 @@
                     company_name_en: 'Co., Ltd.', rep_position: '代表取締役',
                     housing_status: '未定',
                     regular_holiday_day: ['土曜日', '日曜日'],
-                    has_shift: '無', has_bonus: '無', has_raise: '無', has_retirement: '無',
+                    has_shift: 'なし', has_bonus: 'なし', has_raise: 'なし', has_retirement: 'なし',
                     annual_leave: '10', resignation_notice_days: '30',
-                    has_wage_deduction: '有', charges_utilities: '有'
+                    has_wage_deduction: 'あり', charges_utilities: 'あり'
                 };
                 setDataList(prev => [...prev, newRecord]);
                 setCurrentId(newId);
@@ -735,7 +735,7 @@
                         const laborInsurance  = parseFloat(newData.labor_insurance_total) || 0;
                         const housingFee      = parseFloat(newData.housing_fee_monthly) || 0;
                         let otherCostTotal = 0;
-                        if (newData.has_other_fees === '有') {
+                        if (newData.has_other_fees === 'あり') {
                             [1,2,3,4].forEach(n => {
                                 otherCostTotal += parseFloat(newData[`other_cost_amount_${n}`]) || 0;
                             });
@@ -872,7 +872,6 @@
                     };
 
                     const toolToSfMap = {
-                        '有': 'あり', '無': 'なし', '実費': '実費徴収',
                         '男性': 'Male', '女性': 'Female',
                         '右': '右のみ', '左': '左のみ',
                         '既婚可': '既婚', '必要': '要',
@@ -1096,8 +1095,6 @@
                                             rawVal = rawVal.replace(/^[\d,]+$/, v => v.replace(/,/g, ''));
                                         // SF値 → ツール値 の共通変換マップ
                                         const sfValMap = {
-                                            'あり': '有', 'なし': '無',
-                                            '実費徴収': '実費',
                                             'Male': '男性', 'Female': '女性',
                                             '右のみ': '右', '左のみ': '左',
                                             '既婚': '既婚可', '要': '必要',
@@ -1132,7 +1129,7 @@
                             const laborInsurance  = parseFloat(record.labor_insurance_total) || 0;
                             const housingFee      = parseFloat(record.housing_fee_monthly) || 0;
                             let otherCostTotal = 0;
-                            if (record.has_other_fees === '有') {
+                            if (record.has_other_fees === 'あり') {
                                 [1,2,3,4].forEach(n => {
                                     otherCostTotal += parseFloat(record[`other_cost_amount_${n}`]) || 0;
                                 });
@@ -1199,7 +1196,7 @@
                     if (holidays && selectedDays >= 2 && ah <= 120) errors.push({ field: 'annual_holidays', msg: `祝日休み・週2日休みの設定で年間休日が120日以下です。${LAW_MSG}` });
                 }
                 const nightCount = parseInt(data.nightshift_count);
-                if (data.has_shift === '有' && data.health_checkup_schedule === '1年' && !isNaN(nightCount) && nightCount > 4 && !data.health_checkup_schedule_confirmed) {
+                if (data.has_shift === 'あり' && data.health_checkup_schedule === '1年' && !isNaN(nightCount) && nightCount > 4 && !data.health_checkup_schedule_confirmed) {
                     errors.push({ field: 'health_checkup_schedule', msg: `夜勤が月${nightCount}回あります。交代制勤務で夜勤が月4回を超える場合、健康診断は「半年」が推奨されます。問題なければ確認済みにチェックしてください。` });
                 }
                 const pref = PREFECTURES.find(p => (data.address || '').includes(p));
