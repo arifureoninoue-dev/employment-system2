@@ -1607,6 +1607,51 @@
                                                                 i += 2; continue;
                                                             }
                                                             const isReadOnly = typeof f.readOnly === 'function' ? f.readOnly(currentData) : (f.readOnly || f.id === 'area_per_person');
+                                                            if (f.id === 'hourly_salary_1' && currentData.payment_type === '月給' && currentData.residence_status === '実習1号') {
+                                                                const pref = PREFECTURES.find(p => (currentData.address || '').includes(p));
+                                                                const minWage = pref ? MIN_WAGE_MASTER[pref] : null;
+                                                                const annMin = (parseInt(currentData.annual_work_hours) || 0) * 60 + (parseInt(currentData.annual_work_minutes) || 0);
+                                                                
+                                                                if (!pref || !minWage || annMin === 0) {
+                                                                    rendered.push(
+                                                                        <div key="min_wage_sim_placeholder" className="anim-fade" style={{ marginBottom: 24, padding: '16px 20px', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', fontSize: 12, color: '#64748b', textAlign: 'center', lineHeight: 1.6 }}>
+                                                                            <span style={{ fontSize: 16, display: 'block', marginBottom: 4 }}>💡</span>
+                                                                            基本情報の <strong>所在地(拠点)</strong> と <strong>年所定労働時間</strong> が入力されると、<br/>ここに最低賃金からの月給計算シミュレーターが表示されます。
+                                                                        </div>
+                                                                    );
+                                                                } else {
+                                                                    const annHours = annMin / 60;
+                                                                    // 月給 = (最低賃金 × 年間労働時間) / 12 (※最低賃金を割らないよう1円未満は切り上げ)
+                                                                    const calcMonthly = Math.ceil((minWage * annHours) / 12);
+                                                                    
+                                                                    rendered.push(
+                                                                        <div key="min_wage_sim" className="anim-fade" style={{ marginBottom: 24, padding: '16px 20px', background: '#f8fafc', borderRadius: 12, border: '1px solid #cbd5e1', fontSize: 12, color: '#334155' }}>
+                                                                            <div style={{ fontWeight: 900, marginBottom: 12, color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                                                <span>💡 最低賃金からの月給計算シミュレーター</span>
+                                                                                <button 
+                                                                                    onClick={(e) => {
+                                                                                        e.preventDefault();
+                                                                                        updateField('monthly_salary_1', String(calcMonthly));
+                                                                                    }}
+                                                                                    style={{ background: '#059669', color: 'white', padding: '6px 16px', borderRadius: 8, fontWeight: 900, fontSize: 11, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)' }}
+                                                                                    onMouseEnter={e => { e.target.style.background = '#047857'; e.target.style.transform = 'translateY(-1px)'; }}
+                                                                                    onMouseLeave={e => { e.target.style.background = '#059669'; e.target.style.transform = 'translateY(0)'; }}
+                                                                                >
+                                                                                    👈 月給額(実習1号)に適用する
+                                                                                </button>
+                                                                            </div>
+                                                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 6, fontFamily: 'monospace', fontSize: 13 }}>
+                                                                                <div>・適用地域: <span style={{fontWeight:700}}>{pref}</span> ({MIN_WAGE_YEAR}最低賃金: <span style={{fontWeight:700}}>{minWage}円</span>)</div>
+                                                                                <div>・年所定労働時間: <span style={{fontWeight:700}}>{parseFloat(annHours.toFixed(2))}時間</span></div>
+                                                                                <div>・計算式: {minWage}円 × {parseFloat(annHours.toFixed(2))}時間 ÷ 12ヶ月</div>
+                                                                                <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px dashed #cbd5e1', fontWeight: 900, fontSize: 15, color: '#0f172a' }}>
+                                                                                    推奨月給額: <span style={{color: '#e63946'}}>{calcMonthly.toLocaleString()} 円</span> <span style={{fontSize: 10, color: '#64748b', fontWeight: 400}}>(※1円未満切り上げ)</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                            }
                                                             rendered.push(
                                                                 <div key={f.id} style={{ marginBottom: 24 }} className="anim-fade">
                                                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
