@@ -331,7 +331,7 @@
 
             { type: 'section', label: '【基本情報】', bu: ['intern', 'skilled'], tab: 3 },
             { id: 'has_overtime', label: '所定時間外労働の有無', sf: 'OverTimeWork__c', type: 'select', req: true, opts: ['あり', 'なし'], help: '残業をする可能性が少しでもある場合は「あり」を選択してください', bu: ['intern', 'skilled'], tab: 3 },
-            { id: 'has_flex_time', label: '【基本】変形時間労働制の有無', sf: 'dk_IrregularWorkingHoursSystem__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 3 },
+            { id: 'has_flex_time', label: '【基本】変形時間労働制の有無', sf: 'dk_IrregularWorkingHoursSystem__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 3 },
             { id: 'flex_time_type', label: '【基本】変形時間労働制のタイプ', sf: 'dk_IrregularWorkingHoursSystemType__c', type: 'select', req: true, opts: ['1年', '半年', '3ヶ月', '1ヶ月', '1週間'], bu: ['intern', 'skilled'], tab: 3, showIf: (data) => data.has_flex_time === 'あり' },
             { id: 'has_work_rules', label: '就業規則の有無', sf: 'WorkRules__c', type: 'select', req: true, opts: ['あり', 'なし'], help: '常勤が10人以上の場合は「有」を選択、9人以下の場合は「なし」を選択', bu: ['intern', 'skilled'], tab: 3 },
             { id: 'regular_holiday_day', label: '定例休日の曜日', sf: 'dk_RegularDaysOff__c', type: 'multiselect', req: false, opts: ['月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日', '日曜日'], value: ['土曜日', '日曜日'], help: '該当する曜日をすべて選択してください', bu: ['intern', 'skilled'], tab: 3 },
@@ -349,19 +349,19 @@
             { id: 'break_end_2', label: '【基本】休憩終了2', sf: 'dk_BasicBreakEndTime2__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'break_start_3', label: '【基本】休憩開始3', sf: 'dk_BasicBreakStartTime3__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'break_end_3', label: '【基本】休憩終了3', sf: 'dk_BasicBreakEndTime3__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'break_total_minutes', label: '【基本】休憩時間合計(分)', sf: 'dk_TotalBasicBreakTime__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true },
+            { id: 'break_total_minutes', label: '【基本】休憩時間合計(分)', sf: 'dk_TotalBasicBreakTime__c', type: 'number', req: true, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true },
             { id: 'daily_work_hours', label: '1日の所定労働時間(時間)', sf: 'dk_ScheduledWorkingHoursPerDay__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
             { id: 'daily_work_minutes', label: '1日の所定労働時間(分)', sf: 'dk_ScheduledWorkingMinutesPerDay__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
             { id: 'weekly_work_hours', label: '週所定労働時間(時間)', sf: 'dk_WeeklyScheduledWorkingHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
             { id: 'weekly_work_minutes', label: '週所定労働時間(分)', sf: 'dk_WeeklyScheduledWorkingMinutes__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
-            { id: 'monthly_work_hours', label: '月所定労働時間(時間)', sf: 'MonthlyScheduledWorkingHours__c', type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== 'あり'},
+            { id: 'monthly_work_hours', label: '月所定労働時間(時間)', sf: 'MonthlyScheduledWorkingHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== 'あり'},
             { id: 'monthly_work_minutes', label: '月所定労働時間(分)', sf: 'MonthlyScheduledWorkingMinutes__c', type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true ,readOnly: (data) => data.has_flex_time !== 'あり'},
             { id: 'annual_work_hours', label: '年所定労働時間(時間)', sf: 'dk_AnnualScheduledWorkingHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'annual_work_minutes', label: '年所定労働時間(分)', sf: 'dk_AnnualScheduledWorkingMinutes__c', type: 'number', req: true, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true },
             { id: 'annual_holidays', label: '年間合計休日数(日)', sf: 'TotalAnnualHoliday__c', type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: 3 },
 
             { type: 'section', label: '【土曜日の労働時間】', bu: ['intern', 'skilled'], tab: 3 },
-            { id: 'saturday_work', label: '【基本】土曜日勤務の有無', sf: 'dk_SaturdayWork__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 3 },
+            { id: 'saturday_work', label: '【基本】土曜日勤務の有無', sf: 'dk_SaturdayWork__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 3 },
             { id: 'other_start_time', label: '【その他】始業時刻', sf: 'dk_OtherStartingTime__c', type: 'time', req: true, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
             { id: 'other_end_time', label: '【その他】終業時刻', sf: 'dk_OtherClosingTime__c', type: 'time', req: true, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
             { id: 'other_break_start_1', label: '【その他】休憩開始時間1', sf: 'dk_OtherBreakStartTime1__c', type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
@@ -413,13 +413,13 @@
             { id: 'has_bonus', label: '賞与有無', sf: 'Bonus__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
             { id: 'has_raise', label: '昇給有無', sf: 'WageRaise__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
             { id: 'has_retirement', label: '退職金有無', sf: 'RetirementAllowance__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
-            { id: 'has_allowance', label: '手当の有無', sf: '_has_allowance', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: false },
+            { id: 'has_allowance', label: '手当の有無', sf: '_has_allowance', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: false },
             ...generateAllowanceFields(4),
 
             { type: 'section', label: '【控除】', bu: ['intern', 'skilled'], tab: 4, help:<span><a href="https://e-kyu.com/" target="_blank" rel="noopener noreferrer">イージー給与計算</a></span>},
-            { id: 'has_wage_deduction', label: '賃金支払い時の控除有無', sf: 'dk_WagePaymentDeduction__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'has_wage_deduction', label: '賃金支払い時の控除有無', sf: 'dk_WagePaymentDeduction__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'pension_type', label: '加入年金種別', sf: 'dk_PensionInsurance__c', type: 'select', req: true, opts: (data) => data.business_type === '法人' ? ['厚生年金'] : ['厚生年金', '国民年金'], bu: ['intern', 'skilled'], tab: 4, help:'法人の場合は「厚生年金」、個人事業主の場合は「厚生年金」もしくは「国民年金」から選択してください', showIf: (data) => data.has_wage_deduction === 'あり' },
-            { id: 'insurance_type', label: '加入保険種別', sf: 'dk_HealthInsurance__c', type: 'select', req: false, opts: ['健康保険', '国民健康保険','その他保険'], bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'insurance_type', label: '加入保険種別', sf: 'dk_HealthInsurance__c', type: 'select', req: true, opts: ['健康保険', '国民健康保険','その他保険'], bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_wage_deduction === 'あり' },
             { id: 'other_insurance', label: 'その他の保険の詳細', sf: 'OtherInsurance__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, help:'土建国保などの場合は、加入する保険の正式名称を記載', showIf: (data) => data.has_wage_deduction === 'あり' && data.insurance_type === 'その他保険' },
             { id: 'labor_insurance_total', label: '労働保険控除総額(雇用保険)', sf: 'dk_TotalEmploymentInsuranceDeduction__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「雇用保険」が該当する項目です', showIf: (data) => data.has_wage_deduction === 'あり' },
             { id: 'income_tax', label: '所得税', sf: 'dk_IncomeTax__c', type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: 4, help:'イージー給与計算の「源泉所得税:扶養」が該当する項目です', showIf: (data) => data.has_wage_deduction === 'あり' },
@@ -434,7 +434,7 @@
             { id: 'utilities_details', label: '水道光熱費の詳細', sf: 'dk_UtilityCostDetails__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.charges_utilities === 'あり' && data.utilities_type === '固定徴収' },
             { id: 'telecom_type', label: '通信(Wi-Fi)費種別', sf: 'dk_CommunicationsCostType__c', type: 'select', req: true, opts: ['実費', '実費以外'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'telecom_fee_monthly', label: '実費以外の時の通信費（月）', sf: 'dk_CommunicationsCostBurden__c', type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.telecom_type === '実費以外' },
-            { id: 'has_other_fees', label: 'その他技能実習生が定期に負担する費用の有無', sf: 'dk_OtherRecurringCosts__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'has_other_fees', label: 'その他技能実習生が定期に負担する費用の有無', sf: 'dk_OtherRecurringCosts__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4 },
             ...generateOtherCostFields(4),
             { id: 'other_cost_benefits', label: 'その他負担費用に対する便益', sf: 'dk_BenefitOfOtherBurdenCosts__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
             { id: 'other_cost_explanation', label: 'その他の負担費用が実費に相当する額であることの説明', sf: 'OtherBurdenCostExplanation__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
@@ -446,8 +446,8 @@
             { type: 'section', label: '【賃金締切日・支払日 1回目】', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'wage_cutoff_type_1', label: '賃金締切日', sf: 'WageDeadline__c', type: 'select', req: true, opts: ['当月指定日', '末日'], bu: ['intern', 'skilled'], tab: 4, paired: true },
             { id: 'wage_cutoff_day_1', label: '締切日（日）', sf: '_wage_cutoff_day_1', type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: 4, paired: true, showIf: (data) => data.wage_cutoff_type_1 === '当月指定日' },
-            { id: 'wage_payment_month_1', label: '支払月', sf: '_wage_payment_month_1', type: 'select', req: false, opts: ['当月', '翌月', '翌々月'], bu: ['intern', 'skilled'], tab: 4, paired: true },
-            { id: 'wage_payment_day_type_1', label: '支払日タイプ', sf: '_wage_payment_day_type_1', type: 'select', req: false, opts: ['指定日', '末日'], bu: ['intern', 'skilled'], tab: 4, paired: true },
+            { id: 'wage_payment_month_1', label: '支払月', sf: '_wage_payment_month_1', type: 'select', req: true, opts: ['当月', '翌月', '翌々月'], bu: ['intern', 'skilled'], tab: 4, paired: true },
+            { id: 'wage_payment_day_type_1', label: '支払日タイプ', sf: '_wage_payment_day_type_1', type: 'select', req: true, opts: ['指定日', '末日'], bu: ['intern', 'skilled'], tab: 4, paired: true },
             { id: 'wage_payment_day_1', label: '支払日（日）', sf: 'WagePaymentDate__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.wage_payment_day_type_1 === '指定日' },
             { type: 'section', label: '【賃金締切日・支払日 2回目】', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'wage_cutoff_type_2', label: '賃金締切日', sf: 'dk_WageDeadline2__c', type: 'select', req: false, opts: ['当月指定日', '末日'], bu: ['intern', 'skilled'], tab: 4, paired: true },
@@ -456,42 +456,41 @@
             { id: 'wage_payment_day_type_2', label: '支払日タイプ', sf: '_wage_payment_day_type_2', type: 'select', req: false, opts: ['指定日', '末日'], bu: ['intern', 'skilled'], tab: 4, paired: true },
             { id: 'wage_payment_day_2', label: '支払日（日）', sf: 'dk_WagePaymentDate2__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.wage_payment_day_type_2 === '指定日' },
             { type: 'section', label: '【その他】', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'resignation_notice_days', label: '退職届出の猶予日数（日前）', sf: 'GraceDaysOfResignation__c', type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
-            { id: 'health_checkup_hire', label: '雇入れ時の健康診断 受診日', sf: 'DateOfHealthCheckupForEmployment__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4, readOnly: true },
+            { id: 'resignation_notice_days', label: '退職届出の猶予日数（日前）', sf: 'GraceDaysOfResignation__c', type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'health_checkup_hire', label: '雇入れ時の健康診断 受診日', sf: 'DateOfHealthCheckupForEmployment__c', type: 'date', req: true, bu: ['intern', 'skilled'], tab: 4, readOnly: true },
             { id: 'health_checkup_first', label: '初回健康診断 受診日', sf: '_health_checkup_first', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4, readOnly: true },
             { id: 'health_checkup_schedule', label: 'その後の健康診断実施時期', sf: 'HealthCheckupPeriod__c', type: 'select', req: true, opts: ['1年', '半年'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'health_checkup_schedule_confirmed', label: '夜勤4回超・1年健診を確認済み', sf: '_health_checkup_confirmed', type: 'checkbox_confirm', req: false, bu: ['intern', 'skilled'], tab: 4,
                 showIf: (data) => { const n = parseInt(data.nightshift_count); return data.has_shift === 'あり' && data.health_checkup_schedule === '1年' && !isNaN(n) && n > 4; }
             },
 
-            { id: 'placement_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '企業様の希望する配属希望日を入力してください' },
-            { id: 'company_culture', label: '会社の特徴／社風', sf: 'CompanyCulture_TT__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '会社の特徴および社風を入力してください\n記載された情報を元に人材が応募するので、よりよいマッチングのためきちんとしたヒアリングを推奨します。' },
-            { id: 'foreigner_experience', label: '外国人受入経験', sf: 'RecordOfAcceptingForeigners_TT__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '外国人材の受入経験について教えてください\n経験の有無は採用時の参考情報となります。' },
-            { id: 'actual_work_content', label: '実際の実習内容', sf: 'TrainingContent_TT__c', type: 'text', req: false, bu: ['intern'], tab: 5, prompt: '実際にどのような実習を行うかを具体的に記載してください\nより詳細な情報が、適切な人材とのマッチングにつながります。' },
-            { id: 'training_period', label: '実習期間', sf: 'TrainingPeriod_TT__c', type: 'select', req: false, opts: ['技能実習2号まで', '技能実習3号まで', '特定技能まで'], bu: ['intern'], tab: 5, prompt: '実習期間を選択してください' },
-            { id: 'high_altitude_work', label: '高所作業', sf: 'HighPlaceWork_TT__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '高所での作業が含まれますか？\n安全管理の観点から正確な情報をお願いします。' },
+            { id: 'placement_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: true, bu: ['intern', 'skilled'], tab: 5, prompt: '企業様の希望する配属希望日を入力してください' },
+            { id: 'company_culture', label: '会社の特徴／社風', sf: 'CompanyCulture_TT__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 5, prompt: '会社の特徴および社風を入力してください\n記載された情報を元に人材が応募するので、よりよいマッチングのためきちんとしたヒアリングを推奨します。' },
+            { id: 'foreigner_experience', label: '外国人受入経験', sf: 'RecordOfAcceptingForeigners_TT__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '外国人材の受入経験について教えてください\n経験の有無は採用時の参考情報となります。' },
+            { id: 'actual_work_content', label: '実際の実習内容', sf: 'TrainingContent_TT__c', type: 'text', req: true, bu: ['intern'], tab: 5, prompt: '実際にどのような実習を行うかを具体的に記載してください\nより詳細な情報が、適切な人材とのマッチングにつながります。' },
+            { id: 'training_period', label: '実習期間', sf: 'TrainingPeriod_TT__c', type: 'select', req: true, opts: ['技能実習2号まで', '技能実習3号まで', '特定技能まで'], bu: ['intern'], tab: 5, prompt: '実習期間を選択してください' },
+            { id: 'high_altitude_work', label: '高所作業', sf: 'HighPlaceWork_TT__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '高所での作業が含まれますか？\n安全管理の観点から正確な情報をお願いします。' },
             { id: 'high_altitude_height', label: '高所作業の高さ', sf: 'HighAltitudeHeight__c', type: 'number', req: false, suf: 'm', bu: ['intern', 'skilled'], tab: 5, prompt: 'おおよその高さを入力してください', showIf: (data) => data.high_altitude_work === 'あり' },
-            { id: 'outdoor_indoor_ratio', label: '屋外屋内作業比率', sf: 'OutdoorIndoorWorkRate_TT__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '屋外作業と屋内作業の比率を教えてください\n例:「屋外7割、屋内3割」「ほぼ屋内」など' },
-            { id: 'overtime_nightshift', label: '残業・夜勤の有無', sf: 'OverTimeAndNightShift_TT__c', type: 'select', req: false, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '残業や夜勤の可能性について教えてください' },
+            { id: 'outdoor_indoor_ratio', label: '屋外屋内作業比率', sf: 'OutdoorIndoorWorkRate_TT__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 5, prompt: '屋外作業と屋内作業の比率を教えてください\n例:「屋外7割、屋内3割」「ほぼ屋内」など' },
+            { id: 'overtime_nightshift', label: '残業・夜勤の有無', sf: 'OverTimeAndNightShift_TT__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '残業や夜勤の可能性について教えてください' },
             { id: 'avg_overtime_hours', label: '残業月平均', sf: 'AvgOvertimeHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 5, prompt: '月平均の残業時間を入力してください', showIf: (data) => data.overtime_nightshift === 'あり' },
             { id: 'nightshift_count', label: '夜勤月回数', sf: 'NightshiftCount__c', type: 'number', req: true, suf: '回', bu: ['intern', 'skilled'], tab: 5, prompt: '月あたりの夜勤回数を入力してください', showIf: (data) => data.overtime_nightshift === 'あり' },
             { id: 'sending_org_notes', label: '送出機関への共有事項', sf: 'SharedMattersToSendingAgency__c', type: 'text', req: false, bu: ['intern'], tab: 5, prompt: '送出機関に特に伝えておきたい事項があれば記載してください\n業務上の特性や必要なスキルなど' },
-            { id: 'gender', label: '性別', sf: 'Gender__c', type: 'select', req: false, opts: ['男性', '女性', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '性別の希望がありますか？\n業務内容により必要な場合のみ選択してください。' },
+            { id: 'gender', label: '性別', sf: 'Gender__c', type: 'select', req: true, opts: ['男性', '女性', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '性別の希望がありますか？\n業務内容により必要な場合のみ選択してください。' },
             { id: 'preferred_age', label: '希望年齢', sf: 'DesiredAge__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する年齢層を教えてください\n例:「20代前半」「25歳～35歳」など' },
-            { id: 'blood_type', label: '血液型', sf: 'BloodType__c', type: 'select', req: false, opts: ['A', 'B', 'O', 'AB', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '血液型の希望がありますか？\n特に指定がない場合は「不問」を選択してください。' },
+            { id: 'blood_type', label: '血液型', sf: 'BloodType__c', type: 'select', req: true, opts: ['A', 'B', 'O', 'AB', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '血液型の希望がありますか？\n特に指定がない場合は「不問」を選択してください。' },
             { id: 'preferred_height', label: '希望身長', sf: 'DesiredHeight__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する身長があれば記載してください\n業務上必要な場合のみ。例:「160cm以上」' },
-            { id: 'preferred_weight', label: '希望体重', sf: 'DesiredBodyWeight__c', type: 'select', req: false, opts: ['細め：47～50Kg', '普通', 'がっちり：60kg～', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '希望する体型・体重を選択してください\n業務上指定が必要な場合のみ選択してください。' },
-            { id: 'dominant_hand', label: '利き手', sf: 'DominantHand_TT__c', type: 'select', req: false, opts: ['右', '左', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '利き手の指定が必要ですか？', help: '業務で使用する道具との関係で、利き手が指定される場合にのみ選択' },
-            { id: 'glasses', label: 'メガネ', sf: 'Glasses__c', type: 'select', req: false, opts: ['可', '不可'], bu: ['intern', 'skilled'], tab: 5, prompt: '眼鏡の着用について教えてください', help: '業務の安全上、眼鏡の着用が問題となる場合にのみ選択' },
-            { id: 'tattoo', label: '刺青', sf: 'Tattoo__c', type: 'select', req: false, opts: ['完全に洋服や作業着で隠せる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '刺青(タトゥー)がある方の受入について教えてください', help: '記載例:「長袖で隠せる場合は可能」「大きさ・場所に問わず不可」' },
-            { id: 'marital_status', label: '結婚', sf: 'Marriage_TT__c', type: 'select', req: false, opts: ['既婚', '未婚', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '結婚の有無について条件がありますか?\n特に指定がない場合は「不問」を選択してください。' },
-            { id: 'smoking', label: '喫煙', sf: 'Smoking__c', type: 'select', req: false, opts: ['所定のルールや場所を守れる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '喫煙者の受入について教えてください', help: '所定のルールや場所を守れる場合はどうか、など緩和を行う' },
-            { id: 'drinking', label: '飲酒', sf: 'Drinking__c', type: 'select', req: false, opts: ['ルール・法令厳守を守れる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '飲酒について教えてください', help: '所定のルールや場所を守れる場合はどうか、など緩和を行う' },
-            { id: 'work_experience', label: '現場経験', sf: 'FieldExperience_TT__c', type: 'select', req: false, opts: ['要', '不要'], bu: ['intern', 'skilled'], tab: 5, prompt: '職種に関連する現場経験は必要ですか?\n未経験者でも可能な場合は「不要」を選択してください。' },
-            { id: 'hometown', label: '出身地', sf: 'Birthplace__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する出身地があれば記載してください\n例:「ベトナム北部」「フィリピン・セブ地域」など' },
-            { id: 'priority_1', label: '優先順位1', sf: 'Priority1__c', type: 'select', req: false, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern', 'skilled'], tab: 5, prompt: '人材選定において最も重視する項目を選択してください', help: '最も重視する項目を選択してください' },
-            { id: 'priority_2', label: '優先順位2', sf: 'Priority2__c', type: 'select', req: false, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern', 'skilled'], tab: 5, prompt: '2番目に重視する項目を選択してください', help: '2番目に重視する項目を選択してください' },
-            { id: 'priority_3', label: '優先順位3', sf: 'Priority3__c', type: 'select', req: false, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern', 'skilled'], tab: 5, prompt: '3番目に重視する項目を選択してください', help: '3番目に重視する項目を選択してください' }
+            { id: 'preferred_weight', label: '希望体重', sf: 'DesiredBodyWeight__c', type: 'select', req: true, opts: ['細め：47～50Kg', '普通', 'がっちり：60kg～', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '希望する体型・体重を選択してください\n業務上指定が必要な場合のみ選択してください。' },
+            { id: 'dominant_hand', label: '利き手', sf: 'DominantHand_TT__c', type: 'select', req: true, opts: ['右のみ', '左のみ', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '利き手の指定が必要ですか？', help: '業務で使用する道具との関係で、利き手が指定される場合にのみ選択' },
+            { id: 'glasses', label: 'メガネ', sf: 'Glasses__c', type: 'select', req: true, opts: ['可', '不可'], bu: ['intern', 'skilled'], tab: 5, prompt: '眼鏡の着用について教えてください', help: '業務の安全上、眼鏡の着用が問題となる場合にのみ選択' },
+            { id: 'tattoo', label: '刺青', sf: 'Tattoo__c', type: 'select', req: true, opts: ['完全に洋服や作業着で隠せる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '刺青(タトゥー)がある方の受入について教えてください', help: '記載例:「長袖で隠せる場合は可能」「大きさ・場所に問わず不可」' },
+            { id: 'marital_status', label: '結婚', sf: 'Marriage_TT__c', type: 'select', req: true, opts: ['既婚', '未婚', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '結婚の有無について条件がありますか?\n特に指定がない場合は「不問」を選択してください。' },
+            { id: 'smoking', label: '喫煙', sf: 'Smoking__c', type: 'select', req: true, opts: ['所定のルールや場所を守れる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '喫煙者の受入について教えてください', help: '所定のルールや場所を守れる場合はどうか、など緩和を行う' },
+            { id: 'drinking', label: '飲酒', sf: 'Drinking__c', type: 'select', req: true, opts: ['ルール・法令厳守を守れる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '飲酒について教えてください', help: '所定のルールや場所を守れる場合はどうか、など緩和を行う' },
+            { id: 'work_experience', label: '現場経験', sf: 'FieldExperience_TT__c', type: 'select', req: true, opts: ['要', '不要'], bu: ['intern', 'skilled'], tab: 5, prompt: '職種に関連する現場経験は必要ですか?\n未経験者でも可能な場合は「不要」を選択してください。' },
+            { id: 'priority_1', label: '優先順位1', sf: 'Priority1__c', type: 'select', req: true, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern', 'skilled'], tab: 5, prompt: '人材選定において最も重視する項目を選択してください', help: '最も重視する項目を選択してください' },
+            { id: 'priority_2', label: '優先順位2', sf: 'Priority2__c', type: 'select', req: true, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern', 'skilled'], tab: 5, prompt: '2番目に重視する項目を選択してください', help: '2番目に重視する項目を選択してください' },
+            { id: 'priority_3', label: '優先順位3', sf: 'Priority3__c', type: 'select', req: true, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern', 'skilled'], tab: 5, prompt: '3番目に重視する項目を選択してください', help: '3番目に重視する項目を選択してください' }
         ];
 
         const BUSINESS_UNITS = [
@@ -561,6 +560,7 @@
 
         const App = () => {
             const [appMode, setAppMode] = useState(null);
+            const [subMode, setSubMode] = useState(null);
             const [dataList, setDataList] = useState([]);
             const [currentId, setCurrentId] = useState(null);
             const [currentTab, setCurrentTab] = useState(1);
@@ -574,7 +574,7 @@
             const createNew = () => {
                 const newId = `SF-${Math.random().toString(36).slice(2, 11).toUpperCase()}`;
                 const newRecord = {
-                    id: newId, bu: appMode, createdAt: new Date().toISOString(),
+                    id: newId, bu: appMode, sub_type: subMode, createdAt: new Date().toISOString(),
                     company_name_en: 'Co., Ltd.', rep_position: '代表取締役',
                     housing_status: '未定',
                     regular_holiday_day: ['土曜日', '日曜日'],
@@ -859,10 +859,6 @@
                         fieldTypeMap[f.id] = f.type;
                         fieldDefMap[f.id] = f;
                      });
-                    sfToId['dk_IrregularWorkingHoursSystem__c'] = 'has_flex_time';  
-                    sfToId['ProvisionOfFood__c'] = 'provides_meals';                
-                    fieldTypeMap['has_flex_time'] = 'select'; 
-                    fieldTypeMap['provides_meals'] = 'select';
 
                     // ─── 共通：行データ生成関数 ──────────────────────────────────
                     const buildWageText = (cutoffType, cutoffDay, paymentMonth, paymentDayType, paymentDay) => {
@@ -873,7 +869,6 @@
 
                     const toolToSfMap = {
                         '男性': 'Male', '女性': 'Female',
-                        '右': '右のみ', '左': '左のみ',
                         '既婚可': '既婚', '必要': '要',
                     };
 
@@ -922,7 +917,7 @@
                         return values;
                     };
 
-                    const targetRecords = dataList.filter(d => d.bu === appMode);
+                    const targetRecords = dataList.filter(d => d.bu === appMode && (appMode !== 'skilled' || d.sub_type === subMode));
                     const dateStr = new Date().toISOString().split('T')[0];
 
                     const downloadCSV = (filename, header, rows) => {
@@ -935,10 +930,10 @@
                         URL.revokeObjectURL(url);
                     };
 
-                    const saveHeader = ['ID', 'bu', ...CSV_COLUMNS,  '_memo'].join(',');
+                    const saveHeader = ['ID', 'bu', 'sub_type', ...CSV_COLUMNS,  '_memo'].join(',');
                     const saveRows = targetRecords.map(d => {
                         const fieldValues = buildRow(d, CSV_COLUMNS, null, false);
-                        return [escapeCSV(d.id), escapeCSV(d.bu), ...fieldValues, escapeCSV(d._memo || '')].join(',');
+                        return [escapeCSV(d.id), escapeCSV(d.bu), escapeCSV(d.sub_type || ''), ...fieldValues, escapeCSV(d._memo || '')].join(',');
                     });
                     downloadCSV(`SF_Save_${appMode}_${dateStr}.csv`, saveHeader, saveRows);
                     // ★ エラーがある場合はここで処理を終了し、メッセージを表示
@@ -1038,6 +1033,7 @@
                     // 列インデックスを取得（ツール出力形式のみ存在）
                     const idxId   = apiHeaders.indexOf('ID');
                     const idxBu   = apiHeaders.indexOf('bu');
+                    const idxSubType = apiHeaders.indexOf('sub_type');
                     const idxMemo = apiHeaders.indexOf('_memo');
 
                     let importedCount = 0;
@@ -1050,6 +1046,7 @@
 
                         const rowId = idxId >= 0 ? values[idxId] : null;
                         const rowBu = idxBu >= 0 ? values[idxBu] : null;
+                        const rowSubType = idxSubType >= 0 ? values[idxSubType] : null; 
 
                         // ツール出力形式のみbuチェック（Salesforce形式は現在のappModeで取り込む）
                         if (!isSalesforceFormat && rowBu !== appMode) {
@@ -1063,6 +1060,7 @@
                         const record = {
                             id: newId,
                             bu: isSalesforceFormat ? appMode : rowBu,
+                            sub_type: isSalesforceFormat ? subMode : rowSubType,
                             createdAt: new Date().toISOString(),
                             _originalId: rowId,
                         };
@@ -1096,7 +1094,6 @@
                                         // SF値 → ツール値 の共通変換マップ
                                         const sfValMap = {
                                             'Male': '男性', 'Female': '女性',
-                                            '右のみ': '右', '左のみ': '左',
                                             '既婚': '既婚可', '要': '必要',
                                         };
                                         if (sfValMap[rawVal] !== undefined) rawVal = sfValMap[rawVal];
@@ -1194,6 +1191,60 @@
                     const holidays = data.national_holidays === '祝日休み';
                     const selectedDays = Array.isArray(data.regular_holiday_day) ? data.regular_holiday_day.length : 0;
                     if (holidays && selectedDays >= 2 && ah <= 120) errors.push({ field: 'annual_holidays', msg: `祝日休み・週2日休みの設定で年間休日が120日以下です。${LAW_MSG}` });
+                    const dwh = parseInt(data.daily_work_hours) || 0;
+                    const dwm = parseInt(data.daily_work_minutes) || 0;
+                    const inputAnnualMin = (parseInt(data.annual_work_hours) || 0) * 60 + (parseInt(data.annual_work_minutes) || 0);
+
+                    // 入力値が存在し、かつ「交代制」と「変形労働制」ではない場合のみ計算
+                    if (inputAnnualMin > 0 && (dwh > 0 || dwm > 0) && data.has_shift === 'なし' && data.has_flex_time === 'なし') {
+                        let satMin = 0;
+                        if (data.saturday_work === 'あり' && data.other_start_time && data.other_end_time) {
+                            const t2m = (t) => { if(!t) return 0; const [h,m] = t.split(':').map(Number); return h * 60 + m; };
+                            const s = t2m(data.other_start_time);
+                            const e = t2m(data.other_end_time);
+                            const b = parseInt(data.other_break_total_minutes) || 0;
+                            if (e > s) satMin = Math.max(0, e - s - b);
+                        }
+
+                        const totalWorkDays = 365 - ah; // 1年の総出勤日数
+                        let weekdayDays = 0;
+                        let satDays = 0;
+
+                        if (data.saturday_work === 'あり') {
+                            if (totalWorkDays > 260) {
+                                weekdayDays = 260; // 平日は最大260日
+                                satDays = totalWorkDays - 260; // はみ出た分を土曜出勤とする
+                            } else {
+                                weekdayDays = totalWorkDays;
+                                satDays = 0;
+                            }
+                        } else {
+                            weekdayDays = totalWorkDays;
+                            satDays = 0;
+                        }
+
+                        // 土曜出勤「あり」でも時間が未入力の場合は一時的にエラーをスキップする（入力途中の混乱を防ぐため）
+                        const canCalculate = data.saturday_work === 'なし' || (data.saturday_work === 'あり' && satMin > 0);
+
+                        if (canCalculate) {
+                            const calcTotalMin = (weekdayDays * (dwh * 60 + dwm)) + (satDays * satMin);
+                            if (calcTotalMin !== inputAnnualMin) {
+                                const calcH = Math.floor(calcTotalMin / 60);
+                                const calcM = calcTotalMin % 60;
+                                const timeStr = calcM > 0 ? `${calcH}時間${calcM}分` : `${calcH}時間`;
+                                
+                                let detailStr = `平日${weekdayDays}日×1日の所定時間`;
+                                if (satDays > 0) {
+                                    detailStr += ` ＋ 土曜出勤${satDays}日×土曜日の所定時間`;
+                                }
+                                
+                                errors.push({
+                                    field: 'annual_work_hours',
+                                    msg: `年所定労働時間が正しくありません。理論値は【 ${timeStr} 】です。（計算式: 365日 - 休日${ah}日 = 出勤${totalWorkDays}日 / 内訳: ${detailStr}）`
+                                });
+                            }
+                        }
+                    }
                 }
                 const nightCount = parseInt(data.nightshift_count);
                 if (data.has_shift === 'あり' && data.health_checkup_schedule === '1年' && !isNaN(nightCount) && nightCount > 4 && !data.health_checkup_schedule_confirmed) {
@@ -1230,9 +1281,34 @@
                     </div>
                 );
             }
+            if (appMode === 'skilled' && !subMode) {
+                return (
+                    <div className="home-screen">
+                        <div style={{ maxWidth: 800, width: '100%', textAlign: 'center' }}>
+                            <button onClick={() => setAppMode(null)} style={{ color: '#94a3b8', marginBottom: 24, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>← Back to Main Menu</button>
+                            <h1 style={{ fontSize: 36, fontWeight: 900, color: 'white', marginBottom: 8, letterSpacing: '-0.05em' }}>SELECT CATEGORY</h1>
+                            <p style={{ color: '#64748b', marginBottom: 40, fontSize: 14 }}>これから行う特定技能の手続きを選択してください</p>
+                            <div className="home-grid">
+                                <button className="home-card" onClick={() => setSubMode('海外招聘(LV)')}>
+                                    <div className="icon-box" style={{ background: '#0891b2' }}>✈️</div>
+                                    <h2 style={{ fontSize: 22, fontWeight: 700, color: 'white', marginBottom: 8 }}>海外招聘(LV)</h2>
+                                    <p style={{ color: '#64748b', fontSize: 13, marginBottom: 32 }}>海外から新たに人材を呼び寄せる場合(有料職業紹介)</p>
+                                    <div style={{ color: '#818cf8', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>PROCEED <span>→</span></div>
+                                </button>
+                                <button className="home-card" onClick={() => setSubMode('特定技能')}>
+                                    <div className="icon-box" style={{ background: '#0d9488' }}>🇯🇵</div>
+                                    <h2 style={{ fontSize: 22, fontWeight: 700, color: 'white', marginBottom: 8 }}>特定技能(AJS)</h2>
+                                    <p style={{ color: '#64748b', fontSize: 13, marginBottom: 32 }}>在留資格認定/変更・無料職業紹介の場合</p>
+                                    <div style={{ color: '#818cf8', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>PROCEED <span>→</span></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
 
             const activeBU = BUSINESS_UNITS.find(b => b.id === appMode);
-            const buRecords = dataList.filter(d => d.bu === appMode);
+            const buRecords = dataList.filter(d => d.bu === appMode && (appMode !== 'skilled' || d.sub_type === subMode));
             const tabFields = FIELDS.filter(f => f.tab === currentTab && f.bu?.includes(appMode));
             const validationErrors = validate(currentData);
             const errorFieldIds = new Set(validationErrors.map(e => e.field));
@@ -1243,10 +1319,18 @@
 
                     <div className="sidebar">
                         <div style={{ padding: 24 }}>
-                            <button onClick={() => setAppMode(null)} style={{ fontSize: 11, fontWeight: 900, color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 24 }}>← Back</button>
+                            <button onClick={() => {
+                                // 特定技能の場合は1つ前のサブメニュー画面に戻る
+                                if (appMode === 'skilled') {
+                                    setSubMode(null);
+                                } else {
+                                    setAppMode(null);
+                                }
+                                setCurrentId(null);
+                            }} style={{ fontSize: 11, fontWeight: 900, color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 24 }}>← Back</button>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-                                <div className="icon-box-sm" style={{ background: activeBU.color, color: 'white' }}>📄</div>
-                                <h1 style={{ fontSize: 16, fontWeight: 900, letterSpacing: '-0.03em' }}>{activeBU.name}</h1>
+                                <div className="icon-box-sm" style={{ background: activeBU.color, color: 'white' }}>{activeBU.icon}</div>
+                                <h1 style={{ fontSize: 16, fontWeight: 900, letterSpacing: '-0.03em' }}>{activeBU.name} {subMode ? `- ${subMode}` : ''}</h1>
                             </div>
                             {/* ─── 【変更③】LOADボタンを実際のインポート処理に接続 ─── */}
                             <div className="grid-2">
@@ -1390,52 +1474,134 @@
                                                             }
                                                             if (f.paired && next && next.paired && next.type !== 'section' && !(next.showIf && !next.showIf(currentData))) {
                                                                 rendered.push(
-                                                                    <div key={f.id + next.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: 24 }}>
-                                                                        {[f, next].map(field => {
-                                                                            const isReadOnly = typeof field.readOnly === 'function' ? field.readOnly(currentData) : (field.readOnly || field.id === 'area_per_person');
+                                                                    <div key={f.id + next.id + '_wrapper'} style={{ marginBottom: 24 }}>
+                                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                                                            {[f, next].map(field => {
+                                                                                const isReadOnly = typeof field.readOnly === 'function' ? field.readOnly(currentData) : (field.readOnly || field.id === 'area_per_person');
+                                                                                return (
+                                                                                    <div key={field.id} className="anim-fade">
+                                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                                                                                            <label style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b' }}>{field.label} {field.req && <span style={{ color: '#ef4444' }}>*</span>}</label>
+                                                                                            <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#cbd5e1', fontStyle: 'italic' }}>{field.sf}</span>
+                                                                                        </div>
+                                                                                        <div className="relative">
+                                                                                            {field.type === 'select' ? (
+                                                                                                <select className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`} value={currentData[field.id] || ''} onChange={e => updateField(field.id, e.target.value)}>
+                                                                                                    <option value="">未選択</option>
+                                                                                                    {(typeof field.opts === 'function' ? field.opts(currentData) : (field.opts || [])).map(o => <option key={o} value={o}>{o}</option>)}
+                                                                                                </select>
+                                                                                            ) : (
+                                                                                                <input 
+                                                                                                    className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`} 
+                                                                                                    type={field.type} 
+                                                                                                    value={currentData[field.id] || ''} 
+                                                                                                    onChange={e => updateField(field.id, e.target.value)} 
+                                                                                                    readOnly={isReadOnly} 
+                                                                                                    style={isReadOnly ? { background: '#fef9c3', cursor: 'not-allowed', color: '#854d0e', borderColor: '#fde047' } : {}}
+                                                                                                    onKeyDown={(e) => {
+                                                                                                        if (field.type === 'number' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                                                                                                            e.preventDefault();
+                                                                                                        }
+                                                                                                    }}
+                                                                                                    onWheel={(e) => {
+                                                                                                        if (field.type === 'number') e.target.blur();
+                                                                                                    }}
+                                                                                                />
+                                                                                            )}
+                                                                                            {field.suf && <span className="suffix">{field.suf}</span>}
+                                                                                        </div>
+                                                                                        {(() => {
+                                                                                            const helpVal = typeof field.help === 'function' ? field.help(currentData) : field.help;
+                                                                                            if (!helpVal) return null;
+                                                                                            if (typeof helpVal === 'object' && helpVal.wageInfo !== undefined) {
+                                                                                                return (<div>{helpVal.wageInfo && (<div style={{ fontSize: 11, fontWeight: 700, marginTop: 6, marginBottom: 4, padding: '8px 12px', borderRadius: 8, background: helpVal.wageInfo.ok ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: helpVal.wageInfo.ok ? '#059669' : '#dc2626', borderLeft: `3px solid ${helpVal.wageInfo.ok ? '#10b981' : '#ef4444'}` }}>{helpVal.wageInfo.ok ? '✅' : '❌'} {helpVal.wageInfo.msg}<br/><span style={{ fontWeight: 400, fontSize: 10 }}>※賃金は{MIN_WAGE_YEAR}時点の数値を参照しています</span></div>)}<div className="field-help">💡 {helpVal.baseMsg}</div></div>);
+                                                                                            }
+                                                                                            return <div className="field-help">💡 {helpVal}</div>;
+                                                                                        })()}
+                                                                                    </div>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                        {/* 👇👇👇 年所定労働時間の場合のみ、下にシミュレーターと適用ボタンを表示する 👇👇👇 */}
+                                                                        {f.id === 'annual_work_hours' && currentData.has_shift === 'なし' && (() => {
+                                                                            const ah = parseInt(currentData.annual_holidays);
+                                                                            const dwh = parseInt(currentData.daily_work_hours) || 0;
+                                                                            const dwm = parseInt(currentData.daily_work_minutes) || 0;
+                                                                            
+                                                                            if (isNaN(ah) || (dwh === 0 && dwm === 0)) {
+                                                                                return (
+                                                                                    <div className="anim-fade" style={{ marginTop: 12, padding: '16px 20px', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', fontSize: 12, color: '#64748b', textAlign: 'center', lineHeight: 1.6 }}>
+                                                                                        <span style={{ fontSize: 16, display: 'block', marginBottom: 4 }}>💡</span>
+                                                                                        すぐ下の <strong>年間合計休日数</strong> と、基本労働時間の <strong>1日の所定労働時間</strong> が入力されると、<br/>ここに年所定労働時間の計算シミュレーターが表示されます。
+                                                                                    </div>
+                                                                                );
+                                                                            }
+
+                                                                            let satMin = 0;
+                                                                            if (currentData.saturday_work === 'あり' && currentData.other_start_time && currentData.other_end_time) {
+                                                                                const t2m = (t) => { if(!t) return 0; const [h,m] = t.split(':').map(Number); return h * 60 + m; };
+                                                                                const s = t2m(currentData.other_start_time);
+                                                                                const e = t2m(currentData.other_end_time);
+                                                                                const b = parseInt(currentData.other_break_total_minutes) || 0;
+                                                                                if (e > s) satMin = Math.max(0, e - s - b);
+                                                                            }
+
+                                                                            const totalWorkDays = 365 - ah;
+                                                                            let weekdayDays = 0;
+                                                                            let satDays = 0;
+
+                                                                            if (currentData.saturday_work === 'あり') {
+                                                                                if (totalWorkDays > 260) {
+                                                                                    weekdayDays = 260;
+                                                                                    satDays = totalWorkDays - 260;
+                                                                                } else {
+                                                                                    weekdayDays = totalWorkDays;
+                                                                                    satDays = 0;
+                                                                                }
+                                                                            } else {
+                                                                                weekdayDays = totalWorkDays;
+                                                                                satDays = 0;
+                                                                            }
+
+                                                                            const canCalculate = currentData.saturday_work === 'なし' || (currentData.saturday_work === 'あり' && satMin > 0);
+                                                                            if (!canCalculate) return null;
+
+                                                                            const weekdayMinTotal = weekdayDays * (dwh * 60 + dwm);
+                                                                            const satMinTotal = satDays * satMin;
+                                                                            const calcTotalMin = weekdayMinTotal + satMinTotal;
+                                                                            const calcH = Math.floor(calcTotalMin / 60);
+                                                                            const calcM = calcTotalMin % 60;
+
                                                                             return (
-                                                                                <div key={field.id} className="anim-fade">
-                                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                                                                                        <label style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b' }}>{field.label} {field.req && <span style={{ color: '#ef4444' }}>*</span>}</label>
-                                                                                        <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#cbd5e1', fontStyle: 'italic' }}>{field.sf}</span>
+                                                                                <div className="anim-fade" style={{ marginTop: 12, padding: '16px 20px', background: '#f8fafc', borderRadius: 12, border: '1px solid #cbd5e1', fontSize: 12, color: '#334155' }}>
+                                                                                    <div style={{ fontWeight: 900, marginBottom: 12, color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                                                        <span>💡 年所定労働時間の計算シミュレーター</span>
+                                                                                        <button 
+                                                                                            onClick={(e) => {
+                                                                                                e.preventDefault();
+                                                                                                updateField('annual_work_hours', String(calcH));
+                                                                                                updateField('annual_work_minutes', String(calcM));
+                                                                                            }}
+                                                                                            style={{ background: '#4f46e5', color: 'white', padding: '6px 16px', borderRadius: 8, fontWeight: 900, fontSize: 11, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 2px 4px rgba(79, 70, 229, 0.2)' }}
+                                                                                            onMouseEnter={e => { e.target.style.background = '#4338ca'; e.target.style.transform = 'translateY(-1px)'; }}
+                                                                                            onMouseLeave={e => { e.target.style.background = '#4f46e5'; e.target.style.transform = 'translateY(0)'; }}
+                                                                                        >
+                                                                                            👈 この推奨値を適用する
+                                                                                        </button>
                                                                                     </div>
-                                                                                    <div className="relative">
-                                                                                        {field.type === 'select' ? (
-                                                                                            <select className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`} value={currentData[field.id] || ''} onChange={e => updateField(field.id, e.target.value)}>
-                                                                                                <option value="">未選択</option>
-                                                                                                {(typeof field.opts === 'function' ? field.opts(currentData) : (field.opts || [])).map(o => <option key={o} value={o}>{o}</option>)}
-                                                                                            </select>
-                                                                                        ) : (
-                                                                                            <input 
-                                                                                                className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`} 
-                                                                                                type={field.type} 
-                                                                                                value={currentData[field.id] || ''} 
-                                                                                                onChange={e => updateField(field.id, e.target.value)} 
-                                                                                                readOnly={isReadOnly} 
-                                                                                                style={isReadOnly ? { background: '#fef9c3', cursor: 'not-allowed', color: '#854d0e', borderColor: '#fde047' } : {}}
-                                                                                                onKeyDown={(e) => {
-                                                                                                    if (field.type === 'number' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
-                                                                                                        e.preventDefault();
-                                                                                                    }
-                                                                                                }}
-                                                                                                onWheel={(e) => {
-                                                                                                if (field.type === 'number') e.target.blur();
-                                                                                                }}
-                                                                                            />
+                                                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 6, fontFamily: 'monospace', fontSize: 13 }}>
+                                                                                        <div>・総出勤日数: <span style={{fontWeight:700}}>{totalWorkDays}日</span> (365日 - 休日{ah}日)</div>
+                                                                                        <div>・平日分: {weekdayDays}日 × {dwh}時間{dwm > 0 ? `${dwm}分` : ''} = <span style={{fontWeight:700}}>{Math.floor(weekdayMinTotal/60)}時間{weekdayMinTotal%60 > 0 ? `${weekdayMinTotal%60}分` : ''}</span></div>
+                                                                                        {satDays > 0 && (
+                                                                                            <div>・土曜分: {satDays}日 × {Math.floor(satMin/60)}時間{satMin%60 > 0 ? `${satMin%60}分` : ''} = <span style={{fontWeight:700}}>{Math.floor(satMinTotal/60)}時間{satMinTotal%60 > 0 ? `${satMinTotal%60}分` : ''}</span></div>
                                                                                         )}
-                                                                                        {field.suf && <span className="suffix">{field.suf}</span>}
+                                                                                        <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px dashed #cbd5e1', fontWeight: 900, fontSize: 15, color: '#0f172a' }}>
+                                                                                            合計: <span style={{color: '#e63946'}}>{calcH}時間 {calcM > 0 ? `${calcM}分` : ''}</span>
+                                                                                        </div>
                                                                                     </div>
-                                                                                    {(() => {
-                                                                                        const helpVal = typeof field.help === 'function' ? field.help(currentData) : field.help;
-                                                                                        if (!helpVal) return null;
-                                                                                        if (typeof helpVal === 'object' && helpVal.wageInfo !== undefined) {
-                                                                                            return (<div>{helpVal.wageInfo && (<div style={{ fontSize: 11, fontWeight: 700, marginTop: 6, marginBottom: 4, padding: '8px 12px', borderRadius: 8, background: helpVal.wageInfo.ok ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: helpVal.wageInfo.ok ? '#059669' : '#dc2626', borderLeft: `3px solid ${helpVal.wageInfo.ok ? '#10b981' : '#ef4444'}` }}>{helpVal.wageInfo.ok ? '✅' : '❌'} {helpVal.wageInfo.msg}<br/><span style={{ fontWeight: 400, fontSize: 10 }}>※賃金は{MIN_WAGE_YEAR}時点の数値を参照しています</span></div>)}<div className="field-help">💡 {helpVal.baseMsg}</div></div>);
-                                                                                        }
-                                                                                        return <div className="field-help">💡 {helpVal}</div>;
-                                                                                    })()}
                                                                                 </div>
                                                                             );
-                                                                        })}
+                                                                        })()}
                                                                     </div>
                                                                 );
                                                                 i += 2; continue;
