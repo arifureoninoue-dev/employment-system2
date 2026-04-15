@@ -304,7 +304,7 @@
             { id: 'postal_code', label: '所在地(郵便番号)', sf: 'Address__PostalCode__s__c', type: 'text', req: true, val: 'num', bu: ['intern', 'skilled'], tab: 1 },
             { id: 'address', label: '所在地(拠点)', sf: 'Address__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 1 },
             { id: 'address_en', label: '住所(英)', sf: 'AddressInEnglish__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1, help:<span><a href="https://kimini.jp/" target="_blank" rel="noopener noreferrer">君に届け(住所変換サイト)</a></span>},
-            { id: 'desired_start_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: false, bu: ['intern'], tab: 1 },
+            { id: 'desired_start_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: true, bu: ['intern'], tab: 1 },
             { id: 'job_type', label: '職種(技能実習)', sf: 'Occupation_TT__c', type: 'searchable', req: true, bu: ['intern'], tab: 1, opts: [
                 '耕種農業', '畜産農業', 'さく井', '建築板金', '冷凍空気調和機器施工',
                 '建築大工', '型枠施工', '鉄筋施工', 'とび', '石材施工', 'タイル張り',
@@ -318,6 +318,8 @@
             ]},
             { id: 'work_name', label: '作業名', sf: 'WorkName_TT__c', type: 'searchable', req: true, bu: ['intern'], tab: 1, opts: []},
             { id: 'workplace_name', label: '就業先事業所名', sf: 'dk_OfficeName__c', type: 'text', req: false, bu: ['intern'], tab: 1, help:'企業名もしくは事業所の名称を記載してください'},
+            { id: 'workplace_postal', label: '就業先郵便番号', sf: 'dk_OfficePostalCode__c', type: 'text', req: true, val: 'zip', bu: ['intern'], tab: 1 },
+            { id: 'workplace_address', label: '勤務住所', sf: 'Address__c', type: 'text', req: true, bu: ['intern'], tab: 1 },
 
             { id: 'housing_status', label: '宿泊施設', sf: 'dk_Accommodations__c', type: 'select', req: true, opts: ['未定', '確定'], bu: ['intern', 'skilled'], tab: 2 },
             { id: 'housing_id', label: '宿泊施設ID', sf: 'dk_AccommodationId__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
@@ -498,14 +500,30 @@
             { id: 'skilled', name: '特定技能', color: '#0d9488', description: '支援計画書・雇用契約書向けの項目構成', icon: '⚡' }
         ];
 
-        const TABS = [
-            { id: 1, name: '基本情報', icon: '📋' },
-            { id: 2, name: '生活環境・宿泊施設', icon: '🏠' },
-            { id: 3, name: '労働時間・休憩・休日', icon: '⏰' },
-            { id: 4, name: '賃金・手当・支払条件', icon: '💰' },
-            { id: 5, name: '募集要件', icon: '👥' },
-            { id: 6, name: 'メモ', icon: '📝' },
-        ];
+        const GET_TABS = (appMode, subMode) => {
+            // 海外招聘(LV)の場合のみ、2段階のタブ構造にする
+            if (appMode === 'skilled' && subMode === '海外招聘(LV)') {
+                return [
+                    { id: 1, name: '基本情報', icon: '📋', group: '受入要望書', color: '#0891b2' },
+                    { id: 5, name: '募集要件', icon: '👥', group: '受入要望書', color: '#0891b2' },
+                    { id: 3, name: '労働時間・休憩・休日', icon: '⏰', group: '受入要望書', color: '#0891b2' },
+                    { id: 4, name: '賃金・手当・支払条件', icon: '💰', group: '受入要望書', color: '#0891b2' },
+                    { id: 11, name: '基本情報', icon: '📋', group: '雇用条件書', color: '#4f46e5', ref: 1 },
+                    { id: 13, name: '労働時間・休憩・休日', icon: '⏰', group: '雇用条件書', color: '#4f46e5', ref: 3 },
+                    { id: 14, name: '賃金・手当・支払条件', icon: '💰', group: '雇用条件書', color: '#4f46e5', ref: 4 },
+                    { id: 6, name: 'メモ', icon: '📝', group: '共通', color: '#64748b' },
+                ];
+            }
+            // 通常時（技能実習や特定技能AJS）
+            return [
+                { id: 1, name: '基本情報', icon: '📋' },
+                { id: 2, name: '生活環境・宿泊施設', icon: '🏠' },
+                { id: 3, name: '労働時間・休憩・休日', icon: '⏰' },
+                { id: 4, name: '賃金・手当・支払条件', icon: '💰' },
+                { id: 5, name: '募集要件', icon: '👥' },
+                { id: 6, name: 'メモ', icon: '📝' },
+            ];
+        };
 
         const isHalfWidth = (str) => !str || /^[a-zA-Z0-9!-/:-@[-`{-~\s]+$/.test(str);
         const isNumeric = (str) => !str || /^[0-9]+$/.test(str);
@@ -770,6 +788,7 @@
                     // ─── ジョブオブジェクト用列定義 ──────────────────────────────
                     const JOB_COLUMNS = [
                         'Occupation_TT__c','WorkName_TT__c','dk_OfficeName__c',
+                        'dk_OfficePostalCode__c','Address__c',
                         'dk_Accommodations__c','dk_AccommodationId__c','ResidentialPropertyType__c',
                         'dk_AccommodationPostalCode__c','AccommodationName__c','AccommodationsAddress__c',
                         'AccommodationsArea__c','AccommodationCapacity__c',
@@ -1309,8 +1328,12 @@
 
             const activeBU = BUSINESS_UNITS.find(b => b.id === appMode);
             const buRecords = dataList.filter(d => d.bu === appMode && (appMode !== 'skilled' || d.sub_type === subMode));
-            const tabFields = FIELDS.filter(f => f.tab === currentTab && f.bu?.includes(appMode));
-            const validationErrors = validate(currentData);
+            const currentTabs = GET_TABS(appMode, subMode);
+            const activeTabObj = currentTabs.find(t => t.id === currentTab);
+            const tabFields = FIELDS.filter(f => {
+                const targetTabId = activeTabObj?.ref || currentTab;
+                return f.tab === targetTabId && f.bu?.includes(appMode);
+            });            const validationErrors = validate(currentData);
             const errorFieldIds = new Set(validationErrors.map(e => e.field));
 
             return (
@@ -1388,12 +1411,56 @@
                             <>
                                 <div style={{ padding: '24px 32px', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, background: 'white', zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,.08)' }}>
                                     <h2 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.04em', margin: '0 0 16px 0' }}>{currentData.company_name || 'New Item'}</h2>
-                                    <div className="tab-nav">
-                                        {TABS.map(tab => (
-                                            <button key={tab.id} className={`tab-btn ${currentTab === tab.id ? 'active' : ''}`} onClick={() => { setCurrentTab(tab.id); if (mainScrollRef.current) mainScrollRef.current.scrollTop = 0; }}>
-                                                <span style={{ marginRight: 6 }}>{tab.icon}</span> {tab.name}
-                                            </button>
-                                        ))}
+                                    
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {subMode === '海外招聘(LV)' ? (
+                                            <>
+                                                {/* STEP 1: 要望書グループ */}
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <span style={{ fontSize: '10px', fontWeight: '900', color: '#0891b2', background: 'rgba(8,145,178,0.1)', padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>STEP 1: 受入要望書</span>
+                                                    <div className="tab-nav" style={{ flex: 1 }}>
+                                                        {currentTabs.filter(t => t.group === '受入要望書').map(tab => (
+                                                            <button key={tab.id} className={`tab-btn ${currentTab === tab.id ? 'active' : ''}`} 
+                                                                    onClick={() => { setCurrentTab(tab.id); if (mainScrollRef.current) mainScrollRef.current.scrollTop = 0; }}
+                                                                    style={currentTab === tab.id ? { background: tab.color, color: 'white' } : {}}>
+                                                                <span style={{ marginRight: 6 }}>{tab.icon}</span> {tab.name}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                {/* STEP 2: 条件書グループ */}
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <span style={{ fontSize: '10px', fontWeight: '900', color: '#4f46e5', background: 'rgba(79,70,229,0.1)', padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>STEP 2: 雇用条件書</span>
+                                                    <div className="tab-nav" style={{ flex: 1 }}>
+                                                        {currentTabs.filter(t => t.group === '雇用条件書').map(tab => (
+                                                            <button key={tab.id} className={`tab-btn ${currentTab === tab.id ? 'active' : ''}`} 
+                                                                    onClick={() => { setCurrentTab(tab.id); if (mainScrollRef.current) mainScrollRef.current.scrollTop = 0; }}
+                                                                    style={currentTab === tab.id ? { background: tab.color, color: 'white' } : {}}>
+                                                                <span style={{ marginRight: 6 }}>{tab.icon}</span> {tab.name}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                {/* 共通（メモ） */}
+                                                <div className="tab-nav" style={{ alignSelf: 'flex-start' }}>
+                                                    {currentTabs.filter(t => t.group === '共通').map(tab => (
+                                                        <button key={tab.id} className={`tab-btn ${currentTab === tab.id ? 'active' : ''}`} 
+                                                                onClick={() => { setCurrentTab(tab.id); if (mainScrollRef.current) mainScrollRef.current.scrollTop = 0; }}>
+                                                            <span style={{ marginRight: 6 }}>{tab.icon}</span> {tab.name}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        ) : (
+                                            /* 通常表示（海外招聘以外） */
+                                            <div className="tab-nav">
+                                                {currentTabs.map(tab => (
+                                                    <button key={tab.id} className={`tab-btn ${currentTab === tab.id ? 'active' : ''}`} onClick={() => { setCurrentTab(tab.id); if (mainScrollRef.current) mainScrollRef.current.scrollTop = 0; }}>
+                                                        <span style={{ marginRight: 6 }}>{tab.icon}</span> {tab.name}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -1433,9 +1500,9 @@
                                         <div className="grid-form">
                                             <div className="field-grid">
                                                 <div className="field-section anim-fade">
-                                                    <div className="field-section-title">{TABS.find(t => t.id === currentTab)?.icon} {TABS.find(t => t.id === currentTab)?.name}</div>
-                                                    {(() => {
-                                                        const rendered = [];
+                                                <div className="field-section-title">{currentTabs.find(t => t.id === currentTab)?.icon} {currentTabs.find(t => t.id === currentTab)?.name}</div>
+                                                {(() => {
+                                                    const rendered = [];
                                                         let i = 0;
                                                         while (i < tabFields.length) {
                                                             const f = tabFields[i];
