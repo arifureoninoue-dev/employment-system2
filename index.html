@@ -468,7 +468,7 @@
             },
 
             { id: 'placement_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: true, bu: ['intern', 'skilled'], tab: 5, prompt: '企業様の希望する配属希望日を入力してください(基本情報タブと連動します)' },
-            { id: 'company_culture', label: '会社の特徴／社風', sf: 'CompanyCulture_TT__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 5, prompt: '会社の特徴および社風を入力してください\n記載された情報を元に人材が応募するので、よりよいマッチングのためきちんとしたヒアリングを推奨します。' },
+            { id: 'company_culture', label: '会社の特徴／社風', sf: 'CompanyCulture_TT__c', type: 'textarea', req: true, bu: ['intern', 'skilled'], tab: 5, prompt: '会社の特徴および社風を入力してください\n記載された情報を元に人材が応募するので、よりよいマッチングのためきちんとしたヒアリングを推奨します。' },
             { id: 'foreigner_experience', label: '外国人受入経験', sf: 'RecordOfAcceptingForeigners_TT__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '外国人材の受入経験について教えてください\n経験の有無は採用時の参考情報となります。' },
             { id: 'actual_work_content', label: '実際の実習内容', sf: 'TrainingContent_TT__c', type: 'text', req: true, bu: ['intern'], tab: 5, prompt: '実際にどのような実習を行うかを具体的に記載してください\nより詳細な情報が、適切な人材とのマッチングにつながります。' },
             { id: 'training_period', label: '実習期間', sf: 'TrainingPeriod_TT__c', type: 'select', req: true, opts: ['技能実習2号まで', '技能実習3号まで', '特定技能まで'], bu: ['intern'], tab: 5, prompt: '実習期間を選択してください' },
@@ -478,7 +478,7 @@
             { id: 'overtime_nightshift', label: '残業・夜勤の有無', sf: 'OverTimeAndNightShift_TT__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '残業や夜勤の可能性について教えてください' },
             { id: 'avg_overtime_hours', label: '残業月平均', sf: 'AvgOvertimeHours__c', type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 5, prompt: '月平均の残業時間を入力してください', showIf: (data) => data.overtime_nightshift === 'あり' },
             { id: 'nightshift_count', label: '夜勤月回数', sf: 'NightshiftCount__c', type: 'number', req: true, suf: '回', bu: ['intern', 'skilled'], tab: 5, prompt: '月あたりの夜勤回数を入力してください', showIf: (data) => data.overtime_nightshift === 'あり' },
-            { id: 'sending_org_notes', label: '送出機関への共有事項', sf: 'SharedMattersToSendingAgency__c', type: 'text', req: false, bu: ['intern'], tab: 5, prompt: '送出機関に特に伝えておきたい事項があれば記載してください\n業務上の特性や必要なスキルなど' },
+            { id: 'sending_org_notes', label: '送出機関への共有事項', sf: 'SharedMattersToSendingAgency__c', type: 'textarea', req: false, bu: ['intern'], tab: 5, prompt: '送出機関に特に伝えておきたい事項があれば記載してください\n業務上の特性や必要なスキルなど' },
             { id: 'gender', label: '性別', sf: 'Gender__c', type: 'select', req: true, opts: ['男性', '女性', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '性別の希望がありますか？\n業務内容により必要な場合のみ選択してください。' },
             { id: 'preferred_age', label: '希望年齢', sf: 'DesiredAge__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する年齢層を教えてください\n例:「20代前半」「25歳～35歳」など' },
             { id: 'blood_type', label: '血液型', sf: 'BloodType__c', type: 'select', req: true, opts: ['A', 'B', 'O', 'AB', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '血液型の希望がありますか？\n特に指定がない場合は「不問」を選択してください。' },
@@ -1923,6 +1923,14 @@
                                                                             <option value="">未選択</option>
                                                                             {(typeof f.opts === 'function' ? f.opts(currentData) : (f.opts || [])).map(o => <option key={o} value={o}>{o}</option>)}
                                                                         </select>
+                                                                    ) : f.type === 'textarea' ? (
+                                                                        <textarea 
+                                                                            className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`} 
+                                                                            value={currentData[f.id] || ''} 
+                                                                            onChange={e => updateField(f.id, e.target.value)} 
+                                                                            readOnly={isReadOnly} 
+                                                                            style={{ ...(isReadOnly ? { background: '#fef9c3', cursor: 'not-allowed', color: '#854d0e', borderColor: '#fde047' } : {}), minHeight: '120px', resize: 'vertical', lineHeight: '1.6' }} 
+                                                                        />
                                                                     ) : f.type === 'searchable' ? (
                                                                         <div className="relative">
                                                                             <input 
