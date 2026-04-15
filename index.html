@@ -301,7 +301,7 @@
             { id: 'rep_name', label: '代表者名', sf: 'NameOfRepresentative__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 1 },
             { id: 'rep_name_en', label: '代表者名(英)', sf: 'RepresentativeNameInEnglish__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1 },
             { id: 'rep_position', label: '代表者役職名', sf: 'RepresentativePosition__c', type: 'select', req: true, opts: ['代表取締役', '取締役','代表社員','代表'], bu: ['intern', 'skilled'], tab: 1 },
-            { id: 'postal_code', label: '所在地(郵便番号)', sf: 'Address__PostalCode__s__c', type: 'text', req: true, val: 'num', bu: ['intern', 'skilled'], tab: 1 },
+            { id: 'postal_code', label: '所在地(郵便番号)', sf: 'Address__PostalCode__s__c', type: 'text', req: true, val: 'zip', bu: ['intern', 'skilled'], tab: 1 },
             { id: 'address', label: '所在地(拠点)', sf: 'Address__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 1 },
             { id: 'address_en', label: '住所(英)', sf: 'AddressInEnglish__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1, help:<span><a href="https://kimini.jp/" target="_blank" rel="noopener noreferrer">君に届け(住所変換サイト)</a></span>},
             { id: 'desired_start_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: true, bu: ['intern'], tab: 1 },
@@ -335,7 +335,8 @@
             { id: 'has_overtime', label: '所定時間外労働の有無', sf: 'OverTimeWork__c', type: 'select', req: true, opts: ['あり', 'なし'], help: '残業をする可能性が少しでもある場合は「あり」を選択してください', bu: ['intern', 'skilled'], tab: 3 },
             { id: 'has_flex_time', label: '【基本】変形時間労働制の有無', sf: 'dk_IrregularWorkingHoursSystem__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 3 },
             { id: 'flex_time_type', label: '【基本】変形時間労働制のタイプ', sf: 'dk_IrregularWorkingHoursSystemType__c', type: 'select', req: true, opts: ['1年', '半年', '3ヶ月', '1ヶ月', '1週間'], bu: ['intern', 'skilled'], tab: 3, showIf: (data) => data.has_flex_time === 'あり' },
-            { id: 'has_work_rules', label: '就業規則の有無', sf: 'WorkRules__c', type: 'select', req: true, opts: ['あり', 'なし'], help: '常勤が10人以上の場合は「有」を選択、9人以下の場合は「なし」を選択', bu: ['intern', 'skilled'], tab: 3 },
+            { id: 'has_work_rules', label: '就業規則の有無', sf: 'WorkRules__c', type: 'select', req: true, opts: ['あり', 'なし'], help: '常勤が10人以上の場合は「あり」を選択、9人以下の場合は「なし」を選択', bu: ['intern', 'skilled'], tab: 3 },
+            { id: 'confirmation_method_work_rules', label: '就業規則を確認できる場所や方法', sf: 'ConfirmationPlaceOrMethodOfWorkRules__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 3, help: '就業規則の有無の選択に応じて自動入力されます',readOnly: true },
             { id: 'regular_holiday_day', label: '定例休日の曜日', sf: 'dk_RegularDaysOff__c', type: 'multiselect', req: false, opts: ['月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日', '日曜日'], value: ['土曜日', '日曜日'], help: '該当する曜日をすべて選択してください', bu: ['intern', 'skilled'], tab: 3 },
             { id: 'regular_holiday_other', label: '定例休日その他', sf: 'dk_OtherRegularDaysOff__c', type: 'multiselect', req: false, opts: ['年末年始', 'GW', '夏季休暇', '企業カレンダー通り', '会社指定日', '就業規則通り'], bu: ['intern', 'skilled'], tab: 3 },
             { id: 'national_holidays', label: '日本の国民の祝日', sf: 'dk_JapaneseNationalHolidays__c', type: 'select', req: true, opts: ['祝日休み', '祝日勤務'], bu: ['intern', 'skilled'], tab: 3 },
@@ -460,7 +461,7 @@
             { type: 'section', label: '【その他】', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'resignation_notice_days', label: '退職届出の猶予日数（日前）', sf: 'GraceDaysOfResignation__c', type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: 4 },
             { id: 'health_checkup_hire', label: '雇入れ時の健康診断 受診日', sf: 'DateOfHealthCheckupForEmployment__c', type: 'date', req: true, bu: ['intern', 'skilled'], tab: 4, readOnly: true },
-            { id: 'health_checkup_first', label: '初回健康診断 受診日', sf: '_health_checkup_first', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4, readOnly: true },
+            { id: 'health_checkup_first', label: '初回健康診断 受診日', sf: 'DateOfFirstHealthCheckup__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 4, readOnly: true },
             { id: 'health_checkup_schedule', label: 'その後の健康診断実施時期', sf: 'HealthCheckupPeriod__c', type: 'select', req: true, opts: ['1年', '半年'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'health_checkup_schedule_confirmed', label: '夜勤4回超・1年健診を確認済み', sf: '_health_checkup_confirmed', type: 'checkbox_confirm', req: false, bu: ['intern', 'skilled'], tab: 4,
                 showIf: (data) => { const n = parseInt(data.nightshift_count); return data.has_shift === 'あり' && data.health_checkup_schedule === '1年' && !isNaN(n) && n > 4; }
@@ -611,6 +612,11 @@
                     if (d.id !== currentId) return d;
                     let newData = { ...d, [fieldId]: value };
                     if (fieldId === 'job_type') newData.work_name = '';
+                    // 就業規則の連動
+                    if (fieldId === 'has_work_rules') {
+                        if (value === 'あり') newData.confirmation_method_work_rules = '事務所に保管';
+                        if (value === 'なし') newData.confirmation_method_work_rules = '無し（従業員が10名未満のため）';
+                    }
                     // 配属希望日の連動（基本情報タブ ↔ 募集要件タブ）
                     if (fieldId === 'desired_start_date') newData.placement_date = value;
                     if (fieldId === 'placement_date') newData.desired_start_date = value;
@@ -793,6 +799,7 @@
                         'dk_AccommodationPostalCode__c','AccommodationName__c','AccommodationsAddress__c',
                         'AccommodationsArea__c','AccommodationCapacity__c',
                         'OverTimeWork__c','dk_IrregularWorkingHoursSystem__c','dk_IrregularWorkingHoursSystemType__c','WorkRules__c',
+                        'ConfirmationPlaceOrMethodOfWorkRules__c',
                         'dk_RegularDaysOff__c','dk_OtherRegularDaysOff__c',
                         'dk_JapaneseNationalHolidays__c','dk_AdditionalDaysOff__c','dk_NumberOfAdditionalDaysOff__c',
                         'dk_BasicOpeningTime__c','dk_BasicClosingTime__c',
@@ -854,6 +861,11 @@
                         'dk_WageDeadline2__c','dk_WagePaymentDate2__c',
                         'GraceDaysOfResignation__c',
                         'HealthCheckupPeriod__c',
+                        'DateOfHealthCheckupForEmployment__c',
+                        'DateOfFirstHealthCheckup__c',
+                        'dk_TotalEmploymentInsuranceDeduction__c',
+                        'dk_IncomeTax__c',
+                        'dk_TotalSocialInsuranceDeduction__c',
                         'CompanyCulture_TT__c','RecordOfAcceptingForeigners_TT__c',
                         'TrainingContent_TT__c','TrainingPeriod_TT__c',
                         'HighPlaceWork_TT__c','OutdoorIndoorWorkRate_TT__c',
@@ -1674,6 +1686,38 @@
                                                                 i += 2; continue;
                                                             }
                                                             const isReadOnly = typeof f.readOnly === 'function' ? f.readOnly(currentData) : (f.readOnly || f.id === 'area_per_person');
+                                                            if (f.id === 'workplace_name') {
+                                                                rendered.push(
+                                                                    <div key="copy_address_btn_wrap" style={{ marginBottom: 16 }} className="anim-fade">
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.preventDefault();
+                                                                                // 企業情報を就業先情報へコピー
+                                                                                updateField('workplace_name', currentData.company_name || '');
+                                                                                updateField('workplace_postal', currentData.postal_code || '');
+                                                                                updateField('workplace_address', currentData.address || '');
+                                                                            }}
+                                                                            style={{
+                                                                                background: '#f1f5f9',
+                                                                                color: '#475569',
+                                                                                padding: '8px 16px',
+                                                                                borderRadius: '10px',
+                                                                                fontSize: '11px',
+                                                                                fontWeight: '900',
+                                                                                border: '1px solid #e2e8f0',
+                                                                                display: 'flex',
+                                                                                alignItems: 'center',
+                                                                                gap: '6px',
+                                                                                transition: 'all 0.2s'
+                                                                            }}
+                                                                            onMouseEnter={e => { e.target.style.background = '#e2e8f0'; }}
+                                                                            onMouseLeave={e => { e.target.style.background = '#f1f5f9'; }}
+                                                                        >
+                                                                            📋 企業所在地と同じ情報を反映する
+                                                                        </button>
+                                                                    </div>
+                                                                );
+                                                            }
                                                             if (f.id === 'hourly_salary_1' && currentData.payment_type === '月給' && currentData.residence_status === '実習1号') {
                                                                 const pref = PREFECTURES.find(p => (currentData.address || '').includes(p));
                                                                 const minWage = pref ? MIN_WAGE_MASTER[pref] : null;
