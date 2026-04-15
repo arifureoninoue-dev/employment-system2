@@ -211,9 +211,9 @@
             const fields = [];
             for (let i = 1; i <= count; i++) {
                 fields.push(
-                    { id: `other_cost_name_${i}`, label: `その他の負担費用名${i}`, sf: i < 4 ? `OtherBurdenCost${i}__c` : `dk_OtherBurdenCostName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
-                    { id: `other_cost_type_${i}`, label: `その他負担費用${i} 種別`, sf: `dk_OtherBurdenCostType${i}__c`, type: 'select', req: false, opts: ['実費', '実費以外'], bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
-                    { id: `other_cost_amount_${i}`, label: `その他の負担費用額${i}`, sf: `OtherBurdenCostAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' && data[`other_cost_type_${i}`] === '実費以外' }
+                    { id: `other_cost_name_${i}`, label: `その他の負担費用名${i}`, sf: i < 4 ? `OtherBurdenCost${i}__c` : `dk_OtherBurdenCostName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: i, showIf: (data) => data.has_other_fees === 'あり' },
+                    { id: `other_cost_type_${i}`, label: `その他負担費用${i} 種別`, sf: `dk_OtherBurdenCostType${i}__c`, type: 'select', req: false, opts: ['実費', '実費以外'], bu: ['intern'], tab: 4, grouped: true, groupIndex: i, showIf: (data) => data.has_other_fees === 'あり' },
+                    { id: `other_cost_amount_${i}`, label: `その他の負担費用額${i}`, sf: `OtherBurdenCostAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, grouped: true, groupIndex: i, showIf: (data) => data.has_other_fees === 'あり' && data[`other_cost_type_${i}`] === '実費以外' }
                 );
             }
             return fields;
@@ -304,7 +304,7 @@
             { id: 'postal_code', label: '所在地(郵便番号)', sf: 'Address__PostalCode__s__c', type: 'text', req: true, val: 'zip', bu: ['intern', 'skilled'], tab: 1 },
             { id: 'address', label: '所在地(拠点)', sf: 'Address__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 1 },
             { id: 'address_en', label: '住所(英)', sf: 'AddressInEnglish__c', type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: 1, help:<span><a href="https://kimini.jp/" target="_blank" rel="noopener noreferrer">君に届け(住所変換サイト)</a></span>},
-            { id: 'desired_start_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: true, bu: ['intern'], tab: 1 },
+            { id: 'desired_start_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: true, bu: ['intern'], tab: 1 ,help: '募集要件タブの配属希望日と連動します'},
             { id: 'job_type', label: '職種(技能実習)', sf: 'Occupation_TT__c', type: 'searchable', req: true, bu: ['intern'], tab: 1, opts: [
                 '耕種農業', '畜産農業', 'さく井', '建築板金', '冷凍空気調和機器施工',
                 '建築大工', '型枠施工', '鉄筋施工', 'とび', '石材施工', 'タイル張り',
@@ -323,7 +323,7 @@
 
             { id: 'housing_status', label: '宿泊施設', sf: 'dk_Accommodations__c', type: 'select', req: true, opts: ['未定', '確定'], bu: ['intern', 'skilled'], tab: 2 },
             { id: 'housing_id', label: '宿泊施設ID', sf: 'dk_AccommodationId__c', type: 'text', req: false, bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
-            { id: 'housing_property_type', label: '居住物件種別', sf: 'ResidentialPropertyType__c', type: 'select', req: true, opts: ['会社所有', '賃貸', '寮','借上物件'], bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
+            { id: 'housing_property_type', label: '居住物件種別', sf: 'ResidentialPropertyType__c', type: 'select', req: true, opts: ['会社所有', '寮','借上物件'], bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
             { id: 'housing_postal', label: '宿泊施設郵便番号', sf: 'dk_AccommodationPostalCode__c', type: 'text', req: true, val: 'zip', bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
             { id: 'housing_property_name', label: '宿泊施設物件名', sf: 'AccommodationName__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
             { id: 'housing_address', label: '宿泊施設住所', sf: 'AccommodationsAddress__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 2, showIf: (data) => data.housing_status === '確定' },
@@ -467,7 +467,7 @@
                 showIf: (data) => { const n = parseInt(data.nightshift_count); return data.has_shift === 'あり' && data.health_checkup_schedule === '1年' && !isNaN(n) && n > 4; }
             },
 
-            { id: 'placement_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: true, bu: ['intern', 'skilled'], tab: 5, prompt: '企業様の希望する配属希望日を入力してください' },
+            { id: 'placement_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: true, bu: ['intern', 'skilled'], tab: 5, prompt: '企業様の希望する配属希望日を入力してください(基本情報タブと連動します)' },
             { id: 'company_culture', label: '会社の特徴／社風', sf: 'CompanyCulture_TT__c', type: 'text', req: true, bu: ['intern', 'skilled'], tab: 5, prompt: '会社の特徴および社風を入力してください\n記載された情報を元に人材が応募するので、よりよいマッチングのためきちんとしたヒアリングを推奨します。' },
             { id: 'foreigner_experience', label: '外国人受入経験', sf: 'RecordOfAcceptingForeigners_TT__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '外国人材の受入経験について教えてください\n経験の有無は採用時の参考情報となります。' },
             { id: 'actual_work_content', label: '実際の実習内容', sf: 'TrainingContent_TT__c', type: 'text', req: true, bu: ['intern'], tab: 5, prompt: '実際にどのような実習を行うかを具体的に記載してください\nより詳細な情報が、適切な人材とのマッチングにつながります。' },
@@ -624,6 +624,11 @@
                     if (!hasCoLtd) newData.rep_position = '代表';
                     if (fieldId === 'business_type' && newData.business_type === '法人') newData.pension_type = '厚生年金';
 
+                    //負担費用が「実費」になったら裏側の金額データを空にする
+                    if (fieldId.startsWith('other_cost_type_') && value !== '実費以外') {
+                        const match = fieldId.match(/^other_cost_type_(\d+)$/);
+                        if (match) newData[`other_cost_amount_${match[1]}`] = '';
+                    }
                     if (fieldId === 'property_area' || fieldId === 'housing_residents') {
                         const area = parseFloat(newData.property_area);
                         const residents = parseFloat(newData.housing_residents);
@@ -711,8 +716,8 @@
                         }
                     }
 
-                    if (fieldId === 'desired_start_date' && newData.desired_start_date) {
-                        const hire = new Date(newData.desired_start_date); hire.setMonth(hire.getMonth() + 1);
+                    if ((fieldId === 'desired_start_date' || fieldId === 'placement_date') && value) {
+                        const hire = new Date(value); hire.setMonth(hire.getMonth() + 1);
                         newData.health_checkup_hire = hire.toISOString().split('T')[0];
                         const first = new Date(hire); first.setFullYear(first.getFullYear() + 1);
                         newData.health_checkup_first = first.toISOString().split('T')[0];
@@ -745,9 +750,10 @@
                     const netTriggers = [
                         'monthly_salary_1','monthly_salary_2','monthly_salary_3',
                         'social_insurance_total','income_tax','labor_insurance_total',
-                        'housing_fee_monthly','other_cost_amount_1','other_cost_amount_2',
-                        'other_cost_amount_3','other_cost_amount_4','has_other_fees',
-                        'residence_status'
+                        'housing_fee_monthly',
+                        'other_cost_amount_1','other_cost_amount_2','other_cost_amount_3','other_cost_amount_4',
+                        'other_cost_type_1','other_cost_type_2','other_cost_type_3','other_cost_type_4',
+                        'has_other_fees','residence_status'
                     ];
                     if (netTriggers.includes(fieldId)) {
                         const salaryKey = newData.residence_status === '実習2号' ? 'monthly_salary_2'
@@ -797,7 +803,7 @@
                         'dk_OfficePostalCode__c','Address__c',
                         'dk_Accommodations__c','dk_AccommodationId__c','ResidentialPropertyType__c',
                         'dk_AccommodationPostalCode__c','AccommodationName__c','AccommodationsAddress__c',
-                        'AccommodationsArea__c','AccommodationCapacity__c',
+                        'AccommodationsArea__c','AccommodationCapacity__c','RoomsPerPerson__c',
                         'OverTimeWork__c','dk_IrregularWorkingHoursSystem__c','dk_IrregularWorkingHoursSystemType__c','WorkRules__c',
                         'ConfirmationPlaceOrMethodOfWorkRules__c',
                         'dk_RegularDaysOff__c','dk_OtherRegularDaysOff__c',
@@ -881,12 +887,13 @@
                     ];
 
                     // ─── 一時保存用列定義（既存のCSV_COLUMNS）────────────────────
-                    const CSV_COLUMNS = FIELDS.filter(f => f.type !== 'section').map(f => f.sf);
+                    const CSV_COLUMNS = FIELDS.filter(f => f.type !== 'section').map(f => f.id);
                     const sfToId = {};
                     const fieldTypeMap = {};
                     const fieldDefMap = {};
                     FIELDS.filter(f => f.type !== 'section').forEach(f => { 
                         sfToId[f.sf] = f.id;
+                        sfToId[f.id] = f.id;
                         fieldTypeMap[f.id] = f.type;
                         fieldDefMap[f.id] = f;
                      });
@@ -907,11 +914,16 @@
                         'irregular_holiday': { 'なし': '' }, // ★ 追加: 非定休日が「なし」なら空欄を出力
                     };
 
-                    const buildRow = (d, columns, wageOverride, isSfExport = false) => {
+                    const buildRow = (d, columns, wageOverride, isSfExport = false, exportType = 'save') => {
                         const values = columns.map(sf => {
                             if (sf === '' || sf === '-') return '';
                             if (wageOverride && wageOverride[sf] !== undefined) return escapeCSV(wageOverride[sf]);
-                            const fieldId = sfToId[sf];
+                            let fieldId = sfToId[sf];
+                            if (sf === 'Address__c') {
+                                fieldId = (exportType === 'account') ? 'address' : 'workplace_address';
+                            } else if (sf === 'PlacementDate__c') {
+                                fieldId = 'placement_date'; // UIで同期しているためどちらでも良いが明示
+                            }
                             if (!fieldId) return '';
                             
                             // ★ 変更：Salesforce向け出力の時だけ、非表示項目を空欄にする
@@ -963,7 +975,7 @@
 
                     const saveHeader = ['ID', 'bu', 'sub_type', ...CSV_COLUMNS,  '_memo'].join(',');
                     const saveRows = targetRecords.map(d => {
-                        const fieldValues = buildRow(d, CSV_COLUMNS, null, false);
+                        const fieldValues = buildRow(d, CSV_COLUMNS, null, false,'save');
                         return [escapeCSV(d.id), escapeCSV(d.bu), escapeCSV(d.sub_type || ''), ...fieldValues, escapeCSV(d._memo || '')].join(',');
                     });
                     downloadCSV(`SF_Save_${appMode}_${dateStr}.csv`, saveHeader, saveRows);
@@ -976,7 +988,7 @@
                     // ※ 取引先はNameが必須IDとして先頭に来ることが多いため、headerはAPI名のみ
                     const accountHeader2 = ACCOUNT_COLUMNS.join(',');
                     const accountRows = targetRecords.map(d =>
-                        buildRow(d, ACCOUNT_COLUMNS, null, true).join(',')
+                        buildRow(d, ACCOUNT_COLUMNS, null, true,'account').join(',')
                     );
                     downloadCSV(`SF_Account_${appMode}_${dateStr}.csv`, accountHeader2, accountRows);
 
@@ -1010,7 +1022,7 @@
                     };
                     const jobHeader = JOB_COLUMNS.join(',');
                     const jobRows = targetRecords.map(d =>
-                        buildRow(d, JOB_COLUMNS, jobWageOverrideFor(d), true).join(',')
+                        buildRow(d, JOB_COLUMNS, jobWageOverrideFor(d), true,'job').join(',')
                     );
                     downloadCSV(`SF_Job_${appMode}_${dateStr}.csv`, jobHeader, jobRows);
                     notify('Salesforceインポート用を含む3ファイルを出力しました', 'success');
@@ -1057,7 +1069,8 @@
                     const sfToId = {};
                     const fieldTypeMap = {}; // ★フィールドの型を判定するためのマップ
                     FIELDS.filter(f => f.type !== 'section').forEach(f => { 
-                        sfToId[f.sf] = f.id; 
+                        sfToId[f.sf] = f.id;
+                        sfToId[f.id] = f.id; 
                         fieldTypeMap[f.id] = f.type;
                     });
 
@@ -1097,12 +1110,21 @@
                         };
 
                         // 各カラムをフィールドIDにマッピング
-                            // 各カラムをフィールドIDにマッピング
-                            apiHeaders.forEach((sfName, colIdx) => {
-                                if (sfName === 'ID' || sfName === 'bu' || sfName === '_memo') return;
-                                const fieldId = sfToId[sfName];
-                                if (!fieldId) return;
-                                let rawVal = values[colIdx] || '';
+                        const isJobFile = apiHeaders.includes('Occupation_TT__c');
+                        apiHeaders.forEach((sfName, colIdx) => {
+                            if (sfName === 'ID' || sfName === 'bu' || sfName === '_memo') return;
+                            let fieldId = sfToId[sfName];
+                            if (sfName === 'Address__c') {
+                                fieldId = isJobFile ? 'workplace_address' : 'address';
+                            }
+                            // 配属希望日を両方のIDに割り当てる
+                            if (sfName === 'PlacementDate__c') {
+                                const dateVal = values[colIdx] || '';
+                                record['desired_start_date'] = dateVal;
+                                record['placement_date'] = dateVal;
+                            }
+                            if (!fieldId) return;
+                            let rawVal = values[colIdx] || '';
                                 if (MULTISELECT_FIELD_IDS.includes(fieldId)) {
                                     const sep = isSalesforceFormat ? '、' : '・';
                                     let vals = rawVal ? rawVal.split(sep) : [];
@@ -1206,6 +1228,64 @@
                     if (data[f.id] && f.val === 'num' && !isNumeric(data[f.id])) errors.push({ field: f.id, msg: `${f.label}は半角数字のみです。` });
                     if (data[f.id] && f.val === 'zip' && !isZipCode(data[f.id])) errors.push({ field: f.id, msg: `${f.label}は「000-0000」の形式（半角数字3桁＋ハイフン＋4桁）で入力してください。` });
                 });
+                //代表者名の半角スペースチェック
+                const spaceCheckFields = [
+                    { id: 'rep_name', label: '代表者名' },
+                    { id: 'rep_name_en', label: '代表者名(英)' }
+                ];
+                spaceCheckFields.forEach(f => {
+                    const val = data[f.id];
+                    if (val) {
+                        // 半角スペースが含まれていない、または全角スペースが含まれている場合はエラー
+                        if (!val.includes(' ') || val.includes('　')) {
+                            errors.push({ field: f.id, msg: `${f.label}は苗字と名前の間に半角スペースを入れてください（全角スペースは不可です）。` });
+                        }
+                    }
+                });
+                //住所の全角スペース・全角数字チェック
+                const addressCheckFields = [
+                    { id: 'address', label: '所在地(拠点)' },
+                    { id: 'workplace_address', label: '勤務住所' },
+                    { id: 'housing_address', label: '宿泊施設住所' }
+                ];
+                addressCheckFields.forEach(f => {
+                    const val = data[f.id];
+                    if (val) {
+                        if (val.includes('　')) {
+                            errors.push({ field: f.id, msg: `${f.label}に全角スペースが含まれています。半角スペースを使用するか、スペースを削除してください。` });
+                        }
+                        if (/[０-９]/.test(val)) {
+                            errors.push({ field: f.id, msg: `${f.label}に全角数字（１、２など）が含まれています。数字は必ず半角（1、2など）で入力してください。` });
+                        }
+                    }
+                });
+                //住所(英)のJapan・郵便番号チェック
+                const addressEnVal = data.address_en;
+                if (addressEnVal) {
+                    // 大文字・小文字問わず「japan」が含まれているかチェック
+                    if (/japan/i.test(addressEnVal)) {
+                        errors.push({ field: 'address_en', msg: `住所(英)に「Japan」を含めることはできません。都道府県名から入力してください。` });
+                    }
+                    // 郵便番号（例: 123-4567 や 1234567、あるいは 〒）が含まれているかチェック
+                    if (/\d{3}-?\d{4}/.test(addressEnVal) || /〒/.test(addressEnVal)) {
+                        errors.push({ field: 'address_en', msg: `住所(英)に郵便番号を含めることはできません。都道府県名から入力してください。` });
+                    }
+                }
+                if (data.has_other_fees === 'あり') {
+                    for (let i = 1; i <= 4; i++) {
+                        const name = data[`other_cost_name_${i}`];
+                        const type = data[`other_cost_type_${i}`];
+                        const amount = data[`other_cost_amount_${i}`];
+
+                        if (name || type || amount) {
+                            if (!name) errors.push({ field: `other_cost_name_${i}`, msg: `その他費用セット${i}: 「名称」が未入力です。` });
+                            if (!type) errors.push({ field: `other_cost_type_${i}`, msg: `その他費用セット${i}: 「種別」が未選択です。` });
+                            if (type === '実費以外' && !amount) {
+                                errors.push({ field: `other_cost_amount_${i}`, msg: `その他費用セット${i}: 実費以外を選択した場合は「金額」の入力が必要です。` });
+                            }
+                        }
+                    }
+                }
                 const LAW_MSG = '労働基準法に違反していないか確認をしてください';
                 const dwh = parseInt(data.daily_work_hours), dwm = parseInt(data.daily_work_minutes);
                 if (!isNaN(dwh) && dwh > 8) errors.push({ field: 'daily_work_hours', msg: `1日の所定労働時間が8時間を超えています。${LAW_MSG}` });
@@ -1222,12 +1302,12 @@
                     const holidays = data.national_holidays === '祝日休み';
                     const selectedDays = Array.isArray(data.regular_holiday_day) ? data.regular_holiday_day.length : 0;
                     if (holidays && selectedDays >= 2 && ah <= 120) errors.push({ field: 'annual_holidays', msg: `祝日休み・週2日休みの設定で年間休日が120日以下です。${LAW_MSG}` });
-                    const dwh = parseInt(data.daily_work_hours) || 0;
-                    const dwm = parseInt(data.daily_work_minutes) || 0;
+                    const calcDwh = parseInt(data.daily_work_hours) || 0;
+                    const calcDwm = parseInt(data.daily_work_minutes) || 0;
                     const inputAnnualMin = (parseInt(data.annual_work_hours) || 0) * 60 + (parseInt(data.annual_work_minutes) || 0);
 
                     // 入力値が存在し、かつ「交代制」と「変形労働制」ではない場合のみ計算
-                    if (inputAnnualMin > 0 && (dwh > 0 || dwm > 0) && data.has_shift === 'なし' && data.has_flex_time === 'なし') {
+                    if (inputAnnualMin > 0 && (calcDwh > 0 || calcDwm > 0) && data.has_shift === 'なし' && data.has_flex_time === 'なし') {
                         let satMin = 0;
                         if (data.saturday_work === 'あり' && data.other_start_time && data.other_end_time) {
                             const t2m = (t) => { if(!t) return 0; const [h,m] = t.split(':').map(Number); return h * 60 + m; };
@@ -1258,7 +1338,7 @@
                         const canCalculate = data.saturday_work === 'なし' || (data.saturday_work === 'あり' && satMin > 0);
 
                         if (canCalculate) {
-                            const calcTotalMin = (weekdayDays * (dwh * 60 + dwm)) + (satDays * satMin);
+                            const calcTotalMin = (weekdayDays * (calcDwh * 60 + calcDwm)) + (satDays * satMin);
                             if (calcTotalMin !== inputAnnualMin) {
                                 const calcH = Math.floor(calcTotalMin / 60);
                                 const calcM = calcTotalMin % 60;
@@ -1528,6 +1608,57 @@
                                                                     </div>
                                                                 );
                                                                 i++; continue;
+                                                            }
+                                                            if (f.grouped) {
+                                                                const groupFields = [f];
+                                                                let j = i + 1;
+                                                                while (j < tabFields.length && tabFields[j].grouped && tabFields[j].groupIndex === f.groupIndex) {
+                                                                    groupFields.push(tabFields[j]);
+                                                                    j++;
+                                                                }
+
+                                                                const visibleFields = groupFields.filter(gf => !gf.showIf || gf.showIf(currentData));
+                                                                if (visibleFields.length > 0) {
+                                                                    rendered.push(
+                                                                        <div key={`group_${f.groupIndex}`} className="anim-fade" style={{ background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
+                                                                            <div style={{ fontSize: 12, fontWeight: 900, color: '#6366f1', marginBottom: 16, borderBottom: '1px solid #e2e8f0', paddingBottom: 8 }}>
+                                                                                🔖 その他費用セット {f.groupIndex}
+                                                                            </div>
+                                                                            {visibleFields.map((field, idx) => {
+                                                                                const isReadOnly = typeof field.readOnly === 'function' ? field.readOnly(currentData) : field.readOnly;
+                                                                                return (
+                                                                                    <div key={field.id} style={{ marginBottom: idx === visibleFields.length - 1 ? 0 : 20 }}>
+                                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                                                                                            <label style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b' }}>{field.label} {field.req && <span style={{ color: '#ef4444' }}>*</span>}</label>
+                                                                                            <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#cbd5e1', fontStyle: 'italic' }}>{field.sf}</span>
+                                                                                        </div>
+                                                                                        <div className="relative">
+                                                                                            {field.type === 'select' ? (
+                                                                                                <select className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`} value={currentData[field.id] || ''} onChange={e => updateField(field.id, e.target.value)}>
+                                                                                                    <option value="">未選択</option>
+                                                                                                    {(typeof field.opts === 'function' ? field.opts(currentData) : (field.opts || [])).map(o => <option key={o} value={o}>{o}</option>)}
+                                                                                                </select>
+                                                                                            ) : (
+                                                                                                <input 
+                                                                                                    className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`} 
+                                                                                                    type={field.type} value={currentData[field.id] || ''} 
+                                                                                                    onChange={e => updateField(field.id, e.target.value)} 
+                                                                                                    readOnly={isReadOnly} 
+                                                                                                    style={isReadOnly ? { background: '#fef9c3', cursor: 'not-allowed', color: '#854d0e', borderColor: '#fde047' } : {}} 
+                                                                                                    onKeyDown={(e) => { if (field.type === 'number' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) e.preventDefault(); }}
+                                                                                                    onWheel={(e) => { if (field.type === 'number') e.target.blur(); }}
+                                                                                                />
+                                                                                            )}
+                                                                                            {field.suf && <span className="suffix">{field.suf}</span>}
+                                                                                        </div>
+                                                                                        {field.help && <div className="field-help">💡 {typeof field.help === 'function' ? field.help(currentData) : field.help}</div>}
+                                                                                    </div>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                                i = j; continue;
                                                             }
                                                             if (f.tripled) {
                                                                 const group = [f]; let j = i + 1;
