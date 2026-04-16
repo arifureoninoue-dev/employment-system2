@@ -199,9 +199,9 @@
             const fields = [];
             for (let i = 1; i <= count; i++) {
                 fields.push(
-                    { id: `allowance_name_${i}`, label: `手当名${i}`, sf: `AllowanceName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, paired: true, showIf: (data) => data.has_allowance === 'あり' },
-                    { id: `allowance_amount_${i}`, label: `手当額${i}`, sf: `dk_AllowanceAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, paired: true, showIf: (data) => data.has_allowance === 'あり' },
-                    { id: `allowance_calc_${i}`, label: `手当の計算方法${i}`, sf: `dk_AllowanceCalculationMethod${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_allowance === 'あり' }
+                    { id: `allowance_name_${i}`, label: `手当名${i}`, sf: `AllowanceName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: i, groupName: '手当', showIf: (data) => data.has_allowance === 'あり' },
+                    { id: `allowance_amount_${i}`, label: `手当額${i}`, sf: `dk_AllowanceAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, grouped: true, groupIndex: i, groupName: '手当', showIf: (data) => data.has_allowance === 'あり' },
+                    { id: `allowance_calc_${i}`, label: `手当の計算方法${i}`, sf: `dk_AllowanceCalculationMethod${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: i, groupName: '手当', showIf: (data) => data.has_allowance === 'あり' }
                 );
             }
             return fields;
@@ -211,9 +211,9 @@
             const fields = [];
             for (let i = 1; i <= count; i++) {
                 fields.push(
-                    { id: `other_cost_name_${i}`, label: `その他の負担費用名${i}`, sf: i < 4 ? `OtherBurdenCost${i}__c` : `dk_OtherBurdenCostName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: i, showIf: (data) => data.has_other_fees === 'あり' },
-                    { id: `other_cost_type_${i}`, label: `その他負担費用${i} 種別`, sf: `dk_OtherBurdenCostType${i}__c`, type: 'select', req: false, opts: ['実費', '実費以外'], bu: ['intern'], tab: 4, grouped: true, groupIndex: i, showIf: (data) => data.has_other_fees === 'あり' },
-                    { id: `other_cost_amount_${i}`, label: `その他の負担費用額${i}`, sf: `OtherBurdenCostAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, grouped: true, groupIndex: i, showIf: (data) => data.has_other_fees === 'あり' && data[`other_cost_type_${i}`] === '実費以外' }
+                    { id: `other_cost_name_${i}`, label: `その他の負担費用名${i}`, sf: i < 4 ? `OtherBurdenCost${i}__c` : `dk_OtherBurdenCostName${i}__c`, type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: i, groupName: 'その他費用', showIf: (data) => data.has_other_fees === 'あり' },
+                    { id: `other_cost_type_${i}`, label: `その他負担費用${i} 種別`, sf: `dk_OtherBurdenCostType${i}__c`, type: 'select', req: false, opts: ['実費', '実費以外'], bu: ['intern'], tab: 4, grouped: true, groupIndex: i, groupName: 'その他費用', showIf: (data) => data.has_other_fees === 'あり' },
+                    { id: `other_cost_amount_${i}`, label: `その他の負担費用額${i}`, sf: `OtherBurdenCostAmount${i}__c`, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, grouped: true, groupIndex: i, groupName: 'その他費用', showIf: (data) => data.has_other_fees === 'あり' && data[`other_cost_type_${i}`] === '実費以外' }
                 );
             }
             return fields;
@@ -413,9 +413,17 @@
             { id: 'hourly_salary_1', label: '時給額(実習1号)', sf: 'dk_HourlyWage1__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_1); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習1号' },
             { id: 'hourly_salary_2', label: '時給額(実習2号)', sf: 'dk_HourlyWage2__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_2); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習2号' },
             { id: 'hourly_salary_3', label: '時給額(実習3号)', sf: 'dk_HourlyWage3__c', type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_3); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習3号' },
-            { id: 'has_bonus', label: '賞与有無', sf: 'Bonus__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
-            { id: 'has_raise', label: '昇給有無', sf: 'WageRaise__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
-            { id: 'has_retirement', label: '退職金有無', sf: 'RetirementAllowance__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: true },
+            { id: 'has_bonus', label: '賞与の有無', sf: 'Bonus__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'bonus_amount', label: '賞与の支給額', sf: 'dk_BonusAmount__c', type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: 'bonus', groupName: '賞与内容', showIf: (data) => data.has_bonus === 'あり' },
+            { id: 'bonus_remarks', label: '賞与詳細', sf: 'RemarksOfBonus__c', type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: 'bonus', groupName: '賞与内容', showIf: (data) => data.has_bonus === 'あり' },
+
+            { id: 'has_raise', label: '昇給の有無', sf: 'WageRaise__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'wage_raise_amount', label: '昇給した際の昇給額', sf: 'dk_WageRaiseAmount__c', type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: 'raise', groupName: '昇給内容', showIf: (data) => data.has_raise === 'あり' },
+            { id: 'wage_raise_remarks', label: '昇給詳細', sf: 'RemarksOfWageRaise__c', type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: 'raise', groupName: '昇給内容', showIf: (data) => data.has_raise === 'あり' },
+
+            { id: 'has_retirement', label: '退職金の有無', sf: 'RetirementAllowance__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4 },
+            { id: 'retirement_amount', label: '退職金支給金額', sf: 'RetirementAllowancePaymentAmount__c', type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: 'retirement', groupName: '退職金内容', showIf: (data) => data.has_retirement === 'あり' },
+            { id: 'retirement_remarks', label: '退職金詳細', sf: 'RemarksOfRetirementAllowance__c', type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: 'retirement', groupName: '退職金内容', showIf: (data) => data.has_retirement === 'あり' },
             { id: 'has_allowance', label: '手当の有無', sf: '_has_allowance', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 4, tripled: false },
             ...generateAllowanceFields(4),
 
@@ -467,7 +475,7 @@
                 showIf: (data) => { const n = parseInt(data.nightshift_count); return data.has_shift === 'あり' && data.health_checkup_schedule === '1年' && !isNaN(n) && n > 4; }
             },
 
-            { id: 'placement_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: true, bu: ['intern', 'skilled'], tab: 5, prompt: '企業様の希望する配属希望日を入力してください(基本情報タブと連動します)' },
+            { id: 'placement_date', label: '配属希望日', sf: 'PlacementDate__c', type: 'date', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '企業様の希望する配属希望日を入力してください(基本情報タブと連動します)' },
             { id: 'company_culture', label: '会社の特徴／社風', sf: 'CompanyCulture_TT__c', type: 'textarea', req: true, bu: ['intern', 'skilled'], tab: 5, prompt: '会社の特徴および社風を入力してください\n記載された情報を元に人材が応募するので、よりよいマッチングのためきちんとしたヒアリングを推奨します。' },
             { id: 'foreigner_experience', label: '外国人受入経験', sf: 'RecordOfAcceptingForeigners_TT__c', type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '外国人材の受入経験について教えてください\n経験の有無は採用時の参考情報となります。' },
             { id: 'actual_work_content', label: '実際の実習内容', sf: 'TrainingContent_TT__c', type: 'text', req: true, bu: ['intern'], tab: 5, prompt: '実際にどのような実習を行うかを具体的に記載してください\nより詳細な情報が、適切な人材とのマッチングにつながります。' },
@@ -819,6 +827,7 @@
                         'dk_OtherBreakStartTime1__c','dk_OtherBreakEndTime1__c',
                         'dk_OtherBreakStartTime2__c','dk_OtherBreakEndTime2__c',
                         'dk_OtherBreakStartTime3__c','dk_OtherBreakEndTime3__c',
+                        'dk_TotalOtherBreakTime__c',
                         'dk_ShiftSystem__c',
                         'dk_ShiftOpeningTime1__c','dk_ShiftClosingTime1__c','dk_ShiftSystemApplicationDate1__c',
                         'dk_ShiftBreakStartTime1__c','dk_ShiftBreakEndTime1__c',
@@ -845,7 +854,9 @@
                         'dk_MonthlyWage1__c','dk_DailyWage1__c','dk_HourlyWage1__c',
                         'dk_MonthlyWage2__c','dk_DailyWage2__c','dk_HourlyWage2__c',
                         'dk_MonthlyWage3__c','dk_DailyWage3__c','dk_HourlyWage3__c',
-                        'Bonus__c','WageRaise__c','RetirementAllowance__c',
+                        'Bonus__c','dk_BonusAmount__c','RemarksOfBonus__c',
+                        'WageRaise__c','dk_WageRaiseAmount__c','RemarksOfWageRaise__c',
+                        'RetirementAllowance__c','RetirementAllowancePaymentAmount__c','RemarksOfRetirementAllowance__c',
                         'AllowanceName1__c','dk_AllowanceAmount1__c','dk_AllowanceCalculationMethod1__c',
                         'AllowanceName2__c','dk_AllowanceAmount2__c','dk_AllowanceCalculationMethod2__c',
                         'AllowanceName3__c','dk_AllowanceAmount3__c','dk_AllowanceCalculationMethod3__c',
@@ -1271,6 +1282,32 @@
                         errors.push({ field: 'address_en', msg: `住所(英)に郵便番号を含めることはできません。都道府県名から入力してください。` });
                     }
                 }
+                //手当の「中途半端な入力」を防ぐバリデーション
+                if (data.has_allowance === 'あり') {
+                    for (let i = 1; i <= 4; i++) {
+                        const name = data[`allowance_name_${i}`];
+                        const amount = data[`allowance_amount_${i}`];
+                        const calc = data[`allowance_calc_${i}`];
+
+                        if (name || amount || calc) {
+                            if (!name) errors.push({ field: `allowance_name_${i}`, msg: `手当セット${i}: 「手当名」が未入力です。` });
+                            if (!amount) errors.push({ field: `allowance_amount_${i}`, msg: `手当セット${i}: 「手当額」が未入力です。` });
+                        }
+                    }
+                }
+                // 賞与・昇給・退職金の詳細バリデーション
+                if (data.has_bonus === 'あり') {
+                    if (!data.bonus_amount) errors.push({ field: 'bonus_amount', msg: '賞与セット: 「支給額」が未入力です。' });
+                    if (!data.bonus_remarks) errors.push({ field: 'bonus_remarks', msg: '賞与セット: 「詳細」が未入力です。' });
+                }
+                if (data.has_raise === 'あり') {
+                    if (!data.wage_raise_amount) errors.push({ field: 'wage_raise_amount', msg: '昇給セット: 「昇給額」が未入力です。' });
+                    if (!data.wage_raise_remarks) errors.push({ field: 'wage_raise_remarks', msg: '昇給セット: 「詳細」が未入力です。' });
+                }
+                if (data.has_retirement === 'あり') {
+                    if (!data.retirement_amount) errors.push({ field: 'retirement_amount', msg: '退職金セット: 「支給金額」が未入力です。' });
+                    if (!data.retirement_remarks) errors.push({ field: 'retirement_remarks', msg: '退職金セット: 「詳細」が未入力です。' });
+                }
                 if (data.has_other_fees === 'あり') {
                     for (let i = 1; i <= 4; i++) {
                         const name = data[`other_cost_name_${i}`];
@@ -1612,7 +1649,7 @@
                                                             if (f.grouped) {
                                                                 const groupFields = [f];
                                                                 let j = i + 1;
-                                                                while (j < tabFields.length && tabFields[j].grouped && tabFields[j].groupIndex === f.groupIndex) {
+                                                                while (j < tabFields.length && tabFields[j].grouped && tabFields[j].groupIndex === f.groupIndex && tabFields[j].groupName === f.groupName) {
                                                                     groupFields.push(tabFields[j]);
                                                                     j++;
                                                                 }
@@ -1620,9 +1657,9 @@
                                                                 const visibleFields = groupFields.filter(gf => !gf.showIf || gf.showIf(currentData));
                                                                 if (visibleFields.length > 0) {
                                                                     rendered.push(
-                                                                        <div key={`group_${f.groupIndex}`} className="anim-fade" style={{ background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
+                                                                        <div key={`group_${f.groupName}_${f.groupIndex}`} className="anim-fade" style={{ background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
                                                                             <div style={{ fontSize: 12, fontWeight: 900, color: '#6366f1', marginBottom: 16, borderBottom: '1px solid #e2e8f0', paddingBottom: 8 }}>
-                                                                                🔖 その他費用セット {f.groupIndex}
+                                                                                🔖 {f.groupName}セット {f.groupIndex}
                                                                             </div>
                                                                             {visibleFields.map((field, idx) => {
                                                                                 const isReadOnly = typeof field.readOnly === 'function' ? field.readOnly(currentData) : field.readOnly;
