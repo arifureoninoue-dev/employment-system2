@@ -163,7 +163,7 @@
         .suffix { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 900; color: #94a3b8; }
 
         .home-screen { min-height: 100vh; background: #0f172a; display: flex; align-items: center; justify-content: center; padding: 24px; }
-        .home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 32px; }
+        .home-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 32px; }
 
         .tab-nav { display: flex; gap: 4px; background: #f1f5f9; padding: 6px; border-radius: 16px; overflow-x: auto; border: 1px solid #e2e8f0; }
         .tab-btn { padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; color: #64748b; white-space: nowrap; transition: all 0.2s; }
@@ -177,6 +177,7 @@
         .relative { position: relative; }
 
         .field-help { font-size: 11px; color: #64748b; margin-top: 6px; line-height: 1.5; padding: 8px 12px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #6366f1; }
+        .field-help-warning { font-size: 11px; color: #dc2626; font-weight: 700; margin-top: 6px; line-height: 1.5; padding: 8px 12px; background: #fef2f2; border-radius: 8px; border-left: 3px solid #dc2626; }
         .field-prompt { font-size: 14px; color: #334155; margin-bottom: 12px; line-height: 1.6; font-weight: 500; white-space: pre-line; }
 
         @media (max-width: 1024px) {
@@ -201,9 +202,9 @@
             const fields = [];
             for (let i = 1; i <= count; i++) {
                 fields.push(
-                    { id: `allowance_name_${i}`, label: `手当名${i}`, sf_mapping: { job: `AllowanceName${i}__c`, overseas_job: `AllowanceName${i}__c` }, type: 'text', req: false, bu: ['intern', 'skilled'], tab: [4, 14], grouped: true, groupIndex: i, groupName: '手当', showIf: (data) => data.has_allowance === 'あり' },
-                    { id: `allowance_amount_${i}`, label: `手当額${i}`, sf_mapping: { job: `dk_AllowanceAmount${i}__c`, overseas_job: `AllowanceAmount${i}__c` }, type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: [4, 14], grouped: true, groupIndex: i, groupName: '手当', showIf: (data) => data.has_allowance === 'あり' },
-                    { id: `allowance_calc_${i}`, label: `手当の計算方法${i}`, sf_mapping: { job: `dk_AllowanceCalculationMethod${i}__c`, overseas_job: `AllowanceCalculationMethod${i}__c` }, type: 'text', req: false, bu: ['intern', 'skilled'], tab: [4, 14], grouped: true, groupIndex: i, groupName: '手当', showIf: (data) => data.has_allowance === 'あり' }
+                    { id: `allowance_name_${i}`, label: `手当名${i}`, sf_mapping: { job: `AllowanceName${i}__c`, overseas_job: `AllowanceName${i}__c`, employment_condition: `dk_AllowanceName${i}__c` }, type: 'text', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], grouped: true, groupIndex: i, groupName: '手当', showIf: (data) => data.has_allowance === 'あり' },
+                    { id: `allowance_amount_${i}`, label: `手当額${i}`, sf_mapping: { job: `dk_AllowanceAmount${i}__c`, overseas_job: `AllowanceAmount${i}__c`, employment_condition: `dk_AllowanceAmount${i}__c` }, type: 'number', req: false, suf: '円', bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], grouped: true, groupIndex: i, groupName: '手当', showIf: (data) => data.has_allowance === 'あり' },
+                    { id: `allowance_calc_${i}`, label: `手当の計算方法${i}`, sf_mapping: { job: `dk_AllowanceCalculationMethod${i}__c`, overseas_job: `AllowanceCalculationMethod${i}__c`, employment_condition: `dk_AllowanceCalculationMethod${i}__c` }, type: 'text', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], grouped: true, groupIndex: i, groupName: '手当', showIf: (data) => data.has_allowance === 'あり' }
                 );
             }
             return fields;
@@ -309,12 +310,18 @@
 
         const FIELDS = [
             // ==============================================================
+            // 【特定技能(AJS)専用: ウィザード - 4条件】
+            // 入力内容に応じて、他タブの表示項目が絞り込まれる
+            // ==============================================================
+            { id: 'application_type', label: '申請種別', sf_mapping: {}, type: 'select', req: true, opts: ['認定申請', '変更申請', '変更申請(特定活動経由)', '変更申請(特定技能転職)'], bu: ['tokutei'], tab: 0 },
+            { id: 'job_field_ssw', label: '分野', sf_mapping: { overseas_job: 'JobField__c' }, type: 'select', req: true, opts: ['介護', 'ビルクリーニング', '工業製品製造業', '建設', '造船・舶用工業', '自動車整備業', '航空', '宿泊', '農業', '漁業', '飲食料品製造業', '外食業', '林業', '木材産業', '鉄道', '自動車運送業'], bu: ['tokutei'], tab: 0 },
+            { id: 'training_experience', label: '技能実習経験', sf_mapping: {}, type: 'select', req: true, opts: ['AJSにて満了', 'AJSにて満了(他組合経験あり)', '他社にて満了', '技能実習経験なし'], bu: ['tokutei'], tab: 0 },
+            { id: 'nationality', label: '国籍', sf_mapping: { overseas_job: 'Nationality__c', talent: 'Nationality_SingularSelection__c' }, type: 'select', req: true, opts: ['Indonesian', 'Bangladeshi', 'Cambodian', 'Chinese', 'Indian', 'Myanmar', 'Nepalese', 'Surinamese', 'Vietnamese', 'Thai'], bu: ['tokutei'], tab: 0 },
+
+            // ==============================================================
             // 【タブ1: 基本情報】
             // ==============================================================
             { id: 'business_type', label: '事業区分', sf_mapping: {}, type: 'select', req: false, opts: ['法人', '個人事業主'], bu: ['intern', 'skilled'], tab: 1 },
-            { id: 'company_name', label: '企業名', sf_mapping: { account: 'Name' }, type: 'text', req: true, val: 'noFullLatin', bu: ['intern', 'skilled'], tab: [1, 11] },
-            { id: 'company_name_kana', label: '事業者名（かな）', sf_mapping: { account: 'KanaName__c' }, type: 'text', req: true, val: 'hiragana', bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)', help: 'ひらがな+半角スペースで入力（例: かぶしきがいしゃ さんぷる）' },
-            { id: 'company_name_en', label: '企業名(英)', sf_mapping: { account: 'EnglishName__c' }, type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: [1, 11], help: 'コピーして利用「Co., Ltd.」' },
             { id: 'sales_name', label: '営業担当者名', sf_mapping: { job: 'SalesName__c', overseas_job: 'SalesName__c' }, type: 'searchable', req: true, bu: ['intern', 'skilled'], tab: 1, opts: [
                 '鬼木 康輔', '牧野 仁勇', '前田 悠陽', '宮寺 健斗', '山本 あさひ', '玉置 裕大',
                 'ソーソン夏帆 サニー', '西村 孟留', '後藤 冶真斗', '松永 美紅', '林 竜之輔',
@@ -324,23 +331,26 @@
                 '岡田 祐希', '幡中 涼太', '森岡 沙弥', '濵 教了', '西野 宏', '金子 純也',
                 '阪部 まどか', '井上 翼アリフレオン', '藤本 千春', '宇田川 友里', '沼里 麻美', '南﨑 一輝'
             ]},
-            { id: 'rep_name', label: '代表者名', sf_mapping: { account: 'NameOfRepresentative__c' }, type: 'text', req: true, bu: ['intern', 'skilled'], tab: [1, 11] },
-            { id: 'rep_name_kana', label: '代表者名（かな）', sf_mapping: { account: 'RepresentativeNameKana__c' }, type: 'text', req: true, val: 'hiragana', bu: ['skilled'], tab: [1, 11], showIf: (data) => data.sub_type === '海外招聘(LV)', help: 'ひらがな+半角スペースで入力' },
-            { id: 'rep_name_en', label: '代表者名(英)', sf_mapping: { account: 'RepresentativeNameInEnglish__c' }, type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: [1, 11] },
-            { id: 'rep_position', label: '代表者役職名', sf_mapping: { account: 'RepresentativePosition__c' }, type: 'select', req: true, opts: ['代表取締役', '取締役', '代表社員', '代表','代表理事','理事長'], bu: ['intern', 'skilled'], tab: [1, 11] },
-            { id: 'postal_code', label: '所在地(郵便番号)', sf_mapping: { account: 'Address__PostalCode__s__c' }, type: 'text', req: true, val: 'zip', bu: ['intern', 'skilled'], tab: [1, 11] },
-            { id: 'address', label: '所在地(拠点)', sf_mapping: { account: 'Address__c' }, type: 'text', req: true, bu: ['intern', 'skilled'], tab: [1, 11] },
-            { id: 'address_en', label: '住所(英)', sf_mapping: { account: 'AddressInEnglish__c' }, type: 'text', req: true, val: 'half', bu: ['intern', 'skilled'], tab: [1, 11], help: <span><a href="https://kimini.jp/" target="_blank" rel="noopener noreferrer">君に届け(住所変換サイト)</a></span> },
+            { id: 'company_name', label: '企業名', sf_mapping: { account: 'Name' }, type: 'text', req: true, val: 'noFullLatin', bu: ['intern', 'skilled', 'tokutei'], tab: [1, 11] },
+            { id: 'company_name_kana', label: '事業者名（かな）', sf_mapping: { account: 'KanaName__c' }, type: 'text', req: true, val: 'hiragana', bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei', help: 'ひらがな+半角スペースで入力（例: かぶしきがいしゃ さんぷる）' },
+            { id: 'company_name_en', label: '企業名(英)', sf_mapping: { account: 'EnglishName__c' }, type: 'text', req: true, val: 'half', bu: ['intern', 'skilled', 'tokutei'], tab: [1, 11], help: 'コピーして利用「Co., Ltd.」' },
+            { id: 'rep_name', label: '代表者名', sf_mapping: { account: 'NameOfRepresentative__c' }, type: 'text', req: true, bu: ['intern', 'skilled', 'tokutei'], tab: [1, 11] },
+            { id: 'rep_name_kana', label: '代表者名（かな）', sf_mapping: { account: 'RepresentativeNameKana__c' }, type: 'text', req: true, val: 'hiragana', bu: ['skilled', 'tokutei'], tab: [1, 11], showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei', help: 'ひらがな+半角スペースで入力' },
+            { id: 'rep_name_en', label: '代表者名(英)', sf_mapping: { account: 'RepresentativeNameInEnglish__c' }, type: 'text', req: true, val: 'half', bu: ['intern', 'skilled', 'tokutei'], tab: [1, 11] },
+            { id: 'rep_position', label: '代表者役職名', sf_mapping: { account: 'RepresentativePosition__c' }, type: 'select', req: true, opts: ['代表取締役', '取締役', '代表社員', '代表','代表理事','理事長'], bu: ['intern', 'skilled', 'tokutei'], tab: [1, 11] },
+            { id: 'postal_code', label: '所在地(郵便番号)', sf_mapping: { account: 'Address__PostalCode__s__c' }, type: 'text', req: true, val: 'zip', bu: ['intern', 'skilled', 'tokutei'], tab: [1, 11] },
+            { id: 'address', label: '所在地(拠点)', sf_mapping: { account: 'Address__c' }, type: 'text', req: true, bu: ['intern', 'skilled', 'tokutei'], tab: [1, 11] },
+            { id: 'address_en', label: '住所(英)', sf_mapping: { account: 'AddressInEnglish__c' }, type: 'text', req: true, val: 'half', bu: ['intern', 'skilled', 'tokutei'], tab: [1, 11], help: <span><a href="https://kimini.jp/" target="_blank" rel="noopener noreferrer">君に届け(住所変換サイト)</a></span> },
 
             // --- LV STEP2 基本情報（取引先オブジェクト追加項目） ---
-            { id: 'phone', label: '電話番号', sf_mapping: { account: 'Phone' }, type: 'text', req: true, val: 'phone', bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'tax_code', label: '法人番号', sf_mapping: { account: 'TaxCode__c' }, type: 'text', req: true, bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'share_capital', label: '資本金', sf_mapping: { account: 'ShareCapital__c' }, type: 'number', req: true, suf: '円', bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'annual_revenue', label: '年間売上金額（直近年度）', sf_mapping: { account: 'AnnualRevenue' }, type: 'number', req: true, suf: '円', bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'fulltime_employee_count', label: '常勤職員数', sf_mapping: { account: 'FulltimeNumberOfPeople__c' }, type: 'number', req: true, suf: '人', bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)', help: '10人以上の場合、就業規則は「あり」が必須' },
-            { id: 'is_immigration_account_office_join', label: '電子届出システムの登録', sf_mapping: { account: 'IsImmigrationAccountOfficeJoin__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'immigration_account_id', label: '電子届出システムID', sf_mapping: { account: 'ImmigrationAccountCertificationID1__c' }, type: 'text', req: false, bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' && data.is_immigration_account_office_join === 'あり' },
-            { id: 'immigration_account_password', label: '電子届出システムパスワード', sf_mapping: { account: 'ImmigrationAccountPassword__c' }, type: 'text', req: false, bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' && data.is_immigration_account_office_join === 'あり' },
+            { id: 'phone', label: '電話番号', sf_mapping: { account: 'Phone' }, type: 'text', req: true, val: 'phone', bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'tax_code', label: '法人番号', sf_mapping: { account: 'TaxCode__c' }, type: 'text', req: true, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'share_capital', label: '資本金', sf_mapping: { account: 'ShareCapital__c' }, type: 'number', req: true, suf: '円', bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'annual_revenue', label: '年間売上金額（直近年度）', sf_mapping: { account: 'AnnualRevenue' }, type: 'number', req: true, suf: '円', bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'fulltime_employee_count', label: '常勤職員数', sf_mapping: { account: 'FulltimeNumberOfPeople__c' }, type: 'number', req: true, suf: '人', bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei', help: '10人以上の場合、就業規則は「あり」が必須' },
+            { id: 'is_immigration_account_office_join', label: '電子届出システムの登録', sf_mapping: { account: 'IsImmigrationAccountOfficeJoin__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'immigration_account_id', label: '電子届出システムID', sf_mapping: { account: 'ImmigrationAccountCertificationID1__c' }, type: 'text', req: false, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.is_immigration_account_office_join === 'あり' },
+            { id: 'immigration_account_password', label: '電子届出システムパスワード', sf_mapping: { account: 'ImmigrationAccountPassword__c' }, type: 'text', req: false, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.is_immigration_account_office_join === 'あり' },
 
             // --- 技能実習: 配属希望日・職種・作業（既存維持） ---
             { id: 'desired_start_date', label: '配属希望日', sf_mapping: { job: 'PlacementDate__c' }, type: 'date', req: true, bu: ['intern'], tab: 1, help: '募集要件タブの配属希望日と連動します' },
@@ -361,15 +371,95 @@
             { id: 'workplace_address', label: '勤務住所', sf_mapping: { job: 'Address__c', overseas_job: 'OfficeAddress__c' }, type: 'text', req: true, bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [1, 11] : [1] },
 
             // --- LV固有：基本情報 追加項目（雇用条件書） ---
-            { id: 'job_field', label: '特定技能資格分野', sf_mapping: { overseas_job: 'JobField__c' }, type: 'select', req: true, opts: ['介護', 'ビルクリーニング', '工業製品製造業', '建設', '造船・舶用工業', '自動車整備業', '航空', '宿泊', '農業', '漁業', '飲食料品製造業', '外食業', '林業', '木材産業', '鉄道', '自動車運送業'], bu: ['skilled'], tab: [5, 11], showIf: (data) => data.sub_type === '海外招聘(LV)', help: '受入要望書と雇用条件書の両方に表示' },
-            { id: 'job_category', label: '従事すべき業務の内容（業務区分）', sf_mapping: { overseas_job: 'JobCategory__c' }, type: 'select', req: true, opts: (data) => JOB_CATEGORY_MAP[data.job_field] || [], bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)', help: '特定技能資格分野で選択した分野に応じて選択肢が変わります' },
-            { id: 'expected_entering_date', label: '入社予定日', sf_mapping: { overseas_job: 'ExpectedEnteringDate__c' }, type: 'date', req: true, bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'labor_insurance_number', label: '労働保険番号', sf_mapping: { overseas_job: 'LaborInsuranceNumber__c' }, type: 'text', req: true, bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'pic_employment_name', label: '雇用改善の窓口 担当者氏名', sf_mapping: { overseas_job: 'PICNameOfEmploymentManagement__c' }, type: 'text', req: true, bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'pic_employment_name_kana', label: '雇用改善の窓口 担当者氏名ふりがな', sf_mapping: { overseas_job: 'PICNameInKanaOfEmploymentManagement__c' }, type: 'text', req: true, val: 'hiragana', bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'pic_employment_department', label: '雇用改善の窓口 部署名', sf_mapping: { overseas_job: 'PICDepartmentOfEmploymentManagement__c' }, type: 'text', req: true, bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'pic_employment_address', label: '雇用改善の窓口 連絡先', sf_mapping: { overseas_job: 'PICAddressOfEmploymentManagement__c' }, type: 'text', req: true, bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'pic_employment_position', label: '雇用改善の窓口 担当者役職', sf_mapping: { overseas_job: 'PICPositionOfEmploymentManagement__c' }, type: 'text', req: true, bu: ['skilled'], tab: 11, showIf: (data) => data.sub_type === '海外招聘(LV)' },
+            { id: 'job_field', label: '特定技能資格分野', sf_mapping: { overseas_job: 'JobField__c', employment_condition: 'JobField__c' }, type: 'select', req: true, opts: ['介護', 'ビルクリーニング', '工業製品製造業', '建設', '造船・舶用工業', '自動車整備業', '航空', '宿泊', '農業', '漁業', '飲食料品製造業', '外食業', '林業', '木材産業', '鉄道', '自動車運送業'], bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 5 : [5, 11], showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei', readOnly: (data) => data.bu === 'tokutei', help: 'tokutei: ウィザードで選択した「分野」が自動入力されます / LV: 受入要望書と雇用条件書の両方に表示' },
+            { id: 'job_category', label: '従事すべき業務の内容（業務区分）', sf_mapping: { overseas_job: 'JobCategory__c', employment_condition: 'JobCategory__c' }, type: 'select', req: true, opts: (data) => JOB_CATEGORY_MAP[data.bu === 'tokutei' ? data.job_field_ssw : data.job_field] || [], bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 5 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei', help: '分野で選択した分野に応じて選択肢が変わります' },
+            { id: 'expected_entering_date', label: '入社予定日', sf_mapping: { overseas_job: 'ExpectedEnteringDate__c', employment_condition: 'ExpectedEnteringDate__c' }, type: 'date', req: true, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 5 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'labor_insurance_number', label: '労働保険番号', sf_mapping: { overseas_job: 'LaborInsuranceNumber__c', employment_condition: 'LaborInsuranceNumber__c' }, type: 'text', req: true, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'pic_employment_name', label: '雇用改善の窓口 担当者氏名', sf_mapping: { overseas_job: 'PICNameOfEmploymentManagement__c', employment_condition: 'PICNameOfEmploymentManagement__c' }, type: 'text', req: true, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'pic_employment_name_kana', label: '雇用改善の窓口 担当者氏名ふりがな', sf_mapping: { overseas_job: 'PICNameInKanaOfEmploymentManagement__c', employment_condition: 'PICNameInKanaOfEmploymentManagement__c' }, type: 'text', req: true, val: 'hiragana', bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'pic_employment_department', label: '雇用改善の窓口 部署名', sf_mapping: { overseas_job: 'PICDepartmentOfEmploymentManagement__c', employment_condition: 'PICDepartmentOfEmploymentManagement__c' }, type: 'text', req: true, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'pic_employment_address', label: '雇用改善の窓口 連絡先', sf_mapping: { overseas_job: 'PICAddressOfEmploymentManagement__c', employment_condition: 'PICAddressOfEmploymentManagement__c' }, type: 'text', req: true, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei', autoFillFrom: 'phone', autoFillLabel: '電話番号から反映' },
+            { id: 'pic_employment_position', label: '雇用改善の窓口 担当者役職', sf_mapping: { overseas_job: 'PICPositionOfEmploymentManagement__c', employment_condition: 'PICPositionOfEmploymentManagement__c' }, type: 'text', req: true, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+
+            // --- 特定技能(AJS) 専用: 基本情報 追加項目 ---
+            { id: 'foreign_worker_mgmt_id', label: '外国人就労管理システムログイン用ID', sf_mapping: { account: 'ForeignWorkerManagementSystemID__c' }, type: 'text', req: true, bu: ['tokutei'], tab: 1 },
+            { id: 'foreign_worker_mgmt_password', label: '外国人就労管理システムログイン用パスワード', sf_mapping: { account: 'ForeignWorkerManagementSystemPassword__c' }, type: 'text', req: true, bu: ['tokutei'], tab: 1 },
+            { id: 'person_email', label: '企業のメールアドレス', sf_mapping: { account: 'PersonEmail' }, type: 'text', req: true, bu: ['tokutei'], tab: 1 },
+            { id: 'ssw_employment_experience', label: '特定技能外国人の雇用経験', sf_mapping: { account: 'SSWEmploymentExperience__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['tokutei'], tab: 1 },
+
+            // ==============================================================
+            // 【タブ21: 基本情報(人材)】(特定技能AJS専用)
+            // Phase 2-A: 基本属性10件
+            // ==============================================================
+            { id: 'talent_name_en', label: '特定技能生の名前', sf_mapping: { talent: 'TalentNameInEnglish__c' }, type: 'text', req: true, val: 'half', bu: ['tokutei'], tab: 21, help: '半角ローマ字で入力' },
+            { id: 'talent_gender', label: '性別', sf_mapping: { talent: 'Gender__c' }, type: 'select', req: true, opts: ['男性', '女性'], bu: ['tokutei'], tab: 21 },
+            { id: 'date_of_birth', label: '生年月日', sf_mapping: { talent: 'DateOfBirth__c' }, type: 'date', req: true, bu: ['tokutei'], tab: 21 },
+            { id: 'nationality_talent', label: '国籍', sf_mapping: {}, type: 'select', req: false, opts: ['Indonesian', 'Bangladeshi', 'Cambodian', 'Chinese', 'Indian', 'Myanmar', 'Nepalese', 'Surinamese', 'Vietnamese', 'Thai'], bu: ['tokutei'], tab: 21, readOnly: true, help: 'ウィザードで選択した「国籍」が自動入力されます' },
+            { id: 'talent_postal_code', label: '現住所 郵便番号', sf_mapping: { talent: 'TalentPostalCode__c' }, type: 'text', req: true, val: 'zip', bu: ['tokutei'], tab: 21 },
+            { id: 'talent_address', label: '現住所 住所', sf_mapping: { talent: 'TalentAddress__c' }, type: 'text', req: true, bu: ['tokutei'], tab: 21 },
+            { id: 'num_living_together', label: '申請対象者と同じ家に住む同居人数', sf_mapping: { talent: 'NumberOfPeopleLivingTogether__c' }, type: 'number', req: true, suf: '人', bu: ['tokutei'], tab: 21 },
+            { id: 'talent_email', label: 'メールアドレス', sf_mapping: { talent: 'Email__c' }, type: 'text', req: true, val: 'email', bu: ['tokutei'], tab: 21 },
+            { id: 'talent_marital_status', label: '配偶者の有無', sf_mapping: { talent: 'MaritalStatus__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['tokutei'], tab: 21 },
+            { id: 'relatives_in_japan', label: '在日親族の有無', sf_mapping: { talent: 'RrelativesInJapan__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['tokutei'], tab: 21 },
+
+            // --- Phase 2-B: 技能実習経験関連 6件 ---
+            // ウィザード「技能実習経験」が「技能実習経験なし」以外の時のみ表示
+            { id: 'monthly_wage_of_tt', label: '技能実習時の月給', sf_mapping: { talent: 'MonthlyWageOfTechnicalInternTraining__c' }, type: 'number', req: true, suf: '円', bu: ['tokutei'], tab: 21, showIf: (data) => data.training_experience && data.training_experience !== '技能実習経験なし' },
+            { id: 'occupation_of_tt', label: '技能実習時の職種', sf_mapping: { talent: 'OccupationOfTT__c' }, type: 'text', req: true, bu: ['tokutei'], tab: 21, showIf: (data) => data.training_experience && data.training_experience !== '技能実習経験なし' },
+            { id: 'work_name_of_tt', label: '技能実習時の作業名', sf_mapping: { talent: 'WorkNameOfTT__c' }, type: 'text', req: true, bu: ['tokutei'], tab: 21, showIf: (data) => data.training_experience && data.training_experience !== '技能実習経験なし' },
+            { id: 'previous_job_entering_date', label: '前職の入社日', sf_mapping: { talent: 'PreviousJobEnteringDate__c' }, type: 'date', req: true, bu: ['tokutei'], tab: 21, showIf: (data) => data.training_experience && data.training_experience !== '技能実習経験なし' },
+            { id: 'test_result_grade3', label: '随時3級・専門級合否', sf_mapping: { talent: 'TestResultOfTheGrade3OrSpecialistLevel__c' }, type: 'select', req: true, opts: ['合格', '不合格'], bu: ['tokutei'], tab: 21, showIf: (data) => data.training_experience && data.training_experience !== '技能実習経験なし', help: '未受験の場合は「不合格」を選択してください' },
+            // 送出機関: select(その他のみ) + テキスト入力欄(その他選択時のみ表示)
+            // SF出力は sending_agency_of_tt_text のみ（select は内部判定用）
+            { id: 'sending_agency_of_tt', label: '技能実習時代の送出機関名', sf_mapping: {}, type: 'select', req: true, opts: ['その他'], bu: ['tokutei'], tab: 21, showIf: (data) => data.training_experience && data.training_experience !== '技能実習経験なし', help: '当面は「その他」を選択し、下のフィールドで送出機関名を手入力してください' },
+            { id: 'sending_agency_of_tt_text', label: '技能実習時代の送出機関名（手動入力）', sf_mapping: { talent: 'SendingAgencyOfTechnicalInternTraining__c' }, type: 'text', req: true, bu: ['tokutei'], tab: 21, showIf: (data) => data.training_experience && data.training_experience !== '技能実習経験なし' && data.sending_agency_of_tt === 'その他' },
+
+            // --- Phase 2-C: 実家情報 2件 ---
+            // ウィザード「国籍」がVietnameseの場合のみ表示
+            { id: 'home_address', label: '実家の住所', sf_mapping: { talent: 'HomeAddress__c' }, type: 'text', req: false, val: 'half', bu: ['tokutei'], tab: 21, showIf: (data) => data.nationality === 'Vietnamese' },
+            { id: 'home_phone_number', label: '実家の電話番号', sf_mapping: { talent: 'HomePhoneNumber__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 21, showIf: (data) => data.nationality === 'Vietnamese' },
+
+            // --- Phase 2-D: 在日親族 3人分 × 6項目 = 18件 ---
+            // 「在日親族の有無」が「あり」の場合に全18件表示
+            // 1人目の氏名・続柄のみ必須、それ以外は任意
+            { type: 'section', label: '【在日親族 1人目】', bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'name_relatives_jp_1', label: '在日親族の氏名（ローマ字）', sf_mapping: { talent: 'NameOfRrelativesInJapan1__c' }, type: 'text', req: true, val: 'half', bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'relationship_relatives_jp_1', label: '在日親族の続柄', sf_mapping: { talent: 'RelationshipOfRrelativesInJapan1__c' }, type: 'text', req: true, bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'visa_card_relatives_jp_1', label: '在日親族の在留カード番号', sf_mapping: { talent: 'VisaCardIdOfRrelativesInJapan1__c' }, type: 'text', req: false, val: 'visa_card', bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり', help: '英大文字2 + 数字8 + 英大文字2（例: AB12345678CD）' },
+            { id: 'living_with_relatives_jp_1', label: '在日親族との同居の有無', sf_mapping: { talent: 'LivingWithRelativesInJapan1__c' }, type: 'select', req: false, opts: ['あり', 'なし'], bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'date_of_birth_relatives_jp_1', label: '在日親族の生年月日', sf_mapping: { talent: 'DateOfBirthOfRrelativesInJapan1__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'workplace_school_relatives_jp_1', label: '在日親族の勤務先・学校名など', sf_mapping: { talent: 'WorkplaceOrSchoolNameOfRelativesInJapan1__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+
+            { type: 'section', label: '【在日親族 2人目】', bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'name_relatives_jp_2', label: '在日親族の氏名（ローマ字）', sf_mapping: { talent: 'NameOfRrelativesInJapan2__c' }, type: 'text', req: false, val: 'half', bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'relationship_relatives_jp_2', label: '在日親族の続柄', sf_mapping: { talent: 'RelationshipOfRrelativesInJapan2__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'visa_card_relatives_jp_2', label: '在日親族の在留カード番号', sf_mapping: { talent: 'VisaCardIdOfRrelativesInJapan2__c' }, type: 'text', req: false, val: 'visa_card', bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり', help: '英大文字2 + 数字8 + 英大文字2（例: AB12345678CD）' },
+            { id: 'living_with_relatives_jp_2', label: '在日親族との同居の有無', sf_mapping: { talent: 'LivingWithRelativesInJapan2__c' }, type: 'select', req: false, opts: ['あり', 'なし'], bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'date_of_birth_relatives_jp_2', label: '在日親族の生年月日', sf_mapping: { talent: 'DateOfBirthOfRrelativesInJapan2__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'workplace_school_relatives_jp_2', label: '在日親族の勤務先・学校名など', sf_mapping: { talent: 'WorkplaceOrSchoolNameOfRelativesInJapan2__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+
+            { type: 'section', label: '【在日親族 3人目】', bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'name_relatives_jp_3', label: '在日親族の氏名（ローマ字）', sf_mapping: { talent: 'NameOfRrelativesInJapan3__c' }, type: 'text', req: false, val: 'half', bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'relationship_relatives_jp_3', label: '在日親族の続柄', sf_mapping: { talent: 'RelationshipOfRrelativesInJapan3__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'visa_card_relatives_jp_3', label: '在日親族の在留カード番号', sf_mapping: { talent: 'VisaCardIdOfRrelativesInJapan3__c' }, type: 'text', req: false, val: 'visa_card', bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり', help: '英大文字2 + 数字8 + 英大文字2（例: AB12345678CD）' },
+            { id: 'living_with_relatives_jp_3', label: '在日親族との同居の有無', sf_mapping: { talent: 'LivingWithRelativesInJapan3__c' }, type: 'select', req: false, opts: ['あり', 'なし'], bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'date_of_birth_relatives_jp_3', label: '在日親族の生年月日', sf_mapping: { talent: 'DateOfBirthOfRrelativesInJapan3__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+            { id: 'workplace_school_relatives_jp_3', label: '在日親族の勤務先・学校名など', sf_mapping: { talent: 'WorkplaceOrSchoolNameOfRelativesInJapan3__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 21, showIf: (data) => data.relatives_in_japan === 'あり' },
+
+            // --- Phase 2-E: TalentActivity 2件 ---
+            // ウィザード「申請種別」が「変更申請(特定活動経由)」の場合のみ表示
+            { id: 'reason_of_da_need', label: '特定活動を挟む理由', sf_mapping: { talent_activity: 'ReasonOfDANeed__c' }, type: 'text', req: true, bu: ['tokutei'], tab: 21, showIf: (data) => data.application_type === '変更申請(特定活動経由)' },
+            { id: 'reason_of_da_need_details', label: '特定活動を挟む理由詳細', sf_mapping: { talent_activity: 'ReasonOfDANeedDetails__c' }, type: 'textarea', req: true, bu: ['tokutei'], tab: 21, showIf: (data) => data.application_type === '変更申請(特定活動経由)', prompt: '特定活動を挟む理由を詳しく記載してください\n（例: 在留期間満了後、特定技能への移行手続きに時間を要したため等）' },
+
+            // ==============================================================
+            // 【タブ5: 募集要件 (特定技能AJS専用)】 Phase 2-F
+            // ==============================================================
+            // ※job_field, job_category は上記でID共有として定義済み（tab: 5 にも表示）
+            // ※expected_entering_date, contract_renewal, renewal_limit はLVと既存のID共有として下方で定義
+            { id: 'total_renewal_times_limit', label: '契約の更新回数上限', sf_mapping: { employment_condition: 'TotalRenewalTimesLimit__c' }, type: 'number', req: true, suf: '回', bu: ['tokutei'], tab: 5 },
+            { id: 'office_name', label: '就業先事業所名', sf_mapping: { employment_condition: 'dk_OfficeName__c' }, type: 'text', req: true, bu: ['tokutei'], tab: 5 },
+            { id: 'office_post_code', label: '就業先郵便番号', sf_mapping: { employment_condition: 'dk_OfficePostCode__c' }, type: 'text', req: true, val: 'zip', bu: ['tokutei'], tab: 5 },
+            { id: 'office_address', label: '就業先住所', sf_mapping: { employment_condition: 'dk_OfficeAddress__c' }, type: 'text', req: true, bu: ['tokutei'], tab: 5 },
 
             // ==============================================================
             // 【タブ2: 宿泊】(技能実習・特定技能AJS専用)
@@ -387,56 +477,61 @@
             // ==============================================================
             // 【タブ3: 労働時間・休憩・休日】
             // ==============================================================
-            { type: 'section', label: '【基本情報】', bu: ['intern', 'skilled'], tab: [3, 13] },
-            { id: 'has_overtime', label: '所定時間外労働の有無', sf_mapping: { job: 'OverTimeWork__c', overseas_job: 'PresenceOfOvertimeWork__c' }, type: 'select', req: true, opts: ['あり', 'なし'], help: '残業をする可能性が少しでもある場合は「あり」を選択してください', bu: ['intern', 'skilled'], tab: [3, 13] },
-            { id: 'has_flex_time', label: '【基本】変形時間労働制の有無', sf_mapping: { job: 'dk_IrregularWorkingHoursSystem__c', overseas_job: 'IrregularWorkingHoursSystem__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: [3, 13] },
-            { id: 'flex_time_type', label: '【基本】変形時間労働制のタイプ', sf_mapping: { job: 'dk_IrregularWorkingHoursSystemType__c', overseas_job: 'IrregularWorkingHoursSystemType__c' }, type: 'select', req: true, opts: ['1年', '半年', '3ヶ月', '1ヶ月', '1週間'], bu: ['intern', 'skilled'], tab: [3, 13], showIf: (data) => data.has_flex_time === 'あり' },
-            { id: 'has_work_rules', label: '就業規則の有無', sf_mapping: { job: 'WorkRules__c', overseas_job: 'WorkRules__c' }, type: 'select', req: true, opts: ['あり', 'なし'], help: '常勤が10人以上の場合は「あり」を選択、9人以下の場合は「なし」を選択', bu: ['intern', 'skilled'], tab: [3, 11] },
-            { id: 'confirmation_method_work_rules', label: '就業規則を確認できる場所や方法', sf_mapping: { job: 'ConfirmationPlaceOrMethodOfWorkRules__c', overseas_job: 'ConfirmationPlaceOrMethodOfWorkRule__c' }, type: 'text', req: true, bu: ['intern', 'skilled'], tab: [3, 11], help: '就業規則の有無の選択に応じて自動入力されます', readOnly: true },
-            { id: 'regular_holiday_day', label: '定例休日の曜日', sf_mapping: { job: 'dk_RegularDaysOff__c', overseas_job: 'RegularDaysOff__c' }, type: 'multiselect', req: false, opts: ['月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日', '日曜日'], value: ['土曜日', '日曜日'], help: '該当する曜日をすべて選択してください', bu: ['intern', 'skilled'], tab: [3, 13] },
-            { id: 'regular_holiday_other', label: '定例休日その他', sf_mapping: { job: 'dk_OtherRegularDaysOff__c', overseas_job: 'OtherHolidays__c' }, type: 'multiselect', req: false, opts: ['年末年始', 'GW', '夏季休暇', '企業カレンダー通り', '会社指定日', '就業規則通り'], bu: ['intern', 'skilled'], tab: [3, 13] },
-            { id: 'national_holidays', label: '日本の国民の祝日', sf_mapping: { job: 'dk_JapaneseNationalHolidays__c', overseas_job: 'JapaneseNationalHolidays__c' }, type: 'select', req: true, opts: ['祝日休み', '祝日勤務'], bu: ['intern', 'skilled'], tab: [3, 13] },
-            { id: 'irregular_holiday', label: '非定休日', sf_mapping: { job: 'dk_AdditionalDaysOff__c', overseas_job: 'AdditionalDaysOff__c' }, type: 'select', req: true, opts: ['なし', '週あたり', '月あたり'], bu: ['intern', 'skilled'], tab: [3, 13] },
-            { id: 'irregular_holiday_days', label: '非定例休日の日数', sf_mapping: { job: 'dk_NumberOfAdditionalDaysOff__c', overseas_job: 'NumberOfAdditionalDaysOff__c' }, type: 'number', req: false, suf: '日', req_cond: (vals) => vals.irregular_holiday === '週あたり' || vals.irregular_holiday === '月あたり', bu: ['intern', 'skilled'], tab: [3, 13] },
+            { type: 'section', label: '【基本情報】', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
+            // LV専用: 雇用区分/契約更新の有無（ペア）+ 更新上限の有無（STEP2の最上部に配置）
+            // tokuteiではcontract_renewal/renewal_limitは募集要件タブ(5)に表示される
+            { id: 'employment_status', label: '雇用区分', sf_mapping: { overseas_job: 'EmploymentStatus__c' }, type: 'select', req: true, opts: ['直接雇用', '派遣'], bu: ['skilled'], tab: 13, showIf: (data) => data.sub_type === '海外招聘(LV)', paired: true },
+            { id: 'contract_renewal', label: '契約更新の有無', sf_mapping: { overseas_job: 'ContractRenewal__c', employment_condition: 'ContractRenewal__c' }, type: 'select', req: true, opts: (data) => data.bu === 'tokutei' ? ['自動的に更新する', '更新する場合があり得る', '契約の更新はしない'] : ['あり', 'なし'], bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 5 : 13, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei', paired: true },
+            { id: 'renewal_limit', label: '更新上限の有無', sf_mapping: { overseas_job: 'RenewalLimit__c', employment_condition: 'RenewalLimit__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 5 : 13, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'has_overtime', label: '所定時間外労働の有無', sf_mapping: { job: 'OverTimeWork__c', overseas_job: 'PresenceOfOvertimeWork__c', employment_condition: 'dk_PresenceOfOvertimeWork__c' }, type: 'select', req: true, opts: ['あり', 'なし'], help: '残業をする可能性が少しでもある場合は「あり」を選択してください', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
+            { id: 'has_flex_time', label: '【基本】変形時間労働制の有無', sf_mapping: { job: 'dk_IrregularWorkingHoursSystem__c', overseas_job: 'IrregularWorkingHoursSystem__c', employment_condition: 'dk_IrregularWorkingHoursSystem__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13], paired: true },
+            { id: 'flex_time_type', label: '【基本】変形時間労働制のタイプ', sf_mapping: { job: 'dk_IrregularWorkingHoursSystemType__c', overseas_job: 'IrregularWorkingHoursSystemType__c', employment_condition: 'dk_IrregularWorkingHoursSystemType__c' }, type: 'select', req: true, opts: ['1年', '半年', '3ヶ月', '1ヶ月', '1週間'], bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13], paired: true, showIf: (data) => data.has_flex_time === 'あり' },
+            { id: 'has_work_rules', label: '就業規則の有無', sf_mapping: { job: 'WorkRules__c', overseas_job: 'WorkRules__c', employment_condition: 'WorkRules__c' }, type: 'select', req: true, opts: ['あり', 'なし'], help: '常勤が10人以上の場合は「あり」を選択、9人以下の場合は「なし」を選択', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 11] },
+            { id: 'confirmation_method_work_rules', label: '就業規則を確認できる場所や方法', sf_mapping: { job: 'ConfirmationPlaceOrMethodOfWorkRules__c', overseas_job: 'ConfirmationPlaceOrMethodOfWorkRule__c', employment_condition: 'ConfirmationPlaceOrMethodOfWorkRules__c' }, type: 'text', req: true, bu: ['intern', 'skilled', 'tokutei'], tab: [3, 11], help: '就業規則の有無の選択に応じて自動入力されます', readOnly: true },
+            { id: 'regular_holiday_day', label: '定例休日の曜日', sf_mapping: { job: 'dk_RegularDaysOff__c', overseas_job: 'RegularDaysOff__c', employment_condition: 'dk_RegularDaysOff__c' }, type: 'multiselect', req: false, opts: ['月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日', '日曜日'], value: ['土曜日', '日曜日'], help: '該当する曜日をすべて選択してください', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
+            { id: 'regular_holiday_other', label: '定例休日その他', sf_mapping: { job: 'dk_OtherRegularDaysOff__c', overseas_job: 'OtherHolidays__c', employment_condition: 'dk_OtherRegularDaysOff__c' }, type: 'multiselect', req: false, opts: ['年末年始', 'GW', '夏季休暇', '企業カレンダー通り', '会社指定日', '就業規則通り'], bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
+            { id: 'national_holidays', label: '日本の国民の祝日', sf_mapping: { job: 'dk_JapaneseNationalHolidays__c', overseas_job: 'JapaneseNationalHolidays__c', employment_condition: 'dk_JapaneseNationalHolidays__c' }, type: 'select', req: true, opts: ['祝日休み', '祝日勤務'], bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
+            { id: 'irregular_holiday', label: '非定休日', sf_mapping: { job: 'dk_AdditionalDaysOff__c', overseas_job: 'AdditionalDaysOff__c', employment_condition: 'dk_AdditionalDaysOff__c' }, type: 'select', req: true, opts: ['なし', '週あたり', '月あたり'], bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
+            { id: 'irregular_holiday_days', label: '非定例休日の日数', sf_mapping: { job: 'dk_NumberOfAdditionalDaysOff__c', overseas_job: 'NumberOfAdditionalDaysOff__c', employment_condition: 'dk_NumberOfAdditionalDaysOff__c' }, type: 'number', req: false, suf: '日', req_cond: (vals) => vals.irregular_holiday === '週あたり' || vals.irregular_holiday === '月あたり', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
             { id: 'other_additional_days_off', label: '非定例休日その他', sf_mapping: { overseas_job: 'OtherAdditionalDaysOff__c' }, type: 'text', req: false, bu: ['skilled'], tab: [3, 13], showIf: (data) => data.sub_type === '海外招聘(LV)' },
 
-            { type: 'section', label: '【基本労働時間】', bu: ['intern', 'skilled'], tab: [3, 13] },
-            { id: 'start_time', label: '【基本】始業時刻', sf_mapping: { job: 'dk_BasicOpeningTime__c', overseas_job: 'OpeningTime__c' }, type: 'time', req: true, bu: ['intern', 'skilled'], tab: [3, 13], paired: true },
-            { id: 'end_time', label: '【基本】終業時刻', sf_mapping: { job: 'dk_BasicClosingTime__c', overseas_job: 'ClosingTime__c' }, type: 'time', req: true, bu: ['intern', 'skilled'], tab: [3, 13], paired: true },
-            { id: 'break_start_1', label: '【基本】休憩開始1', sf_mapping: { job: 'dk_BasicBreakStartTime__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'break_end_1', label: '【基本】休憩終了1', sf_mapping: { job: 'dk_BasicBreakEndTime1__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'break_start_2', label: '【基本】休憩開始2', sf_mapping: { job: 'dk_BasicBreakStartTime2__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'break_end_2', label: '【基本】休憩終了2', sf_mapping: { job: 'dk_BasicBreakEndTime2__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'break_start_3', label: '【基本】休憩開始3', sf_mapping: { job: 'dk_BasicBreakStartTime3__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'break_end_3', label: '【基本】休憩終了3', sf_mapping: { job: 'dk_BasicBreakEndTime3__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'break_total_minutes', label: '【基本】休憩時間合計(分)', sf_mapping: { job: 'dk_TotalBasicBreakTime__c', overseas_job: 'TotalBasicBreakTime__c' }, type: 'number', req: true, suf: '分', bu: ['intern', 'skilled'], tab: [3, 13], readOnly: true },
-            { id: 'daily_work_hours', label: '1日の所定労働時間(時間)', sf_mapping: { job: 'dk_ScheduledWorkingHoursPerDay__c', overseas_job: 'ScheduledWorkingHoursPerDay__c' }, type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: [3, 13], readOnly: true, paired: true },
-            { id: 'daily_work_minutes', label: '1日の所定労働時間(分)', sf_mapping: { job: 'dk_ScheduledWorkingMinutesPerDay__c', overseas_job: 'ScheduledWorkingMinutesPerDay__c' }, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: [3, 13], readOnly: true, paired: true },
-            { id: 'weekly_work_hours', label: '週所定労働時間(時間)', sf_mapping: { job: 'dk_WeeklyScheduledWorkingHours__c' }, type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true, help: '年所定労働時間（時間と分を合計した分数）÷ 52 で自動計算されます（小数点以下切り捨て）' },
-            { id: 'weekly_work_minutes', label: '週所定労働時間(分)', sf_mapping: { job: 'dk_WeeklyScheduledWorkingMinutes__c' }, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, paired: true },
-            { id: 'monthly_work_hours', label: '月所定労働時間(時間)', sf_mapping: { job: 'MonthlyScheduledWorkingHours__c', overseas_job: 'MonthlyScheduledWorkingHours__c' }, type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: [3, 13], paired: true, readOnly: (data) => data.has_flex_time !== 'あり' },
-            { id: 'monthly_work_minutes', label: '月所定労働時間(分)', sf_mapping: { job: 'MonthlyScheduledWorkingMinutes__c', overseas_job: 'MonthlyScheduledWorkingMinutes__c' }, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: [3, 13], paired: true, readOnly: (data) => data.has_flex_time !== 'あり' },
-            { id: 'annual_work_hours', label: '年所定労働時間(時間)', sf_mapping: { job: 'dk_AnnualScheduledWorkingHours__c', overseas_job: 'AnnualScheduledWorkingHours__c' }, type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'annual_work_minutes', label: '年所定労働時間(分)', sf_mapping: { job: 'dk_AnnualScheduledWorkingMinutes__c', overseas_job: 'AnnualScheduledWorkingMinutes__c' }, type: 'number', req: true, suf: '分', bu: ['intern', 'skilled'], tab: 3, paired: true },
-            { id: 'annual_holidays', label: '年間合計休日数(日)', sf_mapping: { job: 'TotalAnnualHoliday__c', overseas_job: 'TotalAnnualHoliday__c' }, type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: [3, 13] },
+            { type: 'section', label: '【基本労働時間】', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
+            { id: 'start_time', label: '【基本】始業時刻', sf_mapping: { job: 'dk_BasicOpeningTime__c', overseas_job: 'OpeningTime__c', employment_condition: 'dk_BasicOpeningTime__c' }, type: 'time', req: true, bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13], paired: true },
+            { id: 'end_time', label: '【基本】終業時刻', sf_mapping: { job: 'dk_BasicClosingTime__c', overseas_job: 'ClosingTime__c', employment_condition: 'dk_BasicClosingTime__c' }, type: 'time', req: true, bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13], paired: true },
+            { id: 'break_start_1', label: '【基本】休憩開始1', sf_mapping: { job: 'dk_BasicBreakStartTime__c', employment_condition: 'dk_BasicBreakStartTime1__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true },
+            { id: 'break_end_1', label: '【基本】休憩終了1', sf_mapping: { job: 'dk_BasicBreakEndTime1__c', employment_condition: 'dk_BasicBreakEndTime1__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true },
+            { id: 'break_start_2', label: '【基本】休憩開始2', sf_mapping: { job: 'dk_BasicBreakStartTime2__c', employment_condition: 'dk_BasicBreakStartTime2__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true },
+            { id: 'break_end_2', label: '【基本】休憩終了2', sf_mapping: { job: 'dk_BasicBreakEndTime2__c', employment_condition: 'dk_BasicBreakEndTime2__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true },
+            { id: 'break_start_3', label: '【基本】休憩開始3', sf_mapping: { job: 'dk_BasicBreakStartTime3__c', employment_condition: 'dk_BasicBreakStartTime3__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true },
+            { id: 'break_end_3', label: '【基本】休憩終了3', sf_mapping: { job: 'dk_BasicBreakEndTime3__c', employment_condition: 'dk_BasicBreakEndTime3__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true },
+            { id: 'break_total_minutes', label: '【基本】休憩時間合計(分)', sf_mapping: { job: 'dk_TotalBasicBreakTime__c', overseas_job: 'TotalBasicBreakTime__c', employment_condition: 'dk_TotalBasicBreakTime__c' }, type: 'number', req: true, suf: '分', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13], readOnly: true },
+            { id: 'daily_work_hours', label: '1日の所定労働時間(時間)', sf_mapping: { job: 'dk_ScheduledWorkingHoursPerDay__c', overseas_job: 'ScheduledWorkingHoursPerDay__c', employment_condition: 'dk_ScheduledWorkingHoursPerDay__c' }, type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13], readOnly: true, paired: true },
+            { id: 'daily_work_minutes', label: '1日の所定労働時間(分)', sf_mapping: { job: 'dk_ScheduledWorkingMinutesPerDay__c', overseas_job: 'ScheduledWorkingMinutesPerDay__c', employment_condition: 'dk_ScheduledWorkingMinutesPerDay__c' }, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13], readOnly: true, paired: true },
+            { id: 'weekly_work_hours', label: '週所定労働時間(時間)', sf_mapping: { job: 'dk_WeeklyScheduledWorkingHours__c', employment_condition: 'dk_WeeklyScheduledWorkingHours__c' }, type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled', 'tokutei'], tab: 3, readOnly: true, paired: true, help: '年所定労働時間（時間と分を合計した分数）÷ 52 で自動計算されます（小数点以下切り捨て）' },
+            { id: 'weekly_work_minutes', label: '週所定労働時間(分)', sf_mapping: { job: 'dk_WeeklyScheduledWorkingMinutes__c', employment_condition: 'dk_WeeklyScheduledWorkingMinutes__c' }, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled', 'tokutei'], tab: 3, readOnly: true, paired: true },
+            { id: 'monthly_work_hours', label: '月所定労働時間(時間)', sf_mapping: { job: 'MonthlyScheduledWorkingHours__c', overseas_job: 'MonthlyScheduledWorkingHours__c', employment_condition: 'dk_MonthlyScheduledWorkingHours__c' }, type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13], paired: true, readOnly: (data) => data.has_flex_time !== 'あり' },
+            { id: 'monthly_work_minutes', label: '月所定労働時間(分)', sf_mapping: { job: 'MonthlyScheduledWorkingMinutes__c', overseas_job: 'MonthlyScheduledWorkingMinutes__c', employment_condition: 'dk_MonthlyScheduledWorkingMinutes__c' }, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13], paired: true, readOnly: (data) => data.has_flex_time !== 'あり' },
+            { id: 'annual_work_hours', label: '年所定労働時間(時間)', sf_mapping: { job: 'dk_AnnualScheduledWorkingHours__c', overseas_job: 'AnnualScheduledWorkingHours__c', employment_condition: 'dk_AnnualScheduledWorkingHours__c' }, type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true },
+            { id: 'annual_work_minutes', label: '年所定労働時間(分)', sf_mapping: { job: 'dk_AnnualScheduledWorkingMinutes__c', overseas_job: 'AnnualScheduledWorkingMinutes__c', employment_condition: 'dk_AnnualScheduledWorkingMinutes__c' }, type: 'number', req: true, suf: '分', bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true },
+            { id: 'annual_holidays', label: '年間合計休日数(日)', sf_mapping: { job: 'TotalAnnualHoliday__c', overseas_job: 'TotalAnnualHoliday__c', employment_condition: 'dk_AnnualWorkingDays__c' }, type: 'number', req: true, suf: '日', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
 
-            { type: 'section', label: '【土曜日の労働時間】', bu: ['intern', 'skilled'], tab: 3 },
-            { id: 'saturday_work', label: '【基本】土曜日勤務の有無', sf_mapping: { job: 'dk_SaturdayWork__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 3 },
-            { id: 'other_start_time', label: '【その他】始業時刻', sf_mapping: { job: 'dk_OtherStartingTime__c' }, type: 'time', req: true, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
-            { id: 'other_end_time', label: '【その他】終業時刻', sf_mapping: { job: 'dk_OtherClosingTime__c' }, type: 'time', req: true, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
-            { id: 'other_break_start_1', label: '【その他】休憩開始時間1', sf_mapping: { job: 'dk_OtherBreakStartTime1__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
-            { id: 'other_break_end_1', label: '【その他】休憩終了時間1', sf_mapping: { job: 'dk_OtherBreakEndTime1__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
-            { id: 'other_break_start_2', label: '【その他】休憩開始時間2', sf_mapping: { job: 'dk_OtherBreakStartTime2__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
-            { id: 'other_break_end_2', label: '【その他】休憩終了時間2', sf_mapping: { job: 'dk_OtherBreakEndTime2__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
-            { id: 'other_break_start_3', label: '【その他】休憩開始時間3', sf_mapping: { job: 'dk_OtherBreakStartTime3__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
-            { id: 'other_break_end_3', label: '【その他】休憩終了時間3', sf_mapping: { job: 'dk_OtherBreakEndTime3__c' }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
-            { id: 'other_break_total_minutes', label: '【その他】休憩時間合計(分)', sf_mapping: { job: 'dk_TotalOtherBreakTime__c' }, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: 3, readOnly: true, showIf: (data) => data.saturday_work === 'あり' },
+            { type: 'section', label: '【土曜日の労働時間】', bu: ['intern', 'skilled', 'tokutei'], tab: 3 },
+            { id: 'saturday_work', label: '【基本】土曜日勤務の有無', sf_mapping: { job: 'dk_SaturdayWork__c', employment_condition: 'dk_SaturdayWork__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: 3 },
+            { id: 'other_start_time', label: '【その他】始業時刻', sf_mapping: { job: 'dk_OtherStartingTime__c', employment_condition: 'dk_OtherStartingTime__c' }, type: 'time', req: true, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_end_time', label: '【その他】終業時刻', sf_mapping: { job: 'dk_OtherClosingTime__c', employment_condition: 'dk_OtherClosingTime__c' }, type: 'time', req: true, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_start_1', label: '【その他】休憩開始時間1', sf_mapping: { job: 'dk_OtherBreakStartTime1__c', employment_condition: 'dk_OtherBreakStartTime1__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_end_1', label: '【その他】休憩終了時間1', sf_mapping: { job: 'dk_OtherBreakEndTime1__c', employment_condition: 'dk_OtherBreakEndTime1__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_start_2', label: '【その他】休憩開始時間2', sf_mapping: { job: 'dk_OtherBreakStartTime2__c', employment_condition: 'dk_OtherBreakStartTime2__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_end_2', label: '【その他】休憩終了時間2', sf_mapping: { job: 'dk_OtherBreakEndTime2__c', employment_condition: 'dk_OtherBreakEndTime2__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_start_3', label: '【その他】休憩開始時間3', sf_mapping: { job: 'dk_OtherBreakStartTime3__c', employment_condition: 'dk_OtherBreakStartTime3__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_end_3', label: '【その他】休憩終了時間3', sf_mapping: { job: 'dk_OtherBreakEndTime3__c', employment_condition: 'dk_OtherBreakEndTime3__c' }, type: 'time', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: 3, paired: true, showIf: (data) => data.saturday_work === 'あり' },
+            { id: 'other_break_total_minutes', label: '【その他】休憩時間合計(分)', sf_mapping: { job: 'dk_TotalOtherBreakTime__c', employment_condition: 'dk_TotalOtherBreakTime__c' }, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled', 'tokutei'], tab: 3, readOnly: true, showIf: (data) => data.saturday_work === 'あり' },
 
-            { type: 'section', label: '【交代制の労働時間】', bu: ['intern', 'skilled'], tab: [3, 13] },
-            { id: 'has_shift', label: '交代制の有無', sf_mapping: { job: 'dk_ShiftSystem__c', overseas_job: 'ShiftSystem__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: [3, 13] },
+            { type: 'section', label: '【交代制の労働時間】', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
+            { id: 'has_shift', label: '交代制の有無', sf_mapping: { job: 'dk_ShiftSystem__c', overseas_job: 'ShiftSystem__c', employment_condition: 'dk_ShiftSystem__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
             ...(() => {
                 const fields = [];
-                // 技能実習は5セット、海外招聘LVは3セット → 全5セット定義し、LVでは4,5を非表示とする想定（次フェーズで制御）
+                // 技能実習は5セット、海外招聘LVは3セット、特定技能(AJS)は3セットまで対応
                 for (let i = 1; i <= 5; i++) {
                     // 海外招聘LVで扱うのは1〜3セットまで。4,5セットは技能実習のみ
                     const overseas_api = i <= 3 ? {
@@ -446,38 +541,54 @@
                         [`shift_daily_minutes_${i}`]: `ScheduledWorkingMinutesPerDay${i}__c`,
                         [`shift_break_total_${i}`]: `TotalShiftBreakTime${i}__c`
                     } : {};
+                    // 特定技能(AJS)は1〜3セットのみ対応、employment_conditionへのマッピングを追加
+                    const ec_api = i <= 3 ? {
+                        [`shift_start_${i}`]: `dk_ShiftOpeningTime${i}__c`,
+                        [`shift_end_${i}`]: `dk_ShiftClosingTime${i}__c`,
+                        [`shift_days_${i}`]: `dk_ShiftSystemApplicationDate${i}__c`,
+                        [`shift_break_start_${i}_1`]: `dk_ShiftBreakStartTime${i}__c`,
+                        [`shift_break_end_${i}_1`]: `dk_ShiftBreakEndTime${i}__c`,
+                        [`shift_break_start_${i}_2`]: `dk_ShiftBreakStartTime${i}_2__c`,
+                        [`shift_break_end_${i}_2`]: `dk_ShiftBreakEndTime${i}_2__c`,
+                        [`shift_break_start_${i}_3`]: `dk_ShiftBreakStartTime${i}_3__c`,
+                        [`shift_break_end_${i}_3`]: `dk_ShiftBreakEndTime${i}_3__c`,
+                        [`shift_break_total_${i}`]: `dk_TotalShiftBreakTime${i}__c`,
+                        [`shift_daily_hours_${i}`]: `dk_ScheduledWorkingHoursPerDay${i}__c`,
+                        [`shift_daily_minutes_${i}`]: `dk_ScheduledWorkingMinutesPerDay${i}__c`
+                    } : {};
                     const tab_lv = i <= 3 ? [3, 13] : 3;
+                    // buの設定:
+                    //   i≦3: 全モード対応（intern, skilled, tokutei）
+                    //   i=4,5: 技能実習のみ（既存LVでも表示しないように修正）
+                    const bu_list = i <= 3 ? ['intern', 'skilled', 'tokutei'] : ['intern'];
+                    // ec_map ヘルパー: employment_condition キーを追加するためのオブジェクト作成
+                    const ec_map = (id) => ec_api[id] ? { employment_condition: ec_api[id] } : {};
                     fields.push(
-                        { id: `shift_start_${i}`, label: `【交代制】始業時刻${i}`, sf_mapping: { job: `dk_ShiftOpeningTime${i}__c`, ...(overseas_api[`shift_start_${i}`] ? { overseas_job: overseas_api[`shift_start_${i}`] } : {}) }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: tab_lv, paired: true, showIf: (data) => data.has_shift === 'あり' },
-                        { id: `shift_end_${i}`, label: `【交代制】終業時刻${i}`, sf_mapping: { job: `dk_ShiftClosingTime${i}__c`, ...(overseas_api[`shift_end_${i}`] ? { overseas_job: overseas_api[`shift_end_${i}`] } : {}) }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: tab_lv, paired: true, showIf: (data) => data.has_shift === 'あり' },
-                        { id: `shift_days_${i}`, label: `【交代制】交代制の適用日${i}`, sf_mapping: { job: `dk_ShiftSystemApplicationDate${i}__c` }, type: 'text', req: false, bu: ['intern', 'skilled'], tab: 3, showIf: (data) => data.has_shift === 'あり' },
-                        { id: `shift_break_start_${i}_1`, label: `【交代制】休憩開始時間${i}`, sf_mapping: { job: `dk_ShiftBreakStartTime${i}__c` }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
-                        { id: `shift_break_end_${i}_1`, label: `【交代制】休憩終了時間${i}`, sf_mapping: { job: `dk_ShiftBreakEndTime${i}__c` }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
-                        { id: `shift_break_start_${i}_2`, label: `【交代制】休憩開始時間${i}-2`, sf_mapping: { job: `dk_ShiftBreakStartTime${i}_2__c` }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
-                        { id: `shift_break_end_${i}_2`, label: `【交代制】休憩終了時間${i}-2`, sf_mapping: { job: `dk_ShiftBreakEndTime${i}_2__c` }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
-                        { id: `shift_break_start_${i}_3`, label: `【交代制】休憩開始時間${i}-3`, sf_mapping: { job: `dk_ShiftBreakStartTime${i}_3__c` }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
-                        { id: `shift_break_end_${i}_3`, label: `【交代制】休憩終了時間${i}-3`, sf_mapping: { job: `dk_ShiftBreakEndTime${i}_3__c` }, type: 'time', req: false, bu: ['intern', 'skilled'], tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
-                        { id: `shift_break_total_${i}`, label: `【交代制】休憩時間合計${i}（分）`, sf_mapping: { job: `dk_TotalShiftBreakTime${i}__c`, ...(overseas_api[`shift_break_total_${i}`] ? { overseas_job: overseas_api[`shift_break_total_${i}`] } : {}) }, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: tab_lv, readOnly: true, showIf: (data) => data.has_shift === 'あり' },
-                        { id: `shift_daily_hours_${i}`, label: `【交代制】1日の所定労働時間${i}(時間)`, sf_mapping: { job: `dk_ScheduledWorkingHoursPerDay${i}__c`, ...(overseas_api[`shift_daily_hours_${i}`] ? { overseas_job: overseas_api[`shift_daily_hours_${i}`] } : {}) }, type: 'number', req: false, suf: '時間', bu: ['intern', 'skilled'], tab: tab_lv, readOnly: true, paired: true, showIf: (data) => data.has_shift === 'あり' },
-                        { id: `shift_daily_minutes_${i}`, label: `【交代制】1日の所定労働時間${i}(分)`, sf_mapping: { ...(overseas_api[`shift_daily_minutes_${i}`] ? { overseas_job: overseas_api[`shift_daily_minutes_${i}`] } : {}) }, type: 'number', req: false, suf: '分', bu: ['intern', 'skilled'], tab: tab_lv, readOnly: true, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_start_${i}`, label: `【交代制】始業時刻${i}`, sf_mapping: { job: `dk_ShiftOpeningTime${i}__c`, ...(overseas_api[`shift_start_${i}`] ? { overseas_job: overseas_api[`shift_start_${i}`] } : {}), ...ec_map(`shift_start_${i}`) }, type: 'time', req: false, bu: bu_list, tab: tab_lv, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_end_${i}`, label: `【交代制】終業時刻${i}`, sf_mapping: { job: `dk_ShiftClosingTime${i}__c`, ...(overseas_api[`shift_end_${i}`] ? { overseas_job: overseas_api[`shift_end_${i}`] } : {}), ...ec_map(`shift_end_${i}`) }, type: 'time', req: false, bu: bu_list, tab: tab_lv, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_days_${i}`, label: `【交代制】交代制の適用日${i}`, sf_mapping: { job: `dk_ShiftSystemApplicationDate${i}__c`, ...ec_map(`shift_days_${i}`) }, type: 'text', req: false, bu: bu_list, tab: 3, showIf: (data) => data.has_shift === 'あり', help: '曜日や明確な日付の適用日がない場合は記入不要' },
+                        { id: `shift_break_start_${i}_1`, label: `【交代制】休憩開始時間${i}`, sf_mapping: { job: `dk_ShiftBreakStartTime${i}__c`, ...ec_map(`shift_break_start_${i}_1`) }, type: 'time', req: false, bu: bu_list, tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_end_${i}_1`, label: `【交代制】休憩終了時間${i}`, sf_mapping: { job: `dk_ShiftBreakEndTime${i}__c`, ...ec_map(`shift_break_end_${i}_1`) }, type: 'time', req: false, bu: bu_list, tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_start_${i}_2`, label: `【交代制】休憩開始時間${i}-2`, sf_mapping: { job: `dk_ShiftBreakStartTime${i}_2__c`, ...ec_map(`shift_break_start_${i}_2`) }, type: 'time', req: false, bu: bu_list, tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_end_${i}_2`, label: `【交代制】休憩終了時間${i}-2`, sf_mapping: { job: `dk_ShiftBreakEndTime${i}_2__c`, ...ec_map(`shift_break_end_${i}_2`) }, type: 'time', req: false, bu: bu_list, tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_start_${i}_3`, label: `【交代制】休憩開始時間${i}-3`, sf_mapping: { job: `dk_ShiftBreakStartTime${i}_3__c`, ...ec_map(`shift_break_start_${i}_3`) }, type: 'time', req: false, bu: bu_list, tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_end_${i}_3`, label: `【交代制】休憩終了時間${i}-3`, sf_mapping: { job: `dk_ShiftBreakEndTime${i}_3__c`, ...ec_map(`shift_break_end_${i}_3`) }, type: 'time', req: false, bu: bu_list, tab: 3, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_break_total_${i}`, label: `【交代制】休憩時間合計${i}（分）`, sf_mapping: { job: `dk_TotalShiftBreakTime${i}__c`, ...(overseas_api[`shift_break_total_${i}`] ? { overseas_job: overseas_api[`shift_break_total_${i}`] } : {}), ...ec_map(`shift_break_total_${i}`) }, type: 'number', req: false, suf: '分', bu: bu_list, tab: tab_lv, readOnly: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_daily_hours_${i}`, label: `【交代制】1日の所定労働時間${i}(時間)`, sf_mapping: { job: `dk_ScheduledWorkingHoursPerDay${i}__c`, ...(overseas_api[`shift_daily_hours_${i}`] ? { overseas_job: overseas_api[`shift_daily_hours_${i}`] } : {}), ...ec_map(`shift_daily_hours_${i}`) }, type: 'number', req: false, suf: '時間', bu: bu_list, tab: tab_lv, readOnly: true, paired: true, showIf: (data) => data.has_shift === 'あり' },
+                        { id: `shift_daily_minutes_${i}`, label: `【交代制】1日の所定労働時間${i}(分)`, sf_mapping: { ...(overseas_api[`shift_daily_minutes_${i}`] ? { overseas_job: overseas_api[`shift_daily_minutes_${i}`] } : {}), ...ec_map(`shift_daily_minutes_${i}`) }, type: 'number', req: false, suf: '分', bu: bu_list, tab: tab_lv, readOnly: true, paired: true, showIf: (data) => data.has_shift === 'あり' },
                     );
                 }
                 return fields;
             })(),
 
-            { type: 'section', label: '【その他】', bu: ['intern', 'skilled'], tab: [3, 13] },
-            { id: 'annual_leave', label: '年次有給休暇日数（6ヶ月継続勤務した場合）', sf_mapping: { job: 'AnnualPaidLeave__c', overseas_job: 'AnnualPaidLeave__c' }, type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: [3, 13] },
-
-            // --- LV STEP2 雇用条件書 労働時間: 追加項目 ---
-            { id: 'employment_status', label: '雇用区分', sf_mapping: { overseas_job: 'EmploymentStatus__c' }, type: 'select', req: true, opts: ['直接雇用', '派遣'], bu: ['skilled'], tab: 13, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'contract_renewal', label: '契約更新の有無', sf_mapping: { overseas_job: 'ContractRenewal__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled'], tab: 13, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'renewal_limit', label: '更新上限の有無', sf_mapping: { overseas_job: 'RenewalLimit__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled'], tab: 13, showIf: (data) => data.sub_type === '海外招聘(LV)' },
+            { type: 'section', label: '【その他】', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
+            { id: 'annual_leave', label: '年次有給休暇日数（6ヶ月継続勤務した場合）', sf_mapping: { job: 'AnnualPaidLeave__c', overseas_job: 'AnnualPaidLeave__c', employment_condition: 'dk_AnnualPaidLeave__c' }, type: 'number', req: true, suf: '日', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
 
             // ==============================================================
             // 【タブ4: 賃金・手当・支払条件】
             // ==============================================================
             { type: 'section', label: '【給与】', bu: ['intern', 'skilled'], tab: [4, 14] },
-            { id: 'payment_type', label: '支払区分', sf_mapping: { job: 'dk_PaymentCategory__c', overseas_job: 'PaymentCategory__c' }, type: 'select', req: true, opts: ['月給', '日給', '時給'], bu: ['intern', 'skilled'], tab: [4, 14], paired: true, help: '建設業は月給が必須です' },
+            { id: 'payment_type', label: '支払区分', sf_mapping: { job: 'dk_PaymentCategory__c', overseas_job: 'PaymentCategory__c', employment_condition: 'dk_PaymentCategory__c' }, type: 'select', req: true, opts: ['月給', '日給', '時給'], bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], paired: true, help: '建設業は月給が必須です' },
             { id: 'residence_status', label: '在留資格', sf_mapping: { job: 'ResidenceStatus__c' }, type: 'select', req: true, opts: ['実習1号', '実習2号', '実習3号'], bu: ['intern'], tab: 4, paired: true },
 
             // --- 技能実習: 月給/日給/時給（実習号別） ---
@@ -492,99 +603,136 @@
             { id: 'hourly_salary_3', label: '時給額(実習3号)', sf_mapping: { job: 'dk_HourlyWage3__c' }, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, readOnly: (data) => data.payment_type === '月給', help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_salary_3); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給選択時は「月給 × 12 ÷ 年所定労働時間」で自動計算されます' }; }, showIf: (data) => (data.payment_type === '月給' || data.payment_type === '時給') && data.residence_status === '実習3号' },
 
             // --- 海外招聘LV: 月給/日給/時給（実習号区別なし、単一項目） ---
-            { id: 'monthly_wage', label: '賃金（月給）', sf_mapping: { overseas_job: 'MonthlyWage__c' }, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' && data.payment_type === '月給' },
+            { id: 'monthly_wage', label: '賃金（月給）', sf_mapping: { overseas_job: 'MonthlyWage__c', employment_condition: 'MonthlyWage__c' }, type: 'number', req: false, suf: '円', bu: ['skilled', 'tokutei'], tab: [4, 14], showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.payment_type === '月給' },
             { id: 'hourly_wage_calculated', label: '1時間当たりの金額', sf_mapping: {}, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: [4, 14], readOnly: true, help: (data) => { const pref = PREFECTURES.find(p => (data.address || '').includes(p)); const hourly = parseFloat(data.hourly_wage_calculated); const minWage = pref ? MIN_WAGE_MASTER[pref] : null; const wageInfo = (pref && !isNaN(hourly) && hourly > 0) ? (hourly >= minWage ? { ok: true, msg: `最低賃金OK　${pref}の最低賃金${minWage}円より${Math.round(hourly - minWage)}円高い` } : { ok: false, msg: `最低賃金NG　${pref}の最低賃金${minWage}円より${Math.round(minWage - hourly)}円低い` }) : null; return { wageInfo, baseMsg: '月給の場合は「月給 × 12 ÷ 年所定労働時間」、日給の場合は「日給 ÷ 1日の所定労働時間」で自動計算されます' }; }, showIf: (data) => data.sub_type === '海外招聘(LV)' && (data.payment_type === '月給' || data.payment_type === '日給') },
-            { id: 'daily_wage', label: '賃金（日給）', sf_mapping: { overseas_job: 'DailyWage__c' }, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' && data.payment_type === '日給' },
-            { id: 'hourly_wage', label: '賃金（時給）', sf_mapping: { overseas_job: 'HourlyWage__c' }, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' && data.payment_type === '時給', help: '最低賃金チェック対象' },
+            { id: 'daily_wage', label: '賃金（日給）', sf_mapping: { overseas_job: 'DailyWage__c', employment_condition: 'DailyWage__c' }, type: 'number', req: false, suf: '円', bu: ['skilled', 'tokutei'], tab: [4, 14], showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.payment_type === '日給' },
+            { id: 'hourly_wage', label: '賃金（時給）', sf_mapping: { overseas_job: 'HourlyWage__c', employment_condition: 'HourlyWage__c' }, type: 'number', req: false, suf: '円', bu: ['skilled', 'tokutei'], tab: [4, 14], showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.payment_type === '時給', help: '最低賃金チェック対象' },
 
-            { id: 'has_bonus', label: '賞与の有無', sf_mapping: { job: 'Bonus__c', overseas_job: 'Bonus__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            { id: 'has_bonus', label: '賞与の有無', sf_mapping: { job: 'Bonus__c', overseas_job: 'Bonus__c', employment_condition: 'dk_Bonus__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
             { id: 'bonus_amount', label: '賞与の支給額', sf_mapping: { job: 'dk_BonusAmount__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: 'bonus', groupName: '賞与内容', showIf: (data) => data.has_bonus === 'あり' },
-            { id: 'bonus_remarks', label: '賞与詳細', sf_mapping: { job: 'RemarksOfBonus__c', overseas_job: 'BonusDetails__c' }, type: 'text', req: false, bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] ,  grouped: true, groupIndex: 'bonus', groupName: '賞与内容', showIf: (data) => data.has_bonus === 'あり' },
-            { id: 'has_raise', label: '昇給の有無', sf_mapping: { job: 'WageRaise__c', overseas_job: 'WageRaise__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            { id: 'bonus_remarks', label: '賞与詳細', sf_mapping: { job: 'RemarksOfBonus__c', overseas_job: 'BonusDetails__c', employment_condition: 'dk_BonusDetails__c' }, type: 'text', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] ,  grouped: true, groupIndex: 'bonus', groupName: '賞与内容', showIf: (data) => data.has_bonus === 'あり' },
+            { id: 'has_raise', label: '昇給の有無', sf_mapping: { job: 'WageRaise__c', overseas_job: 'WageRaise__c', employment_condition: 'dk_WageRaise__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
             { id: 'wage_raise_amount', label: '昇給した際の昇給額', sf_mapping: { job: 'dk_WageRaiseAmount__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: 'raise', groupName: '昇給内容', showIf: (data) => data.has_raise === 'あり' },
-            { id: 'wage_raise_remarks', label: '昇給詳細', sf_mapping: { job: 'RemarksOfWageRaise__c', overseas_job: 'WageRaiseDetails__c' }, type: 'text', req: false, bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], grouped: true, groupIndex: 'raise', groupName: '昇給内容', showIf: (data) => data.has_raise === 'あり' },
-            { id: 'has_retirement', label: '退職金の有無', sf_mapping: { job: 'RetirementAllowance__c', overseas_job: 'RetirementAllowance__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            { id: 'wage_raise_remarks', label: '昇給詳細', sf_mapping: { job: 'RemarksOfWageRaise__c', overseas_job: 'WageRaiseDetails__c', employment_condition: 'dk_WageRaiseDetails__c' }, type: 'text', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], grouped: true, groupIndex: 'raise', groupName: '昇給内容', showIf: (data) => data.has_raise === 'あり' },
+            { id: 'has_retirement', label: '退職金の有無', sf_mapping: { job: 'RetirementAllowance__c', overseas_job: 'RetirementAllowance__c', employment_condition: 'dk_RetirementAllowance__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
             { id: 'retirement_amount', label: '退職金支給金額', sf_mapping: { job: 'RetirementAllowancePaymentAmount__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, grouped: true, groupIndex: 'retirement', groupName: '退職金内容', showIf: (data) => data.has_retirement === 'あり' },
-            { id: 'retirement_remarks', label: '退職金詳細', sf_mapping: { job: 'RemarksOfRetirementAllowance__c', overseas_job: 'RetirementAllowanceDetails__c' }, type: 'text', req: false, bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], grouped: true, groupIndex: 'retirement', groupName: '退職金内容', showIf: (data) => data.has_retirement === 'あり' },
+            { id: 'retirement_remarks', label: '退職金詳細', sf_mapping: { job: 'RemarksOfRetirementAllowance__c', overseas_job: 'RetirementAllowanceDetails__c', employment_condition: 'dk_RetirementAllowanceDetails__c' }, type: 'text', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], grouped: true, groupIndex: 'retirement', groupName: '退職金内容', showIf: (data) => data.has_retirement === 'あり' },
 
-            // --- LV固有: 固定残業代 ---
-            { id: 'has_fixed_overtime_pay', label: '固定残業代の有無', sf_mapping: { overseas_job: 'MonthlyFixedOvertimePay__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled'], tab: 14, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'fixed_overtime_pay_name', label: '固定残業代がある場合の手当名', sf_mapping: { overseas_job: 'MonthlyFixedOvertimePayName__c' }, type: 'text', req: false, bu: ['skilled'], tab: 14, showIf: (data) => data.sub_type === '海外招聘(LV)' && data.has_fixed_overtime_pay === 'あり' },
+            // --- LV + tokutei: 固定残業代 ---
+            { id: 'has_fixed_overtime_pay', label: '固定残業代の有無', sf_mapping: { overseas_job: 'MonthlyFixedOvertimePay__c', employment_condition: 'MonthlyFixedOvertimePay__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 4 : 14, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'fixed_overtime_pay_name', label: '固定残業代がある場合の手当名', sf_mapping: { overseas_job: 'MonthlyFixedOvertimePayName__c', employment_condition: 'MonthlyFixedOvertimePayName__c' }, type: 'text', req: false, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 4 : 14, showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.has_fixed_overtime_pay === 'あり' },
+            // tokutei専用: 固定残業代の金額と支給条件（Phase 4-B 新規）
+            { id: 'monthly_fixed_overtime_pay_amount', label: '固定残業代がある場合の金額', sf_mapping: { employment_condition: 'MonthlyFixedOvertimePayAmount__c' }, type: 'number', req: false, suf: '円', bu: ['tokutei'], tab: 4, showIf: (data) => data.has_fixed_overtime_pay === 'あり' },
+            { id: 'monthly_fixed_overtime_pay_condition', label: '固定残業代の支給条件', sf_mapping: { employment_condition: 'MonthlyFixedOvertimePayCondition__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 4, showIf: (data) => data.has_fixed_overtime_pay === 'あり' },
 
-            { id: 'has_allowance', label: '手当の有無', sf_mapping: { overseas_job: 'Allowance__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] , tripled: false },
+            { id: 'has_allowance', label: '手当の有無', sf_mapping: { overseas_job: 'Allowance__c', employment_condition: 'Allowance__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] , tripled: false },
             ...generateAllowanceFields(4),
 
             { type: 'section', label: '【控除】', bu: ['intern', 'skilled'], tab: [4, 14], help: <span><a href="https://e-kyu.com/" target="_blank" rel="noopener noreferrer">イージー給与計算</a></span> },
-            { id: 'has_wage_deduction', label: '賃金支払い時の控除有無', sf_mapping: { job: 'dk_WagePaymentDeduction__c', overseas_job: 'WagePaymentDeduction__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: [4, 14] },
-            { id: 'pension_type', label: '加入年金種別', sf_mapping: { job: 'dk_PensionInsurance__c', overseas_job: 'PensionInsurance__c' }, type: 'select', req: true, opts: (data) => data.business_type === '法人' ? ['厚生年金'] : ['厚生年金', '国民年金'], bu: ['intern', 'skilled'], tab: [4, 14], help: '法人の場合は「厚生年金」、個人事業主の場合は「厚生年金」もしくは「国民年金」から選択してください', showIf: (data) => data.has_wage_deduction === 'あり' },
-            { id: 'insurance_type', label: '加入保険種別', sf_mapping: { job: 'dk_HealthInsurance__c', overseas_job: 'HealthInsurance__c' }, type: 'select', req: true, opts: ['健康保険', '国民健康保険', 'その他保険'], bu: ['intern', 'skilled'], tab: [4, 14], showIf: (data) => data.has_wage_deduction === 'あり' },
-            { id: 'other_insurance', label: 'その他の保険の詳細', sf_mapping: { job: 'OtherInsurance__c', overseas_job: 'OtherInsurance__c' }, type: 'text', req: false, bu: ['intern', 'skilled'], tab: [4, 14], help: '土建国保などの場合は、加入する保険の正式名称を記載', showIf: (data) => data.has_wage_deduction === 'あり' && data.insurance_type === 'その他保険' },
+            { id: 'has_wage_deduction', label: '賃金支払い時の控除有無', sf_mapping: { job: 'dk_WagePaymentDeduction__c', overseas_job: 'WagePaymentDeduction__c', employment_condition: 'dk_WagePaymentDeduction__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14] },
+            { id: 'pension_type', label: '加入年金種別', sf_mapping: { job: 'dk_PensionInsurance__c', overseas_job: 'PensionInsurance__c', employment_condition: 'dk_PensionInsurance__c' }, type: 'select', req: true, opts: (data) => data.business_type === '法人' ? ['厚生年金'] : ['厚生年金', '国民年金'], bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], help: '法人の場合は「厚生年金」、個人事業主の場合は「厚生年金」もしくは「国民年金」から選択してください', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'insurance_type', label: '加入保険種別', sf_mapping: { job: 'dk_HealthInsurance__c', overseas_job: 'HealthInsurance__c', employment_condition: 'dk_HealthInsurance__c' }, type: 'select', req: true, opts: ['健康保険', '国民健康保険', 'その他保険'], bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'other_insurance', label: 'その他の保険の詳細', sf_mapping: { job: 'OtherInsurance__c', overseas_job: 'OtherInsurance__c', employment_condition: 'dk_OtherInsuranceDetails__c' }, type: 'text', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], help: '土建国保などの場合は、加入する保険の正式名称を記載', showIf: (data) => data.has_wage_deduction === 'あり' && data.insurance_type === 'その他保険' },
 
-            // --- LV固有: 雇用保険/労災保険 ---
-            { id: 'employment_insurance', label: '雇用保険有無', sf_mapping: { overseas_job: 'EmploymentInsurance__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'workplace_accident_insurance', label: '労災保険有無', sf_mapping: { overseas_job: 'WorkplaceAccidentInsurance__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' },
+            // --- LV + tokutei: 雇用保険/労災保険 ---
+            { id: 'employment_insurance', label: '雇用保険有無', sf_mapping: { overseas_job: 'EmploymentInsurance__c', employment_condition: 'EmploymentInsurance__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled', 'tokutei'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'workplace_accident_insurance', label: '労災保険有無', sf_mapping: { overseas_job: 'WorkplaceAccidentInsurance__c', employment_condition: 'WorkplaceAccidentInsurance__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled', 'tokutei'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
 
-            { id: 'labor_insurance_total', label: '労働保険控除総額(雇用保険)', sf_mapping: { job: 'dk_TotalEmploymentInsuranceDeduction__c', overseas_job: 'EmploymentInsuranceDeductionAmount__c' }, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: [4, 14], help: 'イージー給与計算の「雇用保険」が該当する項目です', showIf: (data) => data.has_wage_deduction === 'あり' },
-            { id: 'income_tax', label: '所得税', sf_mapping: { job: 'dk_IncomeTax__c', overseas_job: 'TaxDeductionItems__c' }, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: [4, 14], help: 'イージー給与計算の「源泉所得税:扶養」が該当する項目です', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'labor_insurance_total', label: '労働保険控除総額(雇用保険)', sf_mapping: { job: 'dk_TotalEmploymentInsuranceDeduction__c', overseas_job: 'EmploymentInsuranceDeductionAmount__c', employment_condition: 'EmploymentInsuranceDeductionAmount__c' }, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], help: 'イージー給与計算の「雇用保険」が該当する項目です', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'income_tax', label: '所得税', sf_mapping: { job: 'dk_IncomeTax__c', overseas_job: 'TaxDeductionItems__c', employment_condition: 'TaxDeductionAmount__c' }, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], help: 'イージー給与計算の「源泉所得税:扶養」が該当する項目です', showIf: (data) => data.has_wage_deduction === 'あり' },
             // 補助カラム（SFインポート対象外）
-            { id: 'pension_standard_remuneration', label: '厚生年金：標準報酬', sf_mapping: {}, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: [4, 14], help: 'イージー給与計算の「厚生年金:標準報酬」が該当する項目です【補助カラム：SFインポート対象外】', showIf: (data) => data.has_wage_deduction === 'あり' },
-            { id: 'health_standard_remuneration', label: '健康保険：標準報酬', sf_mapping: {}, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: [4, 14], help: 'イージー給与計算の「健康保険:標準報酬」が該当する項目です。国民健康保険および土建国保の場合は金額を参照できません。【補助カラム：SFインポート対象外】', showIf: (data) => data.has_wage_deduction === 'あり' },
-            { id: 'social_insurance_total', label: '社会保険控除総額', sf_mapping: { job: 'dk_TotalSocialInsuranceDeduction__c', overseas_job: 'TotalSocialInsuranceDeduction__c' }, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: [4, 14], readOnly: true, help: '厚生年金標準報酬＋健康保険標準報酬から自動計算されます', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'pension_standard_remuneration', label: '厚生年金：標準報酬', sf_mapping: {}, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], help: 'イージー給与計算の「厚生年金:標準報酬」が該当する項目です【補助カラム：SFインポート対象外】', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'health_standard_remuneration', label: '健康保険：標準報酬', sf_mapping: {}, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], help: 'イージー給与計算の「健康保険:標準報酬」が該当する項目です。国民健康保険および土建国保の場合は金額を参照できません。【補助カラム：SFインポート対象外】', showIf: (data) => data.has_wage_deduction === 'あり' },
+            { id: 'social_insurance_total', label: '社会保険控除総額', sf_mapping: { job: 'dk_TotalSocialInsuranceDeduction__c', overseas_job: 'TotalSocialInsuranceDeduction__c', employment_condition: 'dk_TotalSocialInsuranceDeduction__c' }, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], readOnly: true, help: '厚生年金標準報酬＋健康保険標準報酬から自動計算されます', showIf: (data) => data.has_wage_deduction === 'あり' },
 
-            { id: 'provides_meals', label: '食事食材等の提供有無', sf_mapping: { job: 'ProvisionOfFood__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
-            { id: 'food_cost_deduction_amount', label: '食費控除額', sf_mapping: { overseas_job: 'FoodCostDeductionAmount__c' }, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' && data.provides_meals === 'あり' },
-            { id: 'housing_fee_type', label: '居住費種別', sf_mapping: {}, type: 'select', req: true, opts: ['実費', '実費以外'], bu: ['skilled'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'housing_fee_monthly', label: '居住費徴収額（月）', sf_mapping: { job: 'dk_CollectionFeeOfHousingCosts__c', overseas_job: 'HousingCostDeductionAmount__c' }, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled'], tab: [4, 14], showIf: (data) => !(data.sub_type === '海外招聘(LV)' && data.housing_fee_type === '実費') },
+            { id: 'provides_meals', label: '食事食材等の提供有無', sf_mapping: { job: 'ProvisionOfFood__c', employment_condition: 'ProvisionOfFood__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            { id: 'food_cost_deduction_amount', label: '食費控除額', sf_mapping: { overseas_job: 'FoodCostDeductionAmount__c', employment_condition: 'FoodCostDeductionAmount__c' }, type: 'number', req: false, suf: '円', bu: ['skilled', 'tokutei'], tab: [4, 14], showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.provides_meals === 'あり' },
+            { id: 'housing_fee_type', label: '居住費種別', sf_mapping: {}, type: 'select', req: true, opts: ['実費', '実費以外'], bu: ['skilled', 'tokutei'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'housing_fee_monthly', label: '居住費徴収額（月）', sf_mapping: { job: 'dk_CollectionFeeOfHousingCosts__c', overseas_job: 'HousingCostDeductionAmount__c', employment_condition: 'HousingCostDeductionAmount__c' }, type: 'number', req: true, suf: '円', bu: ['intern', 'skilled', 'tokutei'], tab: [4, 14], showIf: (data) => !((data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.housing_fee_type === '実費') },
             { id: 'housing_fee_explanation', label: '居住費が実費に相当する額その他の適正な額であることの説明', sf_mapping: { job: 'dk_HousingCostsExplanation__c' }, type: 'text', req: false, bu: ['intern'], tab: 4 },
-            { id: 'charges_utilities', label: '水道光熱費の徴収の有無', sf_mapping: { job: 'UtilityCost__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [4, 14] : 4 },
-            { id: 'utility_cost_type', label: '光熱費種別', sf_mapping: {}, type: 'select', req: true, opts: ['実費', '実費以外'], bu: ['skilled'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' && data.charges_utilities === 'あり' },
-            { id: 'utilities_type', label: '水道光熱費種別', sf_mapping: { job: 'UtilityCostType__c' }, type: 'select', req: true, opts: ['実費徴収', '固定徴収'], bu: ['intern'], tab: 4, showIf: (data) => data.charges_utilities === 'あり' },
-            { id: 'utilities_details', label: '水道光熱費の詳細', sf_mapping: { job: 'dk_UtilityCostDetails__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.charges_utilities === 'あり' && data.utilities_type === '固定徴収' },
-            // --- B案: 選択肢違いで別ID保持 ---
-            { id: 'utility_cost_deduction_amount', label: '光熱費控除額', sf_mapping: { overseas_job: 'UtilityCostDeductionAmount__c' }, type: 'number', req: true, suf: '円', bu: ['skilled'], tab: [4, 14], showIf: (data) => data.sub_type === '海外招聘(LV)' && data.charges_utilities === 'あり' && data.utility_cost_type === '実費以外' },
             { id: 'telecom_type', label: '通信(Wi-Fi)費種別', sf_mapping: { job: 'dk_CommunicationsCostType__c' }, type: 'select', req: true, opts: ['実費', '実費以外'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'telecom_fee_monthly', label: '実費以外の時の通信費（月）', sf_mapping: { job: 'dk_CommunicationsCostBurden__c' }, type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.telecom_type === '実費以外' },
-            { id: 'has_other_fees', label: 'その他技能実習生が定期に負担する費用の有無', sf_mapping: { job: 'dk_OtherRecurringCosts__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern'], tab: 4 },
+            { id: 'has_other_fees', label: 'その他定期に負担する費用の有無', sf_mapping: { job: 'dk_OtherRecurringCosts__c', overseas_job: 'dk_OtherRecurringCosts__c', employment_condition: 'dk_OtherRecurringCosts__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            // 水道光熱費グループ: has_other_fees==='あり' の時に表示（Phase 4-D 修正版）
+            { id: 'charges_utilities', label: '水道光熱費の徴収の有無', sf_mapping: { job: 'UtilityCost__c', employment_condition: 'UtilityCost__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [4, 14] : 4, showIf: (data) => data.has_other_fees === 'あり' },
+            { id: 'utility_cost_type', label: '光熱費種別', sf_mapping: {}, type: 'select', req: true, opts: ['実費', '実費以外'], bu: ['skilled', 'tokutei'], tab: [4, 14], showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.has_other_fees === 'あり' && data.charges_utilities === 'あり' },
+            { id: 'utilities_type', label: '水道光熱費種別', sf_mapping: { job: 'UtilityCostType__c', employment_condition: 'UtilityCostType__c' }, type: 'select', req: true, opts: ['実費徴収', '固定徴収'], bu: ['intern', 'tokutei'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' && data.charges_utilities === 'あり' },
+            { id: 'utilities_details', label: '水道光熱費の詳細', sf_mapping: { job: 'dk_UtilityCostDetails__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' && data.charges_utilities === 'あり' && data.utilities_type === '固定徴収' },
+            { id: 'utility_cost_deduction_amount', label: '光熱費控除額', sf_mapping: { overseas_job: 'UtilityCostDeductionAmount__c', employment_condition: 'UtilityCostDeductionAmount__c' }, type: 'number', req: true, suf: '円', bu: ['skilled', 'tokutei'], tab: [4, 14], showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.has_other_fees === 'あり' && data.charges_utilities === 'あり' && data.utility_cost_type === '実費以外' },
             ...generateOtherCostFields(4),
             { id: 'other_cost_benefits', label: 'その他負担費用に対する便益', sf_mapping: { job: 'dk_BenefitOfOtherBurdenCosts__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
             { id: 'other_cost_explanation', label: 'その他の負担費用が実費に相当する額であることの説明', sf_mapping: { job: 'OtherBurdenCostExplanation__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
 
             // --- LV固有: その他控除（最大5件） ---
-            { id: 'other_deduction_1', label: 'その他の控除項目1', sf_mapping: { overseas_job: 'OtherDeduction1__c' }, type: 'text', req: false, bu: ['skilled'], tab: [4, 14], grouped: true, groupIndex: 1, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'other_deduction_amount_1', label: 'その他の控除金額1', sf_mapping: { overseas_job: 'OtherDeductionAmount1__c' }, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: [4, 14], grouped: true, groupIndex: 1, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'other_deduction_2', label: 'その他の控除項目2', sf_mapping: { overseas_job: 'OtherDeduction2__c' }, type: 'text', req: false, bu: ['skilled'], tab: [4, 14], grouped: true, groupIndex: 2, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'other_deduction_amount_2', label: 'その他の控除金額2', sf_mapping: { overseas_job: 'OtherDeductionAmount2__c' }, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: [4, 14], grouped: true, groupIndex: 2, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'other_deduction_3', label: 'その他の控除項目3', sf_mapping: { overseas_job: 'OtherDeduction3__c' }, type: 'text', req: false, bu: ['skilled'], tab: [4, 14], grouped: true, groupIndex: 3, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'other_deduction_amount_3', label: 'その他の控除金額3', sf_mapping: { overseas_job: 'OtherDeductionAmount3__c' }, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: [4, 14], grouped: true, groupIndex: 3, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'other_deduction_4', label: 'その他の控除項目4', sf_mapping: { overseas_job: 'OtherDeduction4__c' }, type: 'text', req: false, bu: ['skilled'], tab: 14, grouped: true, groupIndex: 4, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'other_deduction_amount_4', label: 'その他の控除金額4', sf_mapping: { overseas_job: 'OtherDeductionAmount4__c' }, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: 14, grouped: true, groupIndex: 4, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'other_deduction_5', label: 'その他の控除項目5', sf_mapping: { overseas_job: 'OtherDeduction5__c' }, type: 'text', req: false, bu: ['skilled'], tab: 14, grouped: true, groupIndex: 5, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'other_deduction_amount_5', label: 'その他の控除金額5', sf_mapping: { overseas_job: 'OtherDeductionAmount5__c' }, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: 14, grouped: true, groupIndex: 5, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'other_cost_deduction_amount', label: 'その他控除額合計', sf_mapping: { overseas_job: 'OtherCostDeductionAmount__c' }, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: [4, 14], readOnly: true, help: 'その他の控除金額1〜5の合計値が自動計算されます', showIf: (data) => data.sub_type === '海外招聘(LV)' },
+            { id: 'other_deduction_1', label: 'その他の控除項目1', sf_mapping: { overseas_job: 'OtherDeduction1__c', employment_condition: 'OtherDeduction1__c' }, type: 'text', req: false, bu: ['skilled', 'tokutei'], tab: [4, 14], grouped: true, groupIndex: 1, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'other_deduction_amount_1', label: 'その他の控除金額1', sf_mapping: { overseas_job: 'OtherDeductionAmount1__c', employment_condition: 'OtherDeductionAmount1__c' }, type: 'number', req: false, suf: '円', bu: ['skilled', 'tokutei'], tab: [4, 14], grouped: true, groupIndex: 1, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'other_deduction_2', label: 'その他の控除項目2', sf_mapping: { overseas_job: 'OtherDeduction2__c', employment_condition: 'OtherDeduction2__c' }, type: 'text', req: false, bu: ['skilled', 'tokutei'], tab: [4, 14], grouped: true, groupIndex: 2, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'other_deduction_amount_2', label: 'その他の控除金額2', sf_mapping: { overseas_job: 'OtherDeductionAmount2__c', employment_condition: 'OtherDeductionAmount2__c' }, type: 'number', req: false, suf: '円', bu: ['skilled', 'tokutei'], tab: [4, 14], grouped: true, groupIndex: 2, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'other_deduction_3', label: 'その他の控除項目3', sf_mapping: { overseas_job: 'OtherDeduction3__c', employment_condition: 'OtherDeduction3__c' }, type: 'text', req: false, bu: ['skilled', 'tokutei'], tab: [4, 14], grouped: true, groupIndex: 3, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'other_deduction_amount_3', label: 'その他の控除金額3', sf_mapping: { overseas_job: 'OtherDeductionAmount3__c', employment_condition: 'OtherDeductionAmount3__c' }, type: 'number', req: false, suf: '円', bu: ['skilled', 'tokutei'], tab: [4, 14], grouped: true, groupIndex: 3, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'other_deduction_4', label: 'その他の控除項目4', sf_mapping: { overseas_job: 'OtherDeduction4__c', employment_condition: 'OtherDeduction4__c' }, type: 'text', req: false, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 4 : 14, grouped: true, groupIndex: 4, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'other_deduction_amount_4', label: 'その他の控除金額4', sf_mapping: { overseas_job: 'OtherDeductionAmount4__c', employment_condition: 'OtherDeductionAmount4__c' }, type: 'number', req: false, suf: '円', bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 4 : 14, grouped: true, groupIndex: 4, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'other_deduction_5', label: 'その他の控除項目5', sf_mapping: { overseas_job: 'OtherDeduction5__c', employment_condition: 'OtherDeduction5__c' }, type: 'text', req: false, bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 4 : 14, grouped: true, groupIndex: 5, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'other_deduction_amount_5', label: 'その他の控除金額5', sf_mapping: { overseas_job: 'OtherDeductionAmount5__c', employment_condition: 'OtherDeductionAmount5__c' }, type: 'number', req: false, suf: '円', bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 4 : 14, grouped: true, groupIndex: 5, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
+            { id: 'other_cost_deduction_amount', label: 'その他控除額合計', sf_mapping: { overseas_job: 'OtherCostDeductionAmount__c', employment_condition: 'OtherCostDeductionAmount__c' }, type: 'number', req: false, suf: '円', bu: ['skilled', 'tokutei'], tab: [4, 14], readOnly: true, help: 'その他の控除金額1〜5の合計値が自動計算されます', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
 
 
             { id: 'net_income', label: '手取り額(約)', sf_mapping: {}, type: 'number', req: false, suf: '円', bu: ['intern'], tab: 4, help: '月給額 - (社会保険控除総額 + 所得税 + 雇用保険 + 居住費 + その他負担費用合計) で自動計算されます。手動での修正も可能です。', showIf: (data) => data.payment_type === '月給' || data.payment_type === '時給' },
-            { id: 'net_salary', label: '1か月当たりの支払概算額', sf_mapping: { overseas_job: 'NetSalary__c' }, type: 'number', req: false, suf: '円', bu: ['skilled'], tab: [4, 14], readOnly: true, help: '月給額 -（社会保険控除総額 + 所得税 + 雇用保険 + 居住費 + 光熱費控除額 + 食費控除額 + その他控除額合計）で自動計算されます', showIf: (data) => data.sub_type === '海外招聘(LV)' && data.payment_type === '月給' },
+            { id: 'net_salary', label: '1か月当たりの支払概算額', sf_mapping: { overseas_job: 'NetSalary__c', employment_condition: 'NetSalary__c' }, type: 'number', req: false, suf: '円', bu: ['skilled', 'tokutei'], tab: [4, 14], readOnly: true, help: '月給額 -（社会保険控除総額 + 所得税 + 雇用保険 + 居住費 + 光熱費控除額 + 食費控除額 + その他控除額合計）で自動計算されます', showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.payment_type === '月給' },
 
             { type: 'section', label: '【支払い方法】', bu: ['intern', 'skilled'], tab: [4, 14] },
-            { id: 'wage_payment_method', label: '賃金支払方法', sf_mapping: { job: 'WagePaymentMethod__c', overseas_job: 'WagePaymentMethod__c' }, type: 'select', req: true, opts: ['口座振込', '通貨払'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
-            { type: 'section', label: '【賃金締切日・支払日 1回目】', bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
-            { id: 'wage_cutoff_type_1', label: '賃金締切日', sf_mapping: { job: 'WageDeadline__c', overseas_job: 'WageDeadline__c' }, type: 'select', req: true, opts: ['当月指定日', '末日'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
-            { id: 'wage_cutoff_day_1', label: '締切日（日）', sf_mapping: {}, type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true, showIf: (data) => data.wage_cutoff_type_1 === '当月指定日' },
-            { id: 'wage_payment_month_1', label: '支払月', sf_mapping: {}, type: 'select', req: true, opts: ['当月', '翌月', '翌々月'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
-            { id: 'wage_payment_day_type_1', label: '支払日タイプ', sf_mapping: {}, type: 'select', req: true, opts: ['指定日', '末日'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
-            { id: 'wage_payment_day_1', label: '支払日（日）', sf_mapping: { job: 'WagePaymentDate__c', overseas_job: 'WagePaymentDate__c' }, type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], showIf: (data) => data.wage_payment_day_type_1 === '指定日' },
-            { type: 'section', label: '【賃金締切日・支払日 2回目】', bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
-            { id: 'wage_cutoff_type_2', label: '賃金締切日', sf_mapping: { job: 'dk_WageDeadline2__c', overseas_job: 'WageDeadline2__c' }, type: 'select', req: false, opts: ['当月指定日', '末日'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
-            { id: 'wage_cutoff_day_2', label: '締切日（日）', sf_mapping: {}, type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true, showIf: (data) => data.wage_cutoff_type_2 === '当月指定日' },
-            { id: 'wage_payment_month_2', label: '支払月', sf_mapping: {}, type: 'select', req: false, opts: ['当月', '翌月', '翌々月'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
-            { id: 'wage_payment_day_type_2', label: '支払日タイプ', sf_mapping: {}, type: 'select', req: false, opts: ['指定日', '末日'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
-            { id: 'wage_payment_day_2', label: '支払日（日）', sf_mapping: { job: 'dk_WagePaymentDate2__c', overseas_job: 'WagePaymentDate2__c' }, type: 'number', req: false, suf: '日', bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], showIf: (data) => data.wage_payment_day_type_2 === '指定日' },
+            { id: 'wage_payment_method', label: '賃金支払方法', sf_mapping: { job: 'WagePaymentMethod__c', overseas_job: 'WagePaymentMethod__c', employment_condition: 'dk_WagePaymentMethod__c' }, type: 'select', req: true, opts: ['口座振込', '通貨払'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            { type: 'section', label: '【賃金締切日・支払日 1回目】', bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            { id: 'wage_cutoff_type_1', label: '賃金締切日', sf_mapping: { job: 'WageDeadline__c', overseas_job: 'WageDeadline__c', employment_condition: 'dk_WageDeadline__c' }, type: 'select', req: true, opts: ['当月指定日', '末日'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
+            { id: 'wage_cutoff_day_1', label: '締切日（日）', sf_mapping: {}, type: 'number', req: true, suf: '日', bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true, showIf: (data) => data.wage_cutoff_type_1 === '当月指定日' },
+            { id: 'wage_payment_month_1', label: '支払月', sf_mapping: {}, type: 'select', req: true, opts: ['当月', '翌月', '翌々月'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
+            { id: 'wage_payment_day_type_1', label: '支払日タイプ', sf_mapping: {}, type: 'select', req: true, opts: ['指定日', '末日'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
+            { id: 'wage_payment_day_1', label: '支払日（日）', sf_mapping: { job: 'WagePaymentDate__c', overseas_job: 'WagePaymentDate__c', employment_condition: 'dk_WagePaymentDate__c' }, type: 'number', req: false, suf: '日', bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], showIf: (data) => data.wage_payment_day_type_1 === '指定日' },
+            { type: 'section', label: '【賃金締切日・支払日 2回目】', bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            { id: 'wage_cutoff_type_2', label: '賃金締切日', sf_mapping: { job: 'dk_WageDeadline2__c', overseas_job: 'WageDeadline2__c', employment_condition: 'dk_WageDeadline2__c' }, type: 'select', req: false, opts: ['当月指定日', '末日'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
+            { id: 'wage_cutoff_day_2', label: '締切日（日）', sf_mapping: {}, type: 'number', req: false, suf: '日', bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true, showIf: (data) => data.wage_cutoff_type_2 === '当月指定日' },
+            { id: 'wage_payment_month_2', label: '支払月', sf_mapping: {}, type: 'select', req: false, opts: ['当月', '翌月', '翌々月'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
+            { id: 'wage_payment_day_type_2', label: '支払日タイプ', sf_mapping: {}, type: 'select', req: false, opts: ['指定日', '末日'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], paired: true },
+            { id: 'wage_payment_day_2', label: '支払日（日）', sf_mapping: { job: 'dk_WagePaymentDate2__c', overseas_job: 'WagePaymentDate2__c', employment_condition: 'dk_WagePaymentDate2__c' }, type: 'number', req: false, suf: '日', bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], showIf: (data) => data.wage_payment_day_type_2 === '指定日' },
             { type: 'section', label: '【その他】', bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
-            { id: 'resignation_notice_days', label: '退職届出の猶予日数（日前）', sf_mapping: { job: 'GraceDaysOfResignation__c', overseas_job: 'GraceDaysOfResignation__c' }, type: 'number', req: true, suf: '日', bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
-            { id: 'health_checkup_hire', label: '雇入れ時の健康診断 受診日', sf_mapping: { job: 'DateOfHealthCheckupForEmployment__c', overseas_job: 'DateOfHealthCheckupForEmployment__c' }, type: 'date', req: true, bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], readOnly: true },
-            { id: 'health_checkup_first', label: '初回健康診断 受診日', sf_mapping: { job: 'DateOfFirstHealthCheckup__c', overseas_job: 'DateOfFirstHealthCheckup__c' }, type: 'date', req: false, bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], readOnly: true },
-            { id: 'health_checkup_schedule', label: 'その後の健康診断実施時期', sf_mapping: { job: 'HealthCheckupPeriod__c', overseas_job: 'HealthCheckupPeriod__c' }, type: 'select', req: true, opts: ['1年', '半年'], bu: ['intern', 'skilled'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            { id: 'resignation_notice_days', label: '退職届出の猶予日数（日前）', sf_mapping: { job: 'GraceDaysOfResignation__c', overseas_job: 'GraceDaysOfResignation__c', employment_condition: 'dk_GraceDaysOfResignation__c' }, type: 'number', req: true, suf: '日', bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            { id: 'health_checkup_hire', label: '雇入れ時の健康診断 受診日', sf_mapping: { job: 'DateOfHealthCheckupForEmployment__c', overseas_job: 'DateOfHealthCheckupForEmployment__c', employment_condition: 'DateOfHealthCheckupForEmployment__c' }, type: 'date', req: true, bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], readOnly: true, paired: true },
+            { id: 'health_checkup_first', label: '初回健康診断 受診日', sf_mapping: { job: 'DateOfFirstHealthCheckup__c', overseas_job: 'DateOfFirstHealthCheckup__c', employment_condition: 'DateOfFirstHealthCheckup__c' }, type: 'date', req: false, bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], readOnly: true, paired: true },
+            { id: 'health_checkup_schedule', label: 'その後の健康診断実施時期', sf_mapping: { job: 'HealthCheckupPeriod__c', overseas_job: 'HealthCheckupPeriod__c', employment_condition: 'HealthCheckupPeriod__c' }, type: 'select', req: true, opts: ['1年', '半年'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            // tokutei専用: 特定技能外国人が従事する具体的な作業内容（Phase 4-F 新規、命名統一）
+            { id: 'specific_work_contains', label: '特定技能外国人が従事する具体的な作業内容', sf_mapping: { employment_condition: 'SpecificWorkContainsForSSW__c' }, type: 'text', req: true, bu: ['tokutei'], tab: 4 },
+
+            // ==============================================================
+            // 【タブ22: その他必要情報 (特定技能AJS、建設分野専用)】 Phase 5-A
+            // ==============================================================
+            // 建設分野では、日本人従業員との賃金比較・待遇比較が必要
+            // 「経験年数3〜5年」と「通常」のグループは、どちらか一方を記入（該当者がいれば経験年数3〜5年を優先）
+            { type: 'section', label: '【日本人従業員の情報】※「経験年数3〜5年の従業員」「同職種の従業員」のどちらか一方のみ記入してください（該当者がいれば経験年数3〜5年を優先）', bu: ['tokutei'], tab: 22 },
+            { type: 'section', label: '【経験年数3〜5年の日本人従業員情報】', bu: ['tokutei'], tab: 22 },
+            { id: 'experienced_jp_employee_name', label: '経験年数3〜5年の日本人従業員の氏名', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeName__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'experienced_jp_employee_birthday', label: '経験年数3〜5年の日本人従業員の生年月日', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeBirthday__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'experienced_jp_employee_address', label: '経験年数3〜5年の日本人従業員の住所', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeAddress__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'experienced_jp_employee_license', label: '経験年数3〜5年の日本人従業員の保有資格', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeLicense__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'experienced_jp_employee_worked_years', label: '経験年数3〜5年の日本人従業員の経験年数', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeWorkedYears__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'experienced_jp_employee_entry_date', label: '経験年数3〜5年の日本人従業員の入社日', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeEntryDate__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22 },
+
+            { type: 'section', label: '【同職種の日本人従業員情報（経験年数3〜5年の該当者がいない場合）】', bu: ['tokutei'], tab: 22 },
+            { id: 'jp_employee_name', label: '日本人従業員の氏名', sf_mapping: { employment_condition: 'JapaneseEmployee__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'jp_employee_birthday', label: '日本人従業員の生年月日', sf_mapping: { employment_condition: 'JapaneseEmployeeBirthday__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'jp_employee_address', label: '日本人従業員の住所', sf_mapping: { employment_condition: 'JapaneseEmployeeAddress__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'jp_employee_license', label: '日本人従業員の保有資格', sf_mapping: { employment_condition: 'JapaneseEmployeeLicense__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'jp_employee_year_of_experience', label: '日本人従業員の経験年数', sf_mapping: { employment_condition: 'JapaneseEmployeeYearOfExperience__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'jp_employee_entry_date', label: '日本人従業員の入社日', sf_mapping: { employment_condition: 'JapaneseEmployeeEntryDate__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22 },
+
+            { type: 'section', label: '【経験年数】', bu: ['tokutei'], tab: 22 },
+            { id: 'current_work_experience', label: '自社経験年数', sf_mapping: { employment_condition: 'CurrentWorkExperience__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'previous_work_experience', label: '他社経験年数', sf_mapping: { employment_condition: 'PreviousWorkExperience__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
+
+            { type: 'section', label: '【技能向上のための方策】', bu: ['tokutei'], tab: 22 },
+            { id: 'specific_skilled_worker_wage_setting', label: '特定技能外国人の賃金設定について', sf_mapping: { employment_condition: 'SpecificSkilledWorkerWageSetting__c' }, type: 'textarea', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'safety_and_health_education', label: '①安全衛生教育の内容', sf_mapping: { employment_condition: 'SafetyAndHealthEducation__c' }, type: 'textarea', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'technical_training_plan', label: '②技能習得の計画', sf_mapping: { employment_condition: 'TechnicalTrainingPlan__c' }, type: 'textarea', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'allowance_and_pay_raise_reflection', label: '③手当や昇給への反映', sf_mapping: { employment_condition: 'AllowanceAndPayRaiseReflection__c' }, type: 'textarea', req: false, bu: ['tokutei'], tab: 22 },
             { id: 'health_checkup_schedule_confirmed', label: '夜勤4回超・1年健診を確認済み', sf_mapping: {}, type: 'checkbox_confirm', req: false, bu: ['intern', 'skilled'], tab: 4,
                 showIf: (data) => { const n = parseInt(data.nightshift_count); return data.has_shift === 'あり' && data.health_checkup_schedule === '1年' && !isNaN(n) && n > 4; }
             },
@@ -604,19 +752,19 @@
             { id: 'full_harness_training', label: 'フルハーネス特別教育の受講有無', sf_mapping: {}, type: 'select', req: true, opts: ['受講する', '受講しない'], bu: ['intern'], tab: 5, showIf: (data) => data.high_altitude_work === 'あり' },
 
             // --- LV固有: 募集要件（住居・航空券・宗教配慮） ---
-            { id: 'accepted_count', label: '受入れ人数', sf_mapping: { overseas_job: 'AcceptedCount__c' }, type: 'number', req: true, suf: '人', bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'accommodation_type', label: '住居の準備', sf_mapping: { overseas_job: 'AccommodationType__c' }, type: 'select', req: true, opts: ['企業の借り上げ', '人材賃貸手配'], bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'airfare_bearer', label: '航空券の取得', sf_mapping: { overseas_job: 'AirfareBearer__c' }, type: 'select', req: true, opts: ['企業負担', '人材負担'], bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'hijab_permitted', label: 'ヒジャブの可否', sf_mapping: { overseas_job: 'HijabPermitted__c' }, type: 'select', req: true, opts: ['可能', '不可'], bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            { id: 'prayer_space_available', label: 'お祈りスペースの有無', sf_mapping: { overseas_job: 'PrayerSpaceAvailable__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)' },
-            // --- LV固有: 日本語能力 ---
-            { id: 'japanese_level', label: '日本語能力', sf_mapping: { overseas_job: 'JapaneseLevel__c' }, type: 'select', req: true, opts: ['N4', 'N3', 'N2', '不問'], bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)' },
+            // ペア1: 受入れ人数 + 日本語能力 を半分サイズで1行表示
+            { id: 'accepted_count', label: '受入れ人数', sf_mapping: { overseas_job: 'AcceptedCount__c' }, type: 'number', req: true, suf: '人', bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)', paired: true },
+            { id: 'japanese_level', label: '日本語能力', sf_mapping: { overseas_job: 'JapaneseLevel__c' }, type: 'select', req: true, opts: ['N4', 'N3', 'N2', '不問'], bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)', paired: true },
+            // ペア2: 住居の準備 + 航空券の取得 を半分サイズで1行表示
+            { id: 'accommodation_type', label: '住居の準備', sf_mapping: { overseas_job: 'AccommodationType__c' }, type: 'select', req: true, opts: ['企業の借り上げ', '人材賃貸手配'], bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)', paired: true },
+            { id: 'airfare_bearer', label: '航空券の取得', sf_mapping: { overseas_job: 'AirfareBearer__c' }, type: 'select', req: true, opts: ['企業負担', '人材負担'], bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)', paired: true },
+            { id: 'hijab_permitted', label: 'ヒジャブの可否', sf_mapping: { overseas_job: 'HijabPermitted__c' }, type: 'select', req: true, opts: ['可能', '不可'], bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)', help: { warning: true, text: 'インドネシア以外の場合は「不可」を選択してください' } },
+            { id: 'prayer_space_available', label: 'お祈りスペースの有無', sf_mapping: { overseas_job: 'PrayerSpaceAvailable__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)', help: { warning: true, text: 'インドネシア以外の場合は「なし」を選択してください' } },
 
             { id: 'outdoor_indoor_ratio', label: '屋外屋内作業比率', sf_mapping: { job: 'OutdoorIndoorWorkRate_TT__c', overseas_job: 'OutdoorIndoorWorkRate_TT__c' }, type: 'text', req: true, bu: ['intern'], tab: 5, prompt: '屋外作業と屋内作業の比率を教えてください\n例:「屋外7割、屋内3割」「ほぼ屋内」など' },
             { id: 'overtime_nightshift', label: '残業・夜勤の有無', sf_mapping: { job: 'OverTimeAndNightShift_TT__c', overseas_job: 'OverTimeAndNightShift_TT__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled'], tab: 5, prompt: '残業や夜勤の可能性について教えてください' },
-            { id: 'avg_overtime_hours', label: '残業月平均', sf_mapping: { job: 'AvgOvertimeHours__c', overseas_job: 'AvgOvertimeHours__c' }, type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 5, prompt: '月平均の残業時間を入力してください', showIf: (data) => data.overtime_nightshift === 'あり' },
-            { id: 'nightshift_count', label: '夜勤月回数', sf_mapping: { job: 'NightshiftCount__c', overseas_job: 'NightshiftCount__c' }, type: 'number', req: true, suf: '回', bu: ['intern', 'skilled'], tab: 5, prompt: '月あたりの夜勤回数を入力してください', showIf: (data) => data.overtime_nightshift === 'あり' },
-            { id: 'sending_org_notes', label: '送出機関への共有事項', sf_mapping: { job: 'SharedMattersToSendingAgency__c', overseas_job: 'NotesForSendingAgency__c' }, type: 'textarea', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '送出機関に特に伝えておきたい事項があれば記載してください\n業務上の特性や必要なスキルなど\n面接以外の選考手段があればその目的や意図を詳細に記載してください' },
+            { id: 'avg_overtime_hours', label: '残業月平均', sf_mapping: { job: 'AvgOvertimeHours__c', overseas_job: 'AvgOvertimeHours__c' }, type: 'number', req: true, suf: '時間', bu: ['intern', 'skilled'], tab: 5, prompt: '月平均の残業時間を入力してください', showIf: (data) => data.overtime_nightshift === 'あり', paired: true },
+            { id: 'nightshift_count', label: '夜勤月回数', sf_mapping: { job: 'NightshiftCount__c', overseas_job: 'NightshiftCount__c' }, type: 'number', req: true, suf: '回', bu: ['intern', 'skilled'], tab: 5, prompt: '月あたりの夜勤回数を入力してください', showIf: (data) => data.overtime_nightshift === 'あり', paired: true },
 
 
             // --- 個人属性（性別/年齢/身長/体重等） ---
@@ -636,15 +784,19 @@
 
             { id: 'priority_1', label: '優先順位1', sf_mapping: { job: 'Priority1__c', overseas_job: 'Priority1__c' }, type: 'select', req: true, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern'], tab: 5, prompt: '人材選定において最も重視するMUST項目を選択してください', help: '最も重視する項目を選択してください' },
             { id: 'priority_2', label: '優先順位2', sf_mapping: { job: 'Priority2__c', overseas_job: 'Priority2__c' }, type: 'select', req: true, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern'], tab: 5, prompt: '2番目に重視するWANT項目を選択してください', help: '2番目に重視する項目を選択してください' },
-            { id: 'priority_3', label: '優先順位3', sf_mapping: { job: 'Priority3__c', overseas_job: 'Priority3__c' }, type: 'select', req: true, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern'], tab: 5, prompt: '3番目に重視するWANT項目を選択してください', help: '3番目に重視する項目を選択してください' }
+            { id: 'priority_3', label: '優先順位3', sf_mapping: { job: 'Priority3__c', overseas_job: 'Priority3__c' }, type: 'select', req: true, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern'], tab: 5, prompt: '3番目に重視するWANT項目を選択してください', help: '3番目に重視する項目を選択してください' },
+
+            // --- 送出機関への共有事項（募集要件の最後に配置） ---
+            { id: 'sending_org_notes', label: '送出機関への共有事項', sf_mapping: { job: 'SharedMattersToSendingAgency__c', overseas_job: 'NotesForSendingAgency__c' }, type: 'textarea', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '送出機関に特に伝えておきたい事項があれば記載してください\n業務上の特性や必要なスキルなど\n面接以外の選考手段があればその目的や意図を詳細に記載してください' },
         ];
 
         const BUSINESS_UNITS = [
             { id: 'intern', name: '技能実習', color: '#2563eb', description: '実習実施者・送出機関向けの項目構成', icon: '🏢' },
-            { id: 'skilled', name: '特定技能', color: '#0d9488', description: '支援計画書・雇用契約書向けの項目構成', icon: '⚡' }
+            { id: 'skilled', name: '海外招聘(LV)', color: '#0891b2', description: '海外から新たに人材を呼び寄せる場合(有料職業紹介)', icon: '✈️' },
+            { id: 'tokutei', name: '特定技能(AJS)', color: '#0d9488', description: '在留資格認定/変更・無料職業紹介の場合', icon: '🇯🇵' }
         ];
 
-        const GET_TABS = (appMode, subMode) => {
+        const GET_TABS = (appMode, subMode, currentData) => {
             // 海外招聘(LV)の場合のみ、2段階のタブ構造にする
             if (appMode === 'skilled' && subMode === '海外招聘(LV)') {
                 return [
@@ -655,10 +807,27 @@
                     { id: 11, name: '基本情報', icon: '📋', group: '雇用条件書', color: '#4f46e5', ref: 1 },
                     { id: 13, name: '労働時間・休憩・休日', icon: '⏰', group: '雇用条件書', color: '#4f46e5', ref: 3 },
                     { id: 14, name: '賃金・手当・支払条件', icon: '💰', group: '雇用条件書', color: '#4f46e5', ref: 4 },
-                    { id: 6, name: 'メモ', icon: '📝', group: '共通', color: '#64748b' },
+                    { id: 6, name: 'メモ', icon: '📝', group: '雇用条件書', color: '#4f46e5' },
                 ];
             }
-            // 通常時（技能実習や特定技能AJS）
+            // 特定技能(AJS): ウィザード + 6タブ + メモ
+            if (appMode === 'tokutei') {
+                const tabs = [
+                    { id: 0, name: 'ウィザード', icon: '🪄', color: '#f59e0b' },
+                    { id: 1, name: '基本情報', icon: '📋' },
+                    { id: 21, name: '基本情報(人材)', icon: '👤' },
+                    { id: 5, name: '募集要件', icon: '👥' },
+                    { id: 3, name: '労働時間・休憩・休日', icon: '⏰' },
+                    { id: 4, name: '賃金・手当・支払条件', icon: '💰' },
+                ];
+                // タブ22「その他必要情報」は建設分野のみ表示
+                if (currentData && currentData.job_field_ssw === '建設') {
+                    tabs.push({ id: 22, name: 'その他必要情報', icon: '📝' });
+                }
+                tabs.push({ id: 6, name: 'メモ', icon: '📝' });
+                return tabs;
+            }
+            // 通常時（技能実習）
             return [
                 { id: 1, name: '基本情報', icon: '📋' },
                 { id: 2, name: '生活環境・宿泊施設', icon: '🏠' },
@@ -673,6 +842,9 @@
         const isHiragana = (str) => !str || /^[ぁ-んー 　]+$/.test(str);
         const isNumeric = (str) => !str || /^[0-9]+$/.test(str);
         const isZipCode = (str) => !str || /^\d{3}-\d{4}$/.test(str);
+        const isEmail = (str) => !str || /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(str);
+        // 在留カード番号: 英大文字2 + 数字8 + 英大文字2 (例: AB12345678CD)
+        const isVisaCard = (str) => !str || /^[A-Z]{2}\d{8}[A-Z]{2}$/.test(str);
         const containsFullWidthLatin = (str) => /[０-９Ａ-Ｚａ-ｚ]/.test(str);
 
         const escapeCSV = (str) => {
@@ -706,6 +878,44 @@
             return result;
         };
 
+        // ─────────────────────────────────────────────────────────────
+        // CSVファイル全体を行単位に分割（ダブルクォート内の改行は跨がない）
+        // textareaなど改行を含む値がダブルクォートで囲まれてる場合、単純な
+        // text.split('\n') では1レコードが複数行に分裂してしまうため、この
+        // 関数で引用符の開閉状態を追跡しながら改行で分割する。
+        // ─────────────────────────────────────────────────────────────
+        const splitCSVRows = (text) => {
+            const rows = [];
+            let cur = '';
+            let inQuote = false;
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+                if (ch === '"') {
+                    // エスケープされたダブルクォート("")はそのまま蓄積
+                    if (inQuote && text[i + 1] === '"') {
+                        cur += '""';
+                        i++;
+                        continue;
+                    }
+                    inQuote = !inQuote;
+                    cur += ch;
+                } else if (ch === '\n' && !inQuote) {
+                    // クォートの外側の改行のみレコード区切りとして扱う
+                    rows.push(cur);
+                    cur = '';
+                } else if (ch === '\r' && !inQuote && text[i + 1] === '\n') {
+                    // CRLF対応（\rはスキップして次の\nを区切りとして扱う）
+                    rows.push(cur);
+                    cur = '';
+                    i++;
+                } else {
+                    cur += ch;
+                }
+            }
+            if (cur.length > 0) rows.push(cur);
+            return rows;
+        };
+
         const Notification = ({ message, type, onClose }) => {
             useEffect(() => {
                 const t = setTimeout(onClose, 3000);
@@ -737,18 +947,21 @@
 
             const createNew = () => {
                 const newId = `SF-${Math.random().toString(36).slice(2, 11).toUpperCase()}`;
+                // 代表者役職名の初期値: 海外招聘(LV)のみ空欄、それ以外は「代表取締役」
+                const isLVNew = (appMode === 'skilled' && subMode === '海外招聘(LV)');
                 const newRecord = {
                     id: newId, bu: appMode, sub_type: subMode, createdAt: new Date().toISOString(),
-                    company_name_en: 'Co., Ltd.', rep_position: '代表取締役',
+                    company_name_en: '', rep_position: isLVNew ? '' : '代表取締役',
                     housing_status: '未定',
                     regular_holiday_day: ['土曜日', '日曜日'],
                     has_shift: 'なし', has_bonus: 'なし', has_raise: 'なし', has_retirement: 'なし',
                     annual_leave: '10', resignation_notice_days: '30',
-                    has_wage_deduction: 'あり', charges_utilities: 'あり'
+                    has_wage_deduction: 'あり', charges_utilities: 'あり', has_other_fees: 'あり'
                 };
                 setDataList(prev => [...prev, newRecord]);
                 setCurrentId(newId);
-                setCurrentTab(1);
+                // tokuteiモードはウィザードタブ(0)、それ以外は基本情報タブ(1)から開始
+                setCurrentTab(appMode === 'tokutei' ? 0 : 1);
                 notify('新規レコードを作成しました');
             };
 
@@ -761,6 +974,10 @@
                 if (data?.sub_type === '海外招聘(LV)') {
                     return f.sf_mapping.overseas_job || f.sf_mapping.account || '';
                 }
+                // 特定技能(AJS): employment_condition を優先、なければ talent/talent_activity/account の順
+                if (data?.bu === 'tokutei') {
+                    return f.sf_mapping.employment_condition || f.sf_mapping.talent || f.sf_mapping.talent_activity || f.sf_mapping.account || '';
+                }
                 return f.sf_mapping.job || f.sf_mapping.account || '';
             };
 
@@ -771,6 +988,13 @@
                     if (fieldId === 'job_type') newData.work_name = '';
                     // 海外招聘LV: 特定技能資格分野が変更されたら、業務区分をクリア
                     if (fieldId === 'job_field') newData.job_category = '';
+                    // 特定技能(AJS): ウィザード国籍が変更されたら、Talentタブの表示用国籍にも自動転記
+                    if (fieldId === 'nationality') newData.nationality_talent = value;
+                    // 特定技能(AJS): ウィザード分野が変更されたら、募集要件タブの分野にも自動転記、業務区分はクリア
+                    if (fieldId === 'job_field_ssw') {
+                        newData.job_field = value;
+                        newData.job_category = '';
+                    }
                     // 就業規則の連動
                     if (fieldId === 'has_work_rules') {
                         if (value === 'あり') newData.confirmation_method_work_rules = '事務所に保管';
@@ -861,14 +1085,16 @@
                             if (sbs3 !== null && sbe3 !== null && sbe3 > sbs3) shiftBreak += sbe3 - sbs3;
                             newData[`shift_break_total_${i}`] = shiftBreak > 0 ? String(shiftBreak) : '';
                             const shiftStart = timeToMinutes(newData[`shift_start_${i}`]), shiftEnd = timeToMinutes(newData[`shift_end_${i}`]);
-                            if (shiftStart !== null && shiftEnd !== null && shiftEnd > shiftStart) {
-                                const workTotal = shiftEnd - shiftStart - shiftBreak;
+                            if (shiftStart !== null && shiftEnd !== null) {
+                                // 夜勤（例: 22:00開始〜5:00終了）対応: shiftEnd <= shiftStart の場合、翌日扱い
+                                const actualEnd = shiftEnd > shiftStart ? shiftEnd : shiftEnd + 24 * 60;
+                                const workTotal = actualEnd - shiftStart - shiftBreak;
                                 if (workTotal >= 0) { newData[`shift_daily_hours_${i}`] = String(Math.floor(workTotal/60)); newData[`shift_daily_minutes_${i}`] = (Math.floor(workTotal/60) === 8) ? '0' : String(workTotal % 60); }
                             }
                         }
                     }
 
-                    if ((fieldId === 'desired_start_date' || fieldId === 'placement_date') && value) {
+                    if ((fieldId === 'desired_start_date' || fieldId === 'placement_date' || fieldId === 'expected_entering_date') && value) {
                         const hire = new Date(value); hire.setMonth(hire.getMonth() + 1);
                         newData.health_checkup_hire = hire.toISOString().split('T')[0];
                         const first = new Date(hire); first.setFullYear(first.getFullYear() + 1);
@@ -1010,13 +1236,35 @@
             // ─── CSVエクスポート：bu列・_memo列を追加 ──────────────────
             const exportCSV = async (hasError, lvStatus = null) => {
                 try {
+                    // ─── 特定技能(AJS)用: FIELDSから sf_mapping[objectKey] を持つ列を自動抽出 ──
+                    // Phase 5-B: tokuteiモード時の4オブジェクトCSV出力に使用
+                    // - 重複除去（複数フィールドが同じSF列を指す場合は最初のもの優先）
+                    // - FIELDS定義順で列順を決定
+                    const extractColumnsForObject = (objectKey) => {
+                        const cols = [];
+                        const seen = new Set();
+                        FIELDS.forEach(f => {
+                            if (f.type === 'section') return;
+                            if (!f.sf_mapping) return;
+                            if (!f.bu || !f.bu.includes('tokutei')) return;
+                            const sfName = f.sf_mapping[objectKey];
+                            if (!sfName) return;
+                            if (seen.has(sfName)) return;
+                            seen.add(sfName);
+                            cols.push(sfName);
+                        });
+                        return cols;
+                    };
+
                     // ─── 取引先オブジェクト用列定義 ───────────────────────────────
                     // 海外招聘(LV)判定
                     const isLV = (appMode === 'skilled' && subMode === '海外招聘(LV)');
                     // 取引先出力列（案P：LV固有列を共通列の途中に挿入）
                     // LV以外: 技能実習&特定技能(AJS)の8列
                     // LV: 18列（かな2項目 + 電話・法人番号・資本金・売上・常勤数・電子届出関連3）
-                    const ACCOUNT_COLUMNS = isLV ? [
+                    // tokutei: FIELDSから自動抽出（Phase 5-B）
+                    const isTokuteiEx = (appMode === 'tokutei');
+                    const ACCOUNT_COLUMNS = isTokuteiEx ? extractColumnsForObject('account') : (isLV ? [
                         'Name',                                 // 企業名
                         'KanaName__c',                          // 事業者名（かな）※LV
                         'EnglishName__c',                       // 企業名(英)
@@ -1044,7 +1292,7 @@
                         'NameOfRepresentative__c',              // 代表者名
                         'RepresentativeNameInEnglish__c',       // 代表者名(英)
                         'RepresentativePosition__c',            // 代表者役職
-                    ];
+                    ]);
                     // ─── ジョブオブジェクト用列定義 ──────────────────────────────
                     const JOB_COLUMNS = [
                         'Occupation_TT__c','WorkName_TT__c','dk_OfficeName__c',
@@ -1073,22 +1321,27 @@
                         'dk_ShiftBreakStartTime1__c','dk_ShiftBreakEndTime1__c',
                         'dk_ShiftBreakStartTime1_2__c','dk_ShiftBreakEndTime1_2__c',
                         'dk_ShiftBreakStartTime1_3__c','dk_ShiftBreakEndTime1_3__c',
+                        'dk_TotalShiftBreakTime1__c',
                         'dk_ShiftOpeningTime2__c','dk_ShiftClosingTime2__c','dk_ShiftSystemApplicationDate2__c',
                         'dk_ShiftBreakStartTime2__c','dk_ShiftBreakEndTime2__c',
                         'dk_ShiftBreakStartTime2_2__c','dk_ShiftBreakEndTime2_2__c',
                         'dk_ShiftBreakStartTime2_3__c','dk_ShiftBreakEndTime2_3__c',
+                        'dk_TotalShiftBreakTime2__c',
                         'dk_ShiftOpeningTime3__c','dk_ShiftClosingTime3__c','dk_ShiftSystemApplicationDate3__c',
                         'dk_ShiftBreakStartTime3__c','dk_ShiftBreakEndTime3__c',
                         'dk_ShiftBreakStartTime3_2__c','dk_ShiftBreakEndTime3_2__c',
                         'dk_ShiftBreakStartTime3_3__c','dk_ShiftBreakEndTime3_3__c',
+                        'dk_TotalShiftBreakTime3__c',
                         'dk_ShiftOpeningTime4__c','dk_ShiftClosingTime4__c','dk_ShiftSystemApplicationDate4__c',
                         'dk_ShiftBreakStartTime4__c','dk_ShiftBreakEndTime4__c',
                         'dk_ShiftBreakStartTime4_2__c','dk_ShiftBreakEndTime4_2__c',
                         'dk_ShiftBreakStartTime4_3__c','dk_ShiftBreakEndTime4_3__c',
+                        'dk_TotalShiftBreakTime4__c',
                         'dk_ShiftOpeningTime5__c','dk_ShiftClosingTime5__c','dk_ShiftSystemApplicationDate5__c',
                         'dk_ShiftBreakStartTime5__c','dk_ShiftBreakEndTime5__c',
                         'dk_ShiftBreakStartTime5_2__c','dk_ShiftBreakEndTime5_2__c',
                         'dk_ShiftBreakStartTime5_3__c','dk_ShiftBreakEndTime5_3__c',
+                        'dk_TotalShiftBreakTime5__c',
                         'AnnualPaidLeave__c',
                         'dk_PaymentCategory__c',
                         'dk_MonthlyWage1__c','dk_DailyWage1__c','dk_HourlyWage1__c',
@@ -1215,6 +1468,22 @@
                             }
                             
                             let val = d[fieldId];
+                            // date型の正規化（保存時も読込時と同じくYYYY-MM-DDに統一）
+                            // ブラウザによっては input value が "2026/11/1" のような形式になることがあるため
+                            if (fieldTypeMap[fieldId] === 'date' && val) {
+                                const dateMatch = String(val).match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+                                if (dateMatch) {
+                                    val = `${dateMatch[1]}-${dateMatch[2].padStart(2, '0')}-${dateMatch[3].padStart(2, '0')}`;
+                                }
+                            }
+                            // time型の正規化（保存時も HH:mm のゼロ埋めに統一）
+                            // "8:00" のような1桁時刻が保存されると、次回読込時にinput type="time"でエラーになる
+                            if (fieldTypeMap[fieldId] === 'time' && val && !isSfExport) {
+                                const timeMatch = String(val).match(/^(\d{1,2}):(\d{1,2})/);
+                                if (timeMatch) {
+                                    val = timeMatch[1].padStart(2, '0') + ':' + timeMatch[2].padStart(2, '0');
+                                }
+                            }
                             if (isSfExport && fieldTypeMap[fieldId] === 'time' && val) {
                                 // "09:00" のような形式を "09:00:00.000Z" に変換
                                 if (/^\d{2}:\d{2}$/.test(val)) {
@@ -1286,7 +1555,13 @@
                     downloadCSV(makeFilename('一時保存'), saveHeader, saveRows);
                     // ★ エラーがある場合はここで処理を終了し、メッセージを表示
                     if (hasError) {
-                        notify('エラーがあるため、一時保存用CSVのみ出力しました', 'warning');
+                        // tokuteiモードは Salesforce用CSV出力が未実装のため、常にここに到達する
+                        const isTokutei = (appMode === 'tokutei');
+                        if (isTokutei) {
+                            notify('一時保存CSVを出力しました（Salesforce用CSVは開発中）', 'success');
+                        } else {
+                            notify('エラーがあるため、一時保存用CSVのみ出力しました', 'warning');
+                        }
                         return;
                     }
 
@@ -1328,6 +1603,55 @@
                             buildRow(d, OVERSEAS_JOB_COLUMNS, overseasWageOverrideFor(d), true, 'overseas_job').join(',')
                         );
                         zip.file(makeFilename('海外招聘求人票', lvStatus), makeCSVContent(overseasHeader, overseasRows));
+                    } else if (isTokuteiEx) {
+                        // ─── 特定技能(AJS)用: 4オブジェクトCSV（Phase 5-B） ────────────
+                        // 取引先CSVは既にZIPに入っているため、残り3オブジェクト（employment_condition, talent, talent_activity）を処理
+                        //
+                        // ① 雇用条件書CSV
+                        const ecWageOverrideFor = (d) => {
+                            const w1 = buildWageText(d.wage_cutoff_type_1, d.wage_cutoff_day_1, d.wage_payment_month_1, d.wage_payment_day_type_1, d.wage_payment_day_1);
+                            const w2 = buildWageText(d.wage_cutoff_type_2, d.wage_cutoff_day_2, d.wage_payment_month_2, d.wage_payment_day_type_2, d.wage_payment_day_2);
+                            const overrides = {
+                                'dk_WageDeadline__c': w1.cutoff, 'dk_WagePaymentDate__c': w1.payment,
+                                'dk_WageDeadline2__c': w2.cutoff, 'dk_WagePaymentDate2__c': w2.payment,
+                            };
+                            // 居住費種別が「実費」の場合は、金額欄に「実費」という文字列を出力
+                            if (d.housing_fee_type === '実費') {
+                                overrides['HousingCostDeductionAmount__c'] = '実費';
+                            }
+                            // 光熱費種別が「実費」の場合は、金額欄に「実費」という文字列を出力
+                            if (d.utility_cost_type === '実費') {
+                                overrides['UtilityCostDeductionAmount__c'] = '実費';
+                            }
+                            return overrides;
+                        };
+                        const ecColumns = extractColumnsForObject('employment_condition');
+                        const ecHeader = ecColumns.join(',');
+                        const ecRows = targetRecords.map(d =>
+                            buildRow(d, ecColumns, ecWageOverrideFor(d), true, 'employment_condition').join(',')
+                        );
+                        zip.file(makeFilename('雇用条件書'), makeCSVContent(ecHeader, ecRows));
+
+                        // ② 人材CSV
+                        const talentColumns = extractColumnsForObject('talent');
+                        if (talentColumns.length > 0) {
+                            const talentHeader = talentColumns.join(',');
+                            const talentRows = targetRecords.map(d =>
+                                buildRow(d, talentColumns, null, true, 'talent').join(',')
+                            );
+                            zip.file(makeFilename('人材'), makeCSVContent(talentHeader, talentRows));
+                        }
+
+                        // ③ 人材活動CSV（application_type === '変更申請(特定活動経由)' のレコードのみ）
+                        const talentActivityColumns = extractColumnsForObject('talent_activity');
+                        const taTargets = targetRecords.filter(d => d.application_type === '変更申請(特定活動経由)');
+                        if (talentActivityColumns.length > 0 && taTargets.length > 0) {
+                            const taHeader = talentActivityColumns.join(',');
+                            const taRows = taTargets.map(d =>
+                                buildRow(d, talentActivityColumns, null, true, 'talent_activity').join(',')
+                            );
+                            zip.file(makeFilename('人材活動'), makeCSVContent(taHeader, taRows));
+                        }
                     } else {
                         // ─── 既存のジョブCSV（技能実習・特定技能AJS） ────────────
                         const jobWageOverrideFor = (d) => {
@@ -1397,7 +1721,9 @@
                 try {
                     // BOM除去
                     const text = evt.target.result.replace(/^\uFEFF/, '');
-                    const lines = text.split('\n').filter(l => l.trim() !== '');
+                    // ダブルクォート内の改行を保持しながら行単位に分割
+                    // （従来の text.split('\n') ではtextarea値の改行でレコードが分裂していた）
+                    const lines = splitCSVRows(text).filter(l => l.trim() !== '');
                     if (lines.length < 2) { notify('データが含まれていません', 'error'); return; }
 
                     // ─── ヘッダー取得（1行目がAPI名、2行目以降がデータ）────────────────
@@ -1541,14 +1867,25 @@
                                 }
                                 record[fieldId] = vals;
                             } else {
-                                if (importType === 'past_data') {
-                                    // 時刻の復元処理（過去データCSV時のみ）
-                                    if (fieldTypeMap[fieldId] === 'time' && rawVal) {
-                                        const timeMatch = rawVal.match(/^(\d{1,2}):(\d{1,2})/);
-                                        if (timeMatch) {
-                                            rawVal = timeMatch[1].padStart(2, '0') + ':' + timeMatch[2].padStart(2, '0');
-                                        }
+                                // ─── date型の正規化（全importType共通） ──────────────
+                                // YYYY/M/D, YYYY/MM/DD, YYYY-M-D など → YYYY-MM-DD に統一
+                                // <input type="date"> は yyyy-MM-dd のゼロ埋め必須
+                                if (fieldTypeMap[fieldId] === 'date' && rawVal) {
+                                    const dateMatch = rawVal.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+                                    if (dateMatch) {
+                                        rawVal = `${dateMatch[1]}-${dateMatch[2].padStart(2, '0')}-${dateMatch[3].padStart(2, '0')}`;
                                     }
+                                }
+                                // ─── time型の正規化（全importType共通） ──────────────
+                                // H:mm や HH:m などの1桁時刻 → HH:mm にゼロ埋め
+                                // <input type="time"> は HH:mm のゼロ埋め必須
+                                if (fieldTypeMap[fieldId] === 'time' && rawVal) {
+                                    const timeMatch = rawVal.match(/^(\d{1,2}):(\d{1,2})/);
+                                    if (timeMatch) {
+                                        rawVal = timeMatch[1].padStart(2, '0') + ':' + timeMatch[2].padStart(2, '0');
+                                    }
+                                }
+                                if (importType === 'past_data') {
                                     // カンマ付き数値のカンマを除去
                                     rawVal = rawVal.replace(/^[\d,]+$/, v => v.replace(/,/g, ''));
                                     // SF値 → ツール値 の共通変換マップ
@@ -1648,7 +1985,7 @@
 
                     setDataList(prev => [...prev, ...newRecords]);
                     setCurrentId(newRecords[0].id);
-                    setCurrentTab(1);
+                    setCurrentTab(appMode === 'tokutei' ? 0 : 1);
 
                     const formatLabel = importType === 'past_data' ? '（過去データCSV）' : '（一時保存CSV）';
                     const skipLabel = skippedCount > 0 ? `（${skippedCount}件はモード不一致でスキップ）` : '';
@@ -1675,6 +2012,8 @@
                     if (data[f.id] && f.val === 'num' && !isNumeric(data[f.id])) errors.push({ field: f.id, msg: `${f.label}は半角数字のみです。` });
                     if (data[f.id] && f.val === 'zip' && !isZipCode(data[f.id])) errors.push({ field: f.id, msg: `${f.label}は「000-0000」の形式（半角数字3桁＋ハイフン＋4桁）で入力してください。` });
                     if (data[f.id] && f.val === 'hiragana' && !isHiragana(data[f.id])) errors.push({ field: f.id, msg: `${f.label}はひらがなで入力してください。` });
+                    if (data[f.id] && f.val === 'email' && !isEmail(data[f.id])) errors.push({ field: f.id, msg: `${f.label}はメールアドレス形式で入力してください（例: example@domain.com）。` });
+                    if (data[f.id] && f.val === 'visa_card' && !isVisaCard(data[f.id])) errors.push({ field: f.id, msg: `${f.label}の形式が正しくありません（例: AB12345678CD）` });
                     if (data[f.id] && f.val === 'phone') {
                         const v = data[f.id];
                         // ① 全角文字が含まれていたらエラー（全角数字・英字・括弧・プラス・ハイフン類・全角スペースなど）
@@ -1874,7 +2213,11 @@
                             <p style={{ color: '#64748b', marginBottom: 40, fontSize: 14 }}>雇用契約書作成システム</p>
                             <div className="home-grid">
                                 {BUSINESS_UNITS.map(bu => (
-                                    <button key={bu.id} className="home-card" onClick={() => setAppMode(bu.id)}>
+                                    <button key={bu.id} className="home-card" onClick={() => {
+                                        setAppMode(bu.id);
+                                        // skilled は LV専用、選択時に自動でsubModeを設定
+                                        if (bu.id === 'skilled') setSubMode('海外招聘(LV)');
+                                    }}>
                                         <div className="icon-box" style={{ background: bu.color }}>{bu.icon}</div>
                                         <h2 style={{ fontSize: 22, fontWeight: 700, color: 'white', marginBottom: 8 }}>{bu.name}</h2>
                                         <p style={{ color: '#64748b', fontSize: 13, marginBottom: 32 }}>{bu.description}</p>
@@ -1886,35 +2229,10 @@
                     </div>
                 );
             }
-            if (appMode === 'skilled' && !subMode) {
-                return (
-                    <div className="home-screen">
-                        <div style={{ maxWidth: 800, width: '100%', textAlign: 'center' }}>
-                            <button onClick={() => setAppMode(null)} style={{ color: '#94a3b8', marginBottom: 24, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>← Back to Main Menu</button>
-                            <h1 style={{ fontSize: 36, fontWeight: 900, color: 'white', marginBottom: 8, letterSpacing: '-0.05em' }}>SELECT CATEGORY</h1>
-                            <p style={{ color: '#64748b', marginBottom: 40, fontSize: 14 }}>これから行う特定技能の手続きを選択してください</p>
-                            <div className="home-grid">
-                                <button className="home-card" onClick={() => setSubMode('海外招聘(LV)')}>
-                                    <div className="icon-box" style={{ background: '#0891b2' }}>✈️</div>
-                                    <h2 style={{ fontSize: 22, fontWeight: 700, color: 'white', marginBottom: 8 }}>海外招聘(LV)</h2>
-                                    <p style={{ color: '#64748b', fontSize: 13, marginBottom: 32 }}>海外から新たに人材を呼び寄せる場合(有料職業紹介)</p>
-                                    <div style={{ color: '#818cf8', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>PROCEED <span>→</span></div>
-                                </button>
-                                <button className="home-card" onClick={() => setSubMode('特定技能')}>
-                                    <div className="icon-box" style={{ background: '#0d9488' }}>🇯🇵</div>
-                                    <h2 style={{ fontSize: 22, fontWeight: 700, color: 'white', marginBottom: 8 }}>特定技能(AJS)</h2>
-                                    <p style={{ color: '#64748b', fontSize: 13, marginBottom: 32 }}>在留資格認定/変更・無料職業紹介の場合</p>
-                                    <div style={{ color: '#818cf8', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>PROCEED <span>→</span></div>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                );
-            }
 
             const activeBU = BUSINESS_UNITS.find(b => b.id === appMode);
             const buRecords = dataList.filter(d => d.bu === appMode && (appMode !== 'skilled' || d.sub_type === subMode));
-            const currentTabs = GET_TABS(appMode, subMode);
+            const currentTabs = GET_TABS(appMode, subMode, currentData);
             const activeTabObj = currentTabs.find(t => t.id === currentTab);
             const tabFields = FIELDS.filter(f => {
                 const fieldTabId = typeof f.tab === 'function' ? f.tab(currentData || {}) : f.tab;
@@ -1946,6 +2264,15 @@
             }) : [];
             const isStep1Complete = isLV && step1Errors.length === 0;
             const isAllComplete = validationErrors.length === 0;
+
+            // ─── 特定技能(AJS)モード: ウィザード(tab=0)の完了判定 ──────────────
+            // 4条件（申請種別、分野、技能実習経験、国籍）全て入力済みか
+            const isTokutei = (appMode === 'tokutei');
+            const WIZARD_FIELDS = ['application_type', 'job_field_ssw', 'training_experience', 'nationality'];
+            const isWizardComplete = isTokutei && currentData && WIZARD_FIELDS.every(id => {
+                const v = currentData[id];
+                return v && v !== '';
+            });
 
             // エラー項目クリック時のジャンプ処理
             // 1. 該当フィールドのタブを特定（配列なら最初の要素）
@@ -2008,12 +2335,9 @@
                     <div className="sidebar">
                         <div style={{ padding: 24 }}>
                             <button onClick={() => {
-                                // 特定技能の場合は1つ前のサブメニュー画面に戻る
-                                if (appMode === 'skilled') {
-                                    setSubMode(null);
-                                } else {
-                                    setAppMode(null);
-                                }
+                                // メインメニューに戻る（skilledのサブモードもクリア）
+                                setAppMode(null);
+                                setSubMode(null);
                                 setCurrentId(null);
                             }} style={{ fontSize: 11, fontWeight: 900, color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 24 }}>← Back</button>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
@@ -2078,6 +2402,18 @@
                                             btnStyle = { background: '#10b981', color: 'white' };
                                             btnLabel = '🚀 雇用条件書出力可（CSV+ZIP）';
                                         }
+                                    } else if (isTokutei) {
+                                        // 特定技能(AJS): Phase 5-B で4オブジェクトCSV+ZIP実装完了
+                                        if (!isWizardComplete) {
+                                            btnStyle = { background: '#f59e0b', color: 'white' };
+                                            btnLabel = '💾 一時保存のみ（ウィザード未完了）';
+                                        } else if (validationErrors.length > 0) {
+                                            btnStyle = { background: '#f59e0b', color: 'white' };
+                                            btnLabel = '💾 一時保存のみ（エラーあり）';
+                                        } else {
+                                            btnStyle = { background: '#10b981', color: 'white' };
+                                            btnLabel = '🚀 Salesforce用出力（CSV+ZIP）';
+                                        }
                                     } else {
                                         // 技能実習・特定技能AJS: 既存ロジック維持
                                         if (validationErrors.length > 0) {
@@ -2096,9 +2432,12 @@
                                         disabled={isDisabled} 
                                         onClick={() => {
                                             // exportCSV の hasError 引数：
+                                            // - tokuteiモード: 常にtrue（Phase 1-D までは一時保存のみ）
                                             // - LVモード: STEP1未完了なら true（一時保存のみ）、STEP1完了なら false（CSV+ZIP）
                                             // - それ以外: validationErrors があれば true
-                                            const hasErrorForExport = isLV ? !isStep1Complete : (validationErrors.length > 0);
+                                            const hasErrorForExport = isTokutei ? true
+                                                : isLV ? !isStep1Complete 
+                                                : (validationErrors.length > 0);
                                             // LVモード: 海外招聘求人票CSVのファイル名に付けるステータス
                                             // - 全完了 → 雇用条件書 / STEP1のみ完了 → 受入要望書
                                             const lvStatus = isLV ? (isAllComplete ? '雇用条件書' : '受入要望書') : null;
@@ -2161,17 +2500,105 @@
                                         ) : (
                                             /* 通常表示（海外招聘以外） */
                                             <div className="tab-nav">
-                                                {currentTabs.map(tab => (
-                                                    <button key={tab.id} className={`tab-btn ${currentTab === tab.id ? 'active' : ''}`} onClick={() => { setCurrentTab(tab.id); if (mainScrollRef.current) mainScrollRef.current.scrollTop = 0; }}>
-                                                        <span style={{ marginRight: 6 }}>{tab.icon}</span> {tab.name}
-                                                    </button>
-                                                ))}
+                                                {currentTabs.map(tab => {
+                                                    // 特定技能: ウィザード未完了時はウィザード以外のタブを非活性
+                                                    const isDisabled = isTokutei && !isWizardComplete && tab.id !== 0;
+                                                    return (
+                                                        <button key={tab.id} 
+                                                            className={`tab-btn ${currentTab === tab.id ? 'active' : ''}`} 
+                                                            disabled={isDisabled}
+                                                            title={isDisabled ? 'ウィザードタブで4条件を入力してください' : ''}
+                                                            onClick={() => { 
+                                                                if (isDisabled) return;
+                                                                setCurrentTab(tab.id); 
+                                                                if (mainScrollRef.current) mainScrollRef.current.scrollTop = 0; 
+                                                            }}
+                                                            style={isDisabled ? { opacity: 0.4, cursor: 'not-allowed' } : (tab.id === 0 && currentTab === 0 ? { background: tab.color, color: 'white' } : {})}>
+                                                            <span style={{ marginRight: 6 }}>{tab.icon}</span> {tab.name}
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>
                                 </div>
 
-                                {currentTab === 6 ? (
+                                {currentTab === 0 ? (
+                                    /* ─── ウィザードタブ（特定技能AJS専用） ─── */
+                                    <div style={{ padding: 48, maxWidth: 900, margin: '0 auto', width: '100%' }}>
+                                        <div style={{ background: 'white', borderRadius: 20, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+                                            {/* ヘッダー */}
+                                            <div style={{ padding: '24px 32px', background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)', color: 'white' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                                                    <span style={{ fontSize: 28 }}>🪄</span>
+                                                    <h2 style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.02em', margin: 0 }}>ウィザード：受入れ条件の入力</h2>
+                                                </div>
+                                                <p style={{ fontSize: 13, opacity: 0.95, margin: 0, lineHeight: 1.6 }}>
+                                                    最初に以下の4項目を選択してください。選択内容に応じて、この後のタブに表示される入力項目が自動的に絞り込まれます。
+                                                </p>
+                                            </div>
+
+                                            {/* 進捗インジケーター */}
+                                            <div style={{ padding: '16px 32px', background: '#fef3c7', borderBottom: '1px solid #fde68a', display: 'flex', alignItems: 'center', gap: 12 }}>
+                                                <span style={{ fontSize: 11, fontWeight: 900, color: '#92400e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>完了状況</span>
+                                                <div style={{ flex: 1, height: 8, background: 'rgba(146,64,14,0.15)', borderRadius: 4, overflow: 'hidden' }}>
+                                                    <div style={{
+                                                        width: `${(WIZARD_FIELDS.filter(id => currentData[id]).length / WIZARD_FIELDS.length) * 100}%`,
+                                                        height: '100%',
+                                                        background: isWizardComplete ? '#10b981' : '#f59e0b',
+                                                        transition: 'width 0.3s, background 0.3s'
+                                                    }} />
+                                                </div>
+                                                <span style={{ fontSize: 12, fontWeight: 900, color: '#92400e' }}>
+                                                    {WIZARD_FIELDS.filter(id => currentData[id]).length} / {WIZARD_FIELDS.length}
+                                                </span>
+                                            </div>
+
+                                            {/* 4条件の入力フィールド */}
+                                            <div style={{ padding: 32 }}>
+                                                {WIZARD_FIELDS.map(fieldId => {
+                                                    const f = FIELDS.find(ff => ff.id === fieldId);
+                                                    if (!f) return null;
+                                                    const hasValue = !!currentData[fieldId];
+                                                    return (
+                                                        <div key={f.id} id={`field-${f.id}`} style={{ marginBottom: 24 }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                                                <label style={{ fontSize: 12, fontWeight: 900, color: '#1e293b' }}>
+                                                                    {f.label} <span style={{ color: '#ef4444' }}>*</span>
+                                                                </label>
+                                                                {hasValue && <span style={{ fontSize: 16, color: '#10b981' }}>✓</span>}
+                                                            </div>
+                                                            <select 
+                                                                className={`field-input ${errorFieldIds.has(f.id) ? 'has-error' : ''}`} 
+                                                                value={currentData[f.id] || ''} 
+                                                                onChange={e => updateField(f.id, e.target.value)}
+                                                                style={hasValue ? { borderColor: '#10b981' } : {}}>
+                                                                <option value="">未選択</option>
+                                                                {(f.opts || []).map(o => <option key={o} value={o}>{o}</option>)}
+                                                            </select>
+                                                        </div>
+                                                    );
+                                                })}
+
+                                                {/* 完了時のメッセージ */}
+                                                {isWizardComplete && (
+                                                    <div style={{ marginTop: 24, padding: '16px 20px', background: 'rgba(16,185,129,0.1)', border: '1.5px solid #10b981', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+                                                        <span style={{ fontSize: 24 }}>✅</span>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ fontWeight: 900, color: '#059669', fontSize: 13, marginBottom: 4 }}>ウィザード完了</div>
+                                                            <div style={{ fontSize: 12, color: '#065f46' }}>他のタブが有効になりました。基本情報タブから入力を進めてください。</div>
+                                                        </div>
+                                                        <button 
+                                                            onClick={() => { setCurrentTab(1); if (mainScrollRef.current) mainScrollRef.current.scrollTop = 0; }}
+                                                            style={{ background: '#10b981', color: 'white', padding: '8px 20px', borderRadius: 8, fontWeight: 900, fontSize: 12, border: 'none', cursor: 'pointer', letterSpacing: '0.05em' }}>
+                                                            基本情報へ →
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : currentTab === 6 ? (
                                     <div style={{ padding: 48, maxWidth: 1200, margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
                                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: 20, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
                                             <div style={{ padding: '20px 28px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
@@ -2253,6 +2680,15 @@
                                                                                                     <option value="">未選択</option>
                                                                                                     {(typeof field.opts === 'function' ? field.opts(currentData) : (field.opts || [])).map(o => <option key={o} value={o}>{o}</option>)}
                                                                                                 </select>
+                                                                                            ) : field.type === 'searchable' ? (
+                                                                                                <>
+                                                                                                    <input 
+                                                                                                        className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`} 
+                                                                                                        type="text" list={`${field.id}-list`} 
+                                                                                                        value={currentData[field.id] || ''} 
+                                                                                                        onChange={e => updateField(field.id, e.target.value)} />
+                                                                                                    <datalist id={`${field.id}-list`}>{(field.opts || []).map(o => <option key={o} value={o} />)}</datalist>
+                                                                                                </>
                                                                                             ) : (
                                                                                                 <input 
                                                                                                     className={`field-input ${errorFieldIds.has(field.id) ? 'has-error' : ''}`} 
@@ -2266,7 +2702,14 @@
                                                                                             )}
                                                                                             {field.suf && <span className="suffix">{field.suf}</span>}
                                                                                         </div>
-                                                                                        {field.help && <div className="field-help">💡 {typeof field.help === 'function' ? field.help(currentData) : field.help}</div>}
+                                                                                        {(() => {
+                                                                                            const helpVal = typeof field.help === 'function' ? field.help(currentData) : field.help;
+                                                                                            if (!helpVal) return null;
+                                                                                            if (typeof helpVal === 'object' && helpVal.warning) {
+                                                                                                return <div className="field-help-warning">⚠️ {helpVal.text}</div>;
+                                                                                            }
+                                                                                            return <div className="field-help">💡 {helpVal}</div>;
+                                                                                        })()}
                                                                                     </div>
                                                                                 );
                                                                             })}
@@ -2290,7 +2733,14 @@
                                                                                     <option value="">未選択</option>
                                                                                     {(typeof field.opts === 'function' ? field.opts(currentData) : (field.opts || [])).map(o => <option key={o} value={o}>{o}</option>)}
                                                                                 </select>
-                                                                                {field.help && <div className="field-help">💡 {field.help}</div>}
+                                                                                {(() => {
+                                                                                    const helpVal = typeof field.help === 'function' ? field.help(currentData) : field.help;
+                                                                                    if (!helpVal) return null;
+                                                                                    if (typeof helpVal === 'object' && helpVal.warning) {
+                                                                                        return <div className="field-help-warning">⚠️ {helpVal.text}</div>;
+                                                                                    }
+                                                                                    return <div className="field-help">💡 {helpVal}</div>;
+                                                                                })()}
                                                                             </div>
                                                                         ))}
                                                                     </div>
@@ -2340,6 +2790,9 @@
                                                                                             if (!helpVal) return null;
                                                                                             if (typeof helpVal === 'object' && helpVal.wageInfo !== undefined) {
                                                                                                 return (<div>{helpVal.wageInfo && (<div style={{ fontSize: 11, fontWeight: 700, marginTop: 6, marginBottom: 4, padding: '8px 12px', borderRadius: 8, background: helpVal.wageInfo.ok ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: helpVal.wageInfo.ok ? '#059669' : '#dc2626', borderLeft: `3px solid ${helpVal.wageInfo.ok ? '#10b981' : '#ef4444'}` }}>{helpVal.wageInfo.ok ? '✅' : '❌'} {helpVal.wageInfo.msg}<br/><span style={{ fontWeight: 400, fontSize: 10 }}>※賃金は{MIN_WAGE_YEAR}時点の数値を参照しています</span></div>)}<div className="field-help">💡 {helpVal.baseMsg}</div></div>);
+                                                                                            }
+                                                                                            if (typeof helpVal === 'object' && helpVal.warning) {
+                                                                                                return <div className="field-help-warning">⚠️ {helpVal.text}</div>;
                                                                                             }
                                                                                             return <div className="field-help">💡 {helpVal}</div>;
                                                                                         })()}
@@ -2573,6 +3026,17 @@
                                                                                             }}
                                                                                 />
                                                                             {f.suf && <span className="suffix">{f.suf}</span>}
+                                                                            {f.autoFillFrom && (() => {
+                                                                                const srcVal = currentData[f.autoFillFrom];
+                                                                                const disabled = !srcVal;
+                                                                                return (
+                                                                                    <button type="button" disabled={disabled} onClick={() => updateField(f.id, srcVal)}
+                                                                                        style={{ marginLeft: 8, padding: '6px 12px', background: disabled ? '#e5e7eb' : '#6366f1', color: disabled ? '#9ca3af' : 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: disabled ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}
+                                                                                        title={disabled ? `${f.autoFillFrom} が未入力のため利用できません` : `${f.autoFillFrom} の値を反映`}>
+                                                                                        ↩️ {f.autoFillLabel || '自動反映'}
+                                                                                    </button>
+                                                                                );
+                                                                            })()}
                                                                         </div>
                                                                     )}
                                                                     {(() => {
@@ -2580,6 +3044,9 @@
                                                                         if (!helpVal) return null;
                                                                         if (typeof helpVal === 'object' && helpVal.wageInfo !== undefined) {
                                                                             return (<div>{helpVal.wageInfo && (<div style={{ fontSize: 11, fontWeight: 700, marginTop: 6, marginBottom: 4, padding: '8px 12px', borderRadius: 8, background: helpVal.wageInfo.ok ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: helpVal.wageInfo.ok ? '#059669' : '#dc2626', borderLeft: `3px solid ${helpVal.wageInfo.ok ? '#10b981' : '#ef4444'}` }}>{helpVal.wageInfo.ok ? '✅' : '❌'} {helpVal.wageInfo.msg}<br/><span style={{ fontWeight: 400, fontSize: 10 }}>※賃金は{MIN_WAGE_YEAR}時点の数値を参照しています</span></div>)}<div className="field-help">💡 {helpVal.baseMsg}</div></div>);
+                                                                        }
+                                                                        if (typeof helpVal === 'object' && helpVal.warning) {
+                                                                            return <div className="field-help-warning">⚠️ {helpVal.text}</div>;
                                                                         }
                                                                         return <div className="field-help">💡 {helpVal}</div>;
                                                                     })()}
