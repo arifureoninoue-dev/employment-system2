@@ -652,16 +652,23 @@
             { id: 'housing_fee_explanation', label: '居住費が実費に相当する額その他の適正な額であることの説明', sf_mapping: { job: 'dk_HousingCostsExplanation__c' }, type: 'text', req: false, bu: ['intern'], tab: 4 },
             { id: 'telecom_type', label: '通信(Wi-Fi)費種別', sf_mapping: { job: 'dk_CommunicationsCostType__c' }, type: 'select', req: true, opts: ['実費', '実費以外'], bu: ['intern', 'skilled'], tab: 4 },
             { id: 'telecom_fee_monthly', label: '実費以外の時の通信費（月）', sf_mapping: { job: 'dk_CommunicationsCostBurden__c' }, type: 'number', req: false, suf: '円', bu: ['intern', 'skilled'], tab: 4, showIf: (data) => data.telecom_type === '実費以外' },
-            { id: 'has_other_fees', label: 'その他定期に負担する費用の有無', sf_mapping: { job: 'dk_OtherRecurringCosts__c', overseas_job: 'dk_OtherRecurringCosts__c', employment_condition: 'dk_OtherRecurringCosts__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4] },
+            { id: 'has_other_fees', label: 'その他定期に負担する費用の有無', sf_mapping: { job: 'dk_OtherRecurringCosts__c', overseas_job: 'dk_OtherRecurringCosts__c', employment_condition: 'dk_OtherRecurringCosts__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [14] : [4], help: (data) => (data.bu === 'intern' && data.has_other_fees === 'なし') ? { warning: true, text: '「なし」を選択すると水道光熱費の情報がSalesforceに反映されません。本当に「なし」で正しい場合のみ選択してください。' } : null },
             // 水道光熱費グループ: has_other_fees==='あり' の時に表示（Phase 4-D 修正版）
             { id: 'charges_utilities', label: '水道光熱費の徴収の有無', sf_mapping: { job: 'UtilityCost__c', employment_condition: 'UtilityCost__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern', 'skilled', 'tokutei'], tab: (data) => data.sub_type === '海外招聘(LV)' ? [4, 14] : 4, showIf: (data) => data.has_other_fees === 'あり' },
             { id: 'utility_cost_type', label: '光熱費種別', sf_mapping: {}, type: 'select', req: true, opts: ['実費', '実費以外'], bu: ['skilled', 'tokutei'], tab: [4, 14], showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.has_other_fees === 'あり' && data.charges_utilities === 'あり' },
             { id: 'utilities_type', label: '水道光熱費種別', sf_mapping: { job: 'UtilityCostType__c', employment_condition: 'UtilityCostType__c' }, type: 'select', req: true, opts: ['実費徴収', '固定徴収'], bu: ['intern', 'tokutei'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' && data.charges_utilities === 'あり' },
-            { id: 'utilities_details', label: '水道光熱費の詳細', sf_mapping: { job: 'dk_UtilityCostDetails__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' && data.charges_utilities === 'あり' && data.utilities_type === '固定徴収' },
+            { id: 'utilities_details', label: '水道光熱費の詳細', sf_mapping: { job: 'dk_UtilityCostDetails__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' && data.charges_utilities === 'あり' },
             { id: 'utility_cost_deduction_amount', label: '光熱費控除額', sf_mapping: { overseas_job: 'UtilityCostDeductionAmount__c', employment_condition: 'UtilityCostDeductionAmount__c' }, type: 'number', req: true, suf: '円', bu: ['skilled', 'tokutei'], tab: [4, 14], showIf: (data) => (data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei') && data.has_other_fees === 'あり' && data.charges_utilities === 'あり' && data.utility_cost_type === '実費以外' },
             ...generateOtherCostFields(4),
-            { id: 'other_cost_benefits', label: 'その他負担費用に対する便益', sf_mapping: { job: 'dk_BenefitOfOtherBurdenCosts__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
-            { id: 'other_cost_explanation', label: 'その他の負担費用が実費に相当する額であることの説明', sf_mapping: { job: 'OtherBurdenCostExplanation__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり' },
+            { id: 'other_cost_benefits', label: 'その他負担費用に対する便益', sf_mapping: { job: 'dk_BenefitOfOtherBurdenCosts__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり', help: (data) => {
+                // その他費用セット1〜4のいずれかに何らかの値が入力されていて、本フィールドが空欄の場合のみ警告表示
+                const hasAnyOtherCostInput = [1,2,3,4].some(i => data[`other_cost_name_${i}`] || data[`other_cost_type_${i}`] || data[`other_cost_amount_${i}`]);
+                return (hasAnyOtherCostInput && !data.other_cost_benefits) ? { warning: true, text: 'その他費用セットに情報が入力されています。「その他負担費用に対する便益」を入力してください。' } : null;
+            } },
+            { id: 'other_cost_explanation', label: 'その他の負担費用が実費に相当する額であることの説明', sf_mapping: { job: 'OtherBurdenCostExplanation__c' }, type: 'text', req: false, bu: ['intern'], tab: 4, showIf: (data) => data.has_other_fees === 'あり', help: (data) => {
+                const hasAnyOtherCostInput = [1,2,3,4].some(i => data[`other_cost_name_${i}`] || data[`other_cost_type_${i}`] || data[`other_cost_amount_${i}`]);
+                return (hasAnyOtherCostInput && !data.other_cost_explanation) ? { warning: true, text: 'その他費用セットに情報が入力されています。「その他の負担費用が実費に相当する額であることの説明」を入力してください。' } : null;
+            } },
 
             // --- LV固有: その他控除（最大5件） ---
             { id: 'other_deduction_1', label: 'その他の控除項目1', sf_mapping: { overseas_job: 'OtherDeduction1__c', employment_condition: 'OtherDeduction1__c' }, type: 'text', req: false, bu: ['skilled', 'tokutei'], tab: [4, 14], grouped: true, groupIndex: 1, groupName: 'その他控除', showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
@@ -782,9 +789,21 @@
             { id: 'drinking', label: '飲酒', sf_mapping: { job: 'Drinking__c', overseas_job: 'Drinking__c' }, type: 'select', req: true, opts: ['ルール・法令厳守を守れる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '飲酒について教えてください', help: '所定のルールや場所を守れる場合はどうか、など期待値調整を行う' },
             { id: 'work_experience', label: '現場経験', sf_mapping: { job: 'FieldExperience_TT__c' , overseas_job: 'FieldExperience__c'}, type: 'select', req: true, opts: ['要', '不要'], bu: ['intern', 'skilled'], tab: 5, prompt: '職種に関連する現場経験は必要ですか?\n未経験者でも可能な場合は「不要」を選択してください。' },
 
-            { id: 'priority_1', label: '優先順位1', sf_mapping: { job: 'Priority1__c', overseas_job: 'Priority1__c' }, type: 'select', req: true, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern'], tab: 5, prompt: '人材選定において最も重視するMUST項目を選択してください', help: '最も重視する項目を選択してください' },
-            { id: 'priority_2', label: '優先順位2', sf_mapping: { job: 'Priority2__c', overseas_job: 'Priority2__c' }, type: 'select', req: true, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern'], tab: 5, prompt: '2番目に重視するWANT項目を選択してください', help: '2番目に重視する項目を選択してください' },
-            { id: 'priority_3', label: '優先順位3', sf_mapping: { job: 'Priority3__c', overseas_job: 'Priority3__c' }, type: 'select', req: true, opts: ['年齢・体力・身体的特徴', '日本語能力', '礼儀・マナー・性格'], bu: ['intern'], tab: 5, prompt: '3番目に重視するWANT項目を選択してください', help: '3番目に重視する項目を選択してください' },
+            { id: 'priority_1', label: '優先順位1', sf_mapping: { job: 'Priority1__c', overseas_job: 'Priority1__c' }, type: 'select', req: true, opts: (data) => {
+                const all = ['日本語能力', '年齢', '体力', '身体的特徴', '礼儀', 'マナー', '性格'];
+                const used = [data.priority_2, data.priority_3].filter(Boolean);
+                return all.filter(o => !used.includes(o));
+            }, bu: ['intern'], tab: 5, prompt: '人材選定において最も重視するMUST項目を選択してください', help: '最も重視する項目を選択してください' },
+            { id: 'priority_2', label: '優先順位2', sf_mapping: { job: 'Priority2__c', overseas_job: 'Priority2__c' }, type: 'select', req: true, opts: (data) => {
+                const all = ['日本語能力', '年齢', '体力', '身体的特徴', '礼儀', 'マナー', '性格'];
+                const used = [data.priority_1, data.priority_3].filter(Boolean);
+                return all.filter(o => !used.includes(o));
+            }, bu: ['intern'], tab: 5, prompt: '2番目に重視するWANT項目を選択してください', help: '2番目に重視する項目を選択してください' },
+            { id: 'priority_3', label: '優先順位3', sf_mapping: { job: 'Priority3__c', overseas_job: 'Priority3__c' }, type: 'select', req: true, opts: (data) => {
+                const all = ['日本語能力', '年齢', '体力', '身体的特徴', '礼儀', 'マナー', '性格'];
+                const used = [data.priority_1, data.priority_2].filter(Boolean);
+                return all.filter(o => !used.includes(o));
+            }, bu: ['intern'], tab: 5, prompt: '3番目に重視するWANT項目を選択してください', help: '3番目に重視する項目を選択してください' },
 
             // --- 送出機関への共有事項（募集要件の最後に配置） ---
             { id: 'sending_org_notes', label: '送出機関への共有事項', sf_mapping: { job: 'SharedMattersToSendingAgency__c', overseas_job: 'NotesForSendingAgency__c' }, type: 'textarea', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '送出機関に特に伝えておきたい事項があれば記載してください\n業務上の特性や必要なスキルなど\n面接以外の選考手段があればその目的や意図を詳細に記載してください' },
@@ -1006,6 +1025,22 @@
                     const hasCoLtd = (newData.company_name_en || '').includes("Co., Ltd.");
                     if (!hasCoLtd) newData.rep_position = '代表';
                     if (fieldId === 'business_type' && newData.business_type === '法人') newData.pension_type = '厚生年金';
+
+                    // 通信(Wi-Fi)費種別が「実費」になった時の自動反映（空欄の時のみ）
+                    // - dk_BenefitOfOtherBurdenCosts__c (other_cost_benefits) に「母国との連絡手段」
+                    // - OtherBurdenCostExplanation__c (other_cost_explanation) に「実費徴収」
+                    // 手動編集を尊重するため既存値があれば上書きしない
+                    if (fieldId === 'telecom_type' && value === '実費') {
+                        if (!newData.other_cost_benefits) newData.other_cost_benefits = '母国との連絡手段';
+                        if (!newData.other_cost_explanation) newData.other_cost_explanation = '実費徴収';
+                    }
+
+                    // 水道光熱費種別が「実費徴収」になった時の自動反映（空欄の時のみ）
+                    // - dk_UtilityCostDetails__c (utilities_details) に「実費徴収」
+                    // 手動編集を尊重するため既存値があれば上書きしない
+                    if (fieldId === 'utilities_type' && value === '実費徴収') {
+                        if (!newData.utilities_details) newData.utilities_details = '実費徴収';
+                    }
 
                     //負担費用が「実費」になったら裏側の金額データを空にする
                     if (fieldId.startsWith('other_cost_type_') && value !== '実費以外') {
@@ -1322,26 +1357,31 @@
                         'dk_ShiftBreakStartTime1_2__c','dk_ShiftBreakEndTime1_2__c',
                         'dk_ShiftBreakStartTime1_3__c','dk_ShiftBreakEndTime1_3__c',
                         'dk_TotalShiftBreakTime1__c',
+                        'dk_ScheduledWorkingHoursPerDay1__c','dk_ScheduledWorkingMinutesPerDay1__c',
                         'dk_ShiftOpeningTime2__c','dk_ShiftClosingTime2__c','dk_ShiftSystemApplicationDate2__c',
                         'dk_ShiftBreakStartTime2__c','dk_ShiftBreakEndTime2__c',
                         'dk_ShiftBreakStartTime2_2__c','dk_ShiftBreakEndTime2_2__c',
                         'dk_ShiftBreakStartTime2_3__c','dk_ShiftBreakEndTime2_3__c',
                         'dk_TotalShiftBreakTime2__c',
+                        'dk_ScheduledWorkingHoursPerDay2__c','dk_ScheduledWorkingMinutesPerDay2__c',
                         'dk_ShiftOpeningTime3__c','dk_ShiftClosingTime3__c','dk_ShiftSystemApplicationDate3__c',
                         'dk_ShiftBreakStartTime3__c','dk_ShiftBreakEndTime3__c',
                         'dk_ShiftBreakStartTime3_2__c','dk_ShiftBreakEndTime3_2__c',
                         'dk_ShiftBreakStartTime3_3__c','dk_ShiftBreakEndTime3_3__c',
                         'dk_TotalShiftBreakTime3__c',
+                        'dk_ScheduledWorkingHoursPerDay3__c','dk_ScheduledWorkingMinutesPerDay3__c',
                         'dk_ShiftOpeningTime4__c','dk_ShiftClosingTime4__c','dk_ShiftSystemApplicationDate4__c',
                         'dk_ShiftBreakStartTime4__c','dk_ShiftBreakEndTime4__c',
                         'dk_ShiftBreakStartTime4_2__c','dk_ShiftBreakEndTime4_2__c',
                         'dk_ShiftBreakStartTime4_3__c','dk_ShiftBreakEndTime4_3__c',
                         'dk_TotalShiftBreakTime4__c',
+                        'dk_ScheduledWorkingHoursPerDay4__c','dk_ScheduledWorkingMinutesPerDay4__c',
                         'dk_ShiftOpeningTime5__c','dk_ShiftClosingTime5__c','dk_ShiftSystemApplicationDate5__c',
                         'dk_ShiftBreakStartTime5__c','dk_ShiftBreakEndTime5__c',
                         'dk_ShiftBreakStartTime5_2__c','dk_ShiftBreakEndTime5_2__c',
                         'dk_ShiftBreakStartTime5_3__c','dk_ShiftBreakEndTime5_3__c',
                         'dk_TotalShiftBreakTime5__c',
+                        'dk_ScheduledWorkingHoursPerDay5__c','dk_ScheduledWorkingMinutesPerDay5__c',
                         'AnnualPaidLeave__c',
                         'dk_PaymentCategory__c',
                         'dk_MonthlyWage1__c','dk_DailyWage1__c','dk_HourlyWage1__c',
@@ -1555,13 +1595,7 @@
                     downloadCSV(makeFilename('一時保存'), saveHeader, saveRows);
                     // ★ エラーがある場合はここで処理を終了し、メッセージを表示
                     if (hasError) {
-                        // tokuteiモードは Salesforce用CSV出力が未実装のため、常にここに到達する
-                        const isTokutei = (appMode === 'tokutei');
-                        if (isTokutei) {
-                            notify('一時保存CSVを出力しました（Salesforce用CSVは開発中）', 'success');
-                        } else {
-                            notify('エラーがあるため、一時保存用CSVのみ出力しました', 'warning');
-                        }
+                        notify('エラーがあるため、一時保存用CSVのみ出力しました', 'warning');
                         return;
                     }
 
@@ -1692,7 +1726,13 @@
                     // ZIP生成 → ダウンロード
                     // ZIPファイル名: LV時はステータス付き、それ以外はステータスなし
                     const zipName = `SF_${firstCompanyName}${lvStatus ? `_${lvStatus}` : ''}_${dateStr}.zip`;
-                    const zipBlob = await zip.generateAsync({ type: 'blob' });
+                    // mimeType を明示することで Windows Defender SmartScreen の誤検知を回避
+                    const zipBlob = await zip.generateAsync({ 
+                        type: 'blob',
+                        mimeType: 'application/zip',
+                        compression: 'DEFLATE',
+                        compressionOptions: { level: 6 }
+                    });
                     const zipUrl = URL.createObjectURL(zipBlob);
                     const zipA = document.createElement('a');
                     zipA.href = zipUrl;
@@ -1995,7 +2035,9 @@
                     notify('CSVの読み込みに失敗しました', 'error');
                 }
             };
-            reader.readAsText(file, 'Shift_JIS');
+            // CSVファイルの読込：保存時は BOM付きUTF-8 のため、UTF-8 で読み込む
+            // （以前は'Shift_JIS'指定だったが、これにより multiselect/select 値が文字化けしていた）
+            reader.readAsText(file, 'UTF-8');
         };
 
             const validate = (data) => {
@@ -2092,16 +2134,19 @@
                     }
                 }
                 // 賞与・昇給・退職金の詳細バリデーション
+                // 金額カラム（bonus_amount/wage_raise_amount/retirement_amount）は
+                // intern専用のため、internモード時のみチェックする
+                // LV/tokuteiでは金額は詳細テキスト内に記載する仕様（SF列も未マッピング）
                 if (data.has_bonus === 'あり') {
-                    if (!data.bonus_amount) errors.push({ field: 'bonus_amount', msg: '賞与セット: 「支給額」が未入力です。' });
+                    if (data.bu === 'intern' && !data.bonus_amount) errors.push({ field: 'bonus_amount', msg: '賞与セット: 「支給額」が未入力です。' });
                     if (!data.bonus_remarks) errors.push({ field: 'bonus_remarks', msg: '賞与セット: 「詳細」が未入力です。' });
                 }
                 if (data.has_raise === 'あり') {
-                    if (!data.wage_raise_amount) errors.push({ field: 'wage_raise_amount', msg: '昇給セット: 「昇給額」が未入力です。' });
+                    if (data.bu === 'intern' && !data.wage_raise_amount) errors.push({ field: 'wage_raise_amount', msg: '昇給セット: 「昇給額」が未入力です。' });
                     if (!data.wage_raise_remarks) errors.push({ field: 'wage_raise_remarks', msg: '昇給セット: 「詳細」が未入力です。' });
                 }
                 if (data.has_retirement === 'あり') {
-                    if (!data.retirement_amount) errors.push({ field: 'retirement_amount', msg: '退職金セット: 「支給金額」が未入力です。' });
+                    if (data.bu === 'intern' && !data.retirement_amount) errors.push({ field: 'retirement_amount', msg: '退職金セット: 「支給金額」が未入力です。' });
                     if (!data.retirement_remarks) errors.push({ field: 'retirement_remarks', msg: '退職金セット: 「詳細」が未入力です。' });
                 }
                 if (data.has_other_fees === 'あり') {
@@ -2432,10 +2477,10 @@
                                         disabled={isDisabled} 
                                         onClick={() => {
                                             // exportCSV の hasError 引数：
-                                            // - tokuteiモード: 常にtrue（Phase 1-D までは一時保存のみ）
+                                            // - tokuteiモード: ウィザード未完了 or バリデーションエラー → true（一時保存のみ）、それ以外 → false（CSV+ZIP）
                                             // - LVモード: STEP1未完了なら true（一時保存のみ）、STEP1完了なら false（CSV+ZIP）
                                             // - それ以外: validationErrors があれば true
-                                            const hasErrorForExport = isTokutei ? true
+                                            const hasErrorForExport = isTokutei ? (!isWizardComplete || validationErrors.length > 0)
                                                 : isLV ? !isStep1Complete 
                                                 : (validationErrors.length > 0);
                                             // LVモード: 海外招聘求人票CSVのファイル名に付けるステータス
