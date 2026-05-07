@@ -323,13 +323,14 @@
             // ==============================================================
             { id: 'business_type', label: '事業区分', sf_mapping: {}, type: 'select', req: false, opts: ['法人', '個人事業主'], bu: ['intern', 'skilled'], tab: 1 },
             { id: 'sales_name', label: '営業担当者名', sf_mapping: { job: 'SalesName__c', overseas_job: 'SalesName__c' }, type: 'searchable', req: true, bu: ['intern', 'skilled'], tab: 1, opts: [
-                '鬼木 康輔', '牧野 仁勇', '前田 悠陽', '宮寺 健斗', '山本 あさひ', '玉置 裕大',
+                '鬼木 康輔', '牧野 仁勇', '前田 悠陽', '山元 あさひ', '玉置 裕大',
                 'ソーソン夏帆 サニー', '西村 孟留', '後藤 冶真斗', '松永 美紅', '林 竜之輔',
-                '笠原 綾乃', '長野 羽良', '渡耒 遊夢', '藤井 春菜', '吉田 美紀', '荒木 彪太郎',
+                '笠原 綾乃', '長野 羽良', '藤井 春菜', '吉田 美紀', '荒木 彪太郎',
                 '吉田 侑生', '吉野 維吹', '秋葉 健悟', '宮本 裕里菜', '新庄 夏葉', '山口 大弥',
-                '楠 葉月', '土屋 雛子', '市橋 大旗', '髙木 翔平', '森 泉充', '川島 卓人',
+                '楠 葉月', '市橋 大旗', '髙木 翔平', '森 泉充', '川島 卓人',
                 '岡田 祐希', '幡中 涼太', '森岡 沙弥', '濵 教了', '西野 宏', '金子 純也',
-                '阪部 まどか', '井上 翼アリフレオン', '藤本 千春', '宇田川 友里', '沼里 麻美', '南﨑 一輝'
+                '阪部 まどか', '井上 翼アリフレオン', '藤本 千春', '宇田川 友里', '沼里 麻美', '南﨑 一輝',
+                '黛 楓希'
             ]},
             { id: 'company_name', label: '企業名', sf_mapping: { account: 'Name' }, type: 'text', req: true, val: 'noFullLatin', bu: ['intern', 'skilled', 'tokutei'], tab: [1, 11] },
             { id: 'company_name_kana', label: '事業者名（かな）', sf_mapping: { account: 'KanaName__c' }, type: 'text', req: true, val: 'hiragana', bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 1 : 11, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei', help: 'ひらがな+半角スペースで入力（例: かぶしきがいしゃ さんぷる）' },
@@ -480,7 +481,7 @@
             { type: 'section', label: '【基本情報】', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
             // LV専用: 雇用区分/契約更新の有無（ペア）+ 更新上限の有無（STEP2の最上部に配置）
             // tokuteiではcontract_renewal/renewal_limitは募集要件タブ(5)に表示される
-            { id: 'employment_status', label: '雇用区分', sf_mapping: { overseas_job: 'EmploymentStatus__c' }, type: 'select', req: true, opts: ['直接雇用', '派遣'], bu: ['skilled'], tab: 13, showIf: (data) => data.sub_type === '海外招聘(LV)', paired: true },
+            { id: 'employment_status', label: '雇用区分', sf_mapping: { overseas_job: 'EmploymentStatus__c', employment_condition: 'EmploymentStatus__c' }, type: 'select', req: true, opts: ['直接雇用', '派遣'], bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 5 : 13, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei', paired: true },
             { id: 'contract_renewal', label: '契約更新の有無', sf_mapping: { overseas_job: 'ContractRenewal__c', employment_condition: 'ContractRenewal__c' }, type: 'select', req: true, opts: (data) => data.bu === 'tokutei' ? ['自動的に更新する', '更新する場合があり得る', '契約の更新はしない'] : ['あり', 'なし'], bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 5 : 13, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei', paired: true },
             { id: 'renewal_limit', label: '更新上限の有無', sf_mapping: { overseas_job: 'RenewalLimit__c', employment_condition: 'RenewalLimit__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['skilled', 'tokutei'], tab: (data) => data.bu === 'tokutei' ? 5 : 13, showIf: (data) => data.sub_type === '海外招聘(LV)' || data.bu === 'tokutei' },
             { id: 'has_overtime', label: '所定時間外労働の有無', sf_mapping: { job: 'OverTimeWork__c', overseas_job: 'PresenceOfOvertimeWork__c', employment_condition: 'dk_PresenceOfOvertimeWork__c' }, type: 'select', req: true, opts: ['あり', 'なし'], help: '残業をする可能性が少しでもある場合は「あり」を選択してください', bu: ['intern', 'skilled', 'tokutei'], tab: [3, 13] },
@@ -716,20 +717,22 @@
             // 「経験年数3〜5年」と「通常」のグループは、どちらか一方を記入（該当者がいれば経験年数3〜5年を優先）
             { type: 'section', label: '【日本人従業員の情報】※「経験年数3〜5年の従業員」「同職種の従業員」のどちらか一方のみ記入してください（該当者がいれば経験年数3〜5年を優先）', bu: ['tokutei'], tab: 22 },
             { type: 'section', label: '【経験年数3〜5年の日本人従業員情報】', bu: ['tokutei'], tab: 22 },
-            { id: 'experienced_jp_employee_name', label: '経験年数3〜5年の日本人従業員の氏名', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeName__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
-            { id: 'experienced_jp_employee_birthday', label: '経験年数3〜5年の日本人従業員の生年月日', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeBirthday__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22 },
-            { id: 'experienced_jp_employee_address', label: '経験年数3〜5年の日本人従業員の住所', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeAddress__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
-            { id: 'experienced_jp_employee_license', label: '経験年数3〜5年の日本人従業員の保有資格', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeLicense__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
-            { id: 'experienced_jp_employee_worked_years', label: '経験年数3〜5年の日本人従業員の経験年数', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeWorkedYears__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
-            { id: 'experienced_jp_employee_entry_date', label: '経験年数3〜5年の日本人従業員の入社日', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeEntryDate__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'experienced_jp_employee_exists', label: '経験年数3〜5年ある日本人従業員の有無', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployee__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['tokutei'], tab: 22, prompt: '経験年数3〜5年の日本人従業員がいる場合は「あり」を選択し、詳細情報を入力してください。' },
+            { id: 'experienced_jp_employee_name', label: '経験年数3〜5年の日本人従業員の氏名', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeName__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.experienced_jp_employee_exists === 'あり' },
+            { id: 'experienced_jp_employee_birthday', label: '経験年数3〜5年の日本人従業員の生年月日', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeBirthday__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.experienced_jp_employee_exists === 'あり' },
+            { id: 'experienced_jp_employee_address', label: '経験年数3〜5年の日本人従業員の住所', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeAddress__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.experienced_jp_employee_exists === 'あり' },
+            { id: 'experienced_jp_employee_license', label: '経験年数3〜5年の日本人従業員の保有資格', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeLicense__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.experienced_jp_employee_exists === 'あり' },
+            { id: 'experienced_jp_employee_worked_years', label: '経験年数3〜5年の日本人従業員の経験年数', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeWorkedYears__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.experienced_jp_employee_exists === 'あり' },
+            { id: 'experienced_jp_employee_entry_date', label: '経験年数3〜5年の日本人従業員の入社日', sf_mapping: { employment_condition: 'ExperiencedJapaneseEmployeeEntryDate__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.experienced_jp_employee_exists === 'あり' },
 
             { type: 'section', label: '【同職種の日本人従業員情報（経験年数3〜5年の該当者がいない場合）】', bu: ['tokutei'], tab: 22 },
-            { id: 'jp_employee_name', label: '日本人従業員の氏名', sf_mapping: { employment_condition: 'JapaneseEmployee__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
-            { id: 'jp_employee_birthday', label: '日本人従業員の生年月日', sf_mapping: { employment_condition: 'JapaneseEmployeeBirthday__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22 },
-            { id: 'jp_employee_address', label: '日本人従業員の住所', sf_mapping: { employment_condition: 'JapaneseEmployeeAddress__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
-            { id: 'jp_employee_license', label: '日本人従業員の保有資格', sf_mapping: { employment_condition: 'JapaneseEmployeeLicense__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
-            { id: 'jp_employee_year_of_experience', label: '日本人従業員の経験年数', sf_mapping: { employment_condition: 'JapaneseEmployeeYearOfExperience__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
-            { id: 'jp_employee_entry_date', label: '日本人従業員の入社日', sf_mapping: { employment_condition: 'JapaneseEmployeeEntryDate__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22 },
+            { id: 'jp_employee_exists', label: '特定技能外国人と同じ職種の日本人従業員の有無', sf_mapping: { employment_condition: 'JapaneseEmployee__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['tokutei'], tab: 22, prompt: '特定技能外国人と同じ職種の日本人従業員がいる場合は「あり」を選択し、詳細情報を入力してください。' },
+            { id: 'jp_employee_name', label: '日本人従業員の氏名', sf_mapping: { employment_condition: 'JapaneseEmployeeName__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.jp_employee_exists === 'あり' },
+            { id: 'jp_employee_birthday', label: '日本人従業員の生年月日', sf_mapping: { employment_condition: 'JapaneseEmployeeBirthday__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.jp_employee_exists === 'あり' },
+            { id: 'jp_employee_address', label: '日本人従業員の住所', sf_mapping: { employment_condition: 'JapaneseEmployeeAddress__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.jp_employee_exists === 'あり' },
+            { id: 'jp_employee_license', label: '日本人従業員の保有資格', sf_mapping: { employment_condition: 'JapaneseEmployeeLicense__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.jp_employee_exists === 'あり' },
+            { id: 'jp_employee_year_of_experience', label: '日本人従業員の経験年数', sf_mapping: { employment_condition: 'JapaneseEmployeeYearOfExperience__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.jp_employee_exists === 'あり' },
+            { id: 'jp_employee_entry_date', label: '日本人従業員の入社日', sf_mapping: { employment_condition: 'JapaneseEmployeeEntryDate__c' }, type: 'date', req: false, bu: ['tokutei'], tab: 22, showIf: (data) => data.jp_employee_exists === 'あり' },
 
             { type: 'section', label: '【経験年数】', bu: ['tokutei'], tab: 22 },
             { id: 'current_work_experience', label: '自社経験年数', sf_mapping: { employment_condition: 'CurrentWorkExperience__c' }, type: 'text', req: false, bu: ['tokutei'], tab: 22 },
@@ -750,7 +753,7 @@
             { id: 'placement_date', label: '配属希望日', sf_mapping: { job: 'PlacementDate__c' }, type: 'date', req: false, bu: ['intern'], tab: 5, prompt: '企業様の希望する配属希望日を入力してください(基本情報タブと連動します)' },
             { id: 'company_culture', label: '会社の特徴／社風', sf_mapping: { job: 'CompanyCulture_TT__c', overseas_job: 'CompanyCulture_TT__c' }, type: 'textarea', req: true, bu: ['intern'], tab: 5, prompt: '候補者に対し会社のアピールポイントを入力してください。\n記載された情報を元に人材が応募するので、よりよいマッチングのためきちんとしたヒアリングを推奨します。' },
             { id: 'foreigner_experience', label: '外国人受入経験', sf_mapping: { job: 'RecordOfAcceptingForeigners_TT__c', overseas_job: 'RecordOfAcceptingForeigners_TT__c' }, type: 'select', req: true, opts: ['あり', 'なし'], bu: ['intern'], tab: 5, prompt: '外国人材の受入経験について教えてください\n経験の有無は採用時の参考情報となります。' },
-            { id: 'actual_work_content', label: '実際の実習内容', sf_mapping: { job: 'TrainingContent_TT__c' }, type: 'text', req: true, bu: ['intern'], tab: 5, prompt: '実際にどのような作業を行うかを具体的に記載してください\nより詳細な情報が、適切な人材とのマッチングにつながります。\n例.とび職種だが、作業は解体。鉄筋職種だが実務は圧接など' },
+            { id: 'actual_work_content', label: '実際の実習内容', sf_mapping: { job: 'TrainingContent_TT__c' }, type: 'textarea', req: true, bu: ['intern'], tab: 5, prompt: '実際にどのような作業を行うかを具体的に記載してください\nより詳細な情報が、適切な人材とのマッチングにつながります。\n例.とび職種だが、作業は解体。鉄筋職種だが実務は圧接など' },
             // B案: LV「作業内容」は別ID（概念が違う）
             { id: 'job_description', label: '作業内容', sf_mapping: { overseas_job: 'JobDescription__c' }, type: 'text', req: true, bu: ['skilled'], tab: 5, showIf: (data) => data.sub_type === '海外招聘(LV)', help: '業務内容を具体的に記載してください' },
             { id: 'training_period', label: '実習期間', sf_mapping: { job: 'TrainingPeriod_TT__c' }, type: 'select', req: true, opts: ['技能実習2号まで', '技能実習3号まで', '特定技能まで'], bu: ['intern'], tab: 5, prompt: '実習期間を選択してください' },
@@ -778,15 +781,23 @@
             { id: 'gender', label: '性別', sf_mapping: { job: 'Gender__c', overseas_job: 'Gender__c' }, type: 'select', req: true, opts: ['男性', '女性', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '性別の希望がありますか？\n業務内容により必要な場合のみ選択してください。' },
             { id: 'preferred_age', label: '希望年齢', sf_mapping: { job: 'DesiredAge__c', overseas_job: 'Age__c' }, type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する年齢層を教えてください\n例:「20代前半」「25歳～35歳」など' },
             { id: 'blood_type', label: '血液型', sf_mapping: { job: 'BloodType__c', overseas_job: 'BloodType__c' }, type: 'select', req: true, opts: ['A', 'B', 'O', 'AB', '不問'], bu: ['intern'], tab: 5, prompt: '血液型の希望がありますか？\n特に指定がない場合は「不問」を選択してください。' },
-            { id: 'preferred_height', label: '希望身長', sf_mapping: { job: 'DesiredHeight__c', overseas_job: 'Height__c' }, type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する身長があれば記載してください\n業務上必要な場合のみ。例:「160cm以上」' },
+            { id: 'blood_type_reason', label: '血液型の希望理由', sf_mapping: {}, type: 'textarea', req: false, bu: ['intern'], tab: 5, showIf: (data) => data.blood_type && data.blood_type !== '不問', help: 'なぜその血液型を希望するのかを記載してください。送出機関への共有事項に反映されます。' },
+            { id: 'preferred_height', label: '希望身長', sf_mapping: { job: 'DesiredHeight__c', overseas_job: 'Height__c' }, type: 'text', req: false, bu: ['intern', 'skilled'], tab: 5, prompt: '希望する身長があれば記載してください\n業務上必要な場合のみ。例:「160cm以上」', help: '不問ではなく条件指定がある場合は理由を記載してください。' },
             { id: 'preferred_weight', label: '希望体重', sf_mapping: { job: 'DesiredBodyWeight__c', overseas_job: 'BodyWeight__c' }, type: 'select', req: true, opts: ['細め：47～50Kg', '普通', 'がっちり：60kg～', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '希望する体型・体重を選択してください\n業務上指定が必要な場合のみ選択してください。' },
+            { id: 'preferred_weight_reason', label: '希望体重の希望理由', sf_mapping: {}, type: 'textarea', req: false, bu: ['intern'], tab: 5, showIf: (data) => data.preferred_weight && data.preferred_weight !== '不問', help: 'なぜその体型・体重を希望するのかを記載してください。送出機関への共有事項に反映されます。' },
             { id: 'dominant_hand', label: '利き手', sf_mapping: { overseas_job: 'DominantHand__c' , job: 'DominantHand_TT__c' }, type: 'select', req: true, opts: ['右のみ', '左のみ', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '利き手の指定が必要ですか？', help: '業務で使用する道具との関係で、利き手が指定される場合にのみ選択' },
+            { id: 'dominant_hand_reason', label: '利き手の希望理由', sf_mapping: {}, type: 'textarea', req: false, bu: ['intern'], tab: 5, showIf: (data) => data.dominant_hand && data.dominant_hand !== '不問', help: 'なぜその利き手を希望するのかを記載してください。送出機関への共有事項に反映されます。' },
 
             { id: 'glasses', label: 'メガネ', sf_mapping: { job: 'Glasses__c', overseas_job: 'Glasses__c' }, type: 'select', req: true, opts: ['可', '不可'], bu: ['intern', 'skilled'], tab: 5, prompt: '眼鏡の着用について教えてください', help: '業務の安全上、眼鏡の着用が問題となる場合にのみ選択' },
+            { id: 'glasses_reason', label: 'メガネ不可の理由', sf_mapping: {}, type: 'textarea', req: false, bu: ['intern'], tab: 5, showIf: (data) => data.glasses === '不可', help: 'なぜメガネ不可なのかを記載してください。送出機関への共有事項に反映されます。' },
             { id: 'tattoo', label: '刺青', sf_mapping: { job: 'Tattoo__c', overseas_job: 'Tattoo__c' }, type: 'select', req: true, opts: ['完全に洋服や作業着で隠せる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '刺青(タトゥー)がある方の受入について教えてください', help: '記載例:「長袖で隠せる場合は可能」「大きさ・場所に問わず不可」' },
+            { id: 'tattoo_reason', label: '刺青の希望理由', sf_mapping: {}, type: 'textarea', req: false, bu: ['intern'], tab: 5, showIf: (data) => data.tattoo && data.tattoo !== '不問（問題なし）', help: 'なぜその選択をしたのかを記載してください。送出機関への共有事項に反映されます。' },
             { id: 'marital_status', label: '結婚', sf_mapping: { job: 'Marriage_TT__c' , overseas_job: 'Marriage__c'}, type: 'select', req: true, opts: ['既婚', '未婚', '不問'], bu: ['intern', 'skilled'], tab: 5, prompt: '結婚の有無について条件がありますか?\n特に指定がない場合は「不問」を選択してください。' },
+            { id: 'marital_status_reason', label: '結婚の希望理由', sf_mapping: {}, type: 'textarea', req: false, bu: ['intern'], tab: 5, showIf: (data) => data.marital_status && data.marital_status !== '不問', help: 'なぜその選択をしたのかを記載してください。送出機関への共有事項に反映されます。' },
             { id: 'smoking', label: '喫煙', sf_mapping: { job: 'Smoking__c', overseas_job: 'Smoking__c' }, type: 'select', req: true, opts: ['所定のルールや場所を守れる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '喫煙者の受入について教えてください', help: '所定のルールや場所を守れる場合はどうか、など期待値調整を行う' },
+            { id: 'smoking_reason', label: '喫煙の希望理由', sf_mapping: {}, type: 'textarea', req: false, bu: ['intern'], tab: 5, showIf: (data) => data.smoking && data.smoking !== '不問（問題なし）', help: 'なぜその選択をしたのかを記載してください。送出機関への共有事項に反映されます。' },
             { id: 'drinking', label: '飲酒', sf_mapping: { job: 'Drinking__c', overseas_job: 'Drinking__c' }, type: 'select', req: true, opts: ['ルール・法令厳守を守れる場合は可', '不可', '不問（問題なし）'], bu: ['intern', 'skilled'], tab: 5, prompt: '飲酒について教えてください', help: '所定のルールや場所を守れる場合はどうか、など期待値調整を行う' },
+            { id: 'drinking_reason', label: '飲酒の希望理由', sf_mapping: {}, type: 'textarea', req: false, bu: ['intern'], tab: 5, showIf: (data) => data.drinking && data.drinking !== '不問（問題なし）', help: 'なぜその選択をしたのかを記載してください。送出機関への共有事項に反映されます。' },
             { id: 'work_experience', label: '現場経験', sf_mapping: { job: 'FieldExperience_TT__c' , overseas_job: 'FieldExperience__c'}, type: 'select', req: true, opts: ['要', '不要'], bu: ['intern', 'skilled'], tab: 5, prompt: '職種に関連する現場経験は必要ですか?\n未経験者でも可能な場合は「不要」を選択してください。' },
 
             { id: 'priority_1', label: '優先順位1', sf_mapping: { job: 'Priority1__c', overseas_job: 'Priority1__c' }, type: 'select', req: true, opts: (data) => {
@@ -968,6 +979,7 @@
                 const newId = `SF-${Math.random().toString(36).slice(2, 11).toUpperCase()}`;
                 // 代表者役職名の初期値: 海外招聘(LV)のみ空欄、それ以外は「代表取締役」
                 const isLVNew = (appMode === 'skilled' && subMode === '海外招聘(LV)');
+                const isTokuteiNew = (appMode === 'tokutei');
                 const newRecord = {
                     id: newId, bu: appMode, sub_type: subMode, createdAt: new Date().toISOString(),
                     company_name_en: '', rep_position: isLVNew ? '' : '代表取締役',
@@ -975,7 +987,9 @@
                     regular_holiday_day: ['土曜日', '日曜日'],
                     has_shift: 'なし', has_bonus: 'なし', has_raise: 'なし', has_retirement: 'なし',
                     annual_leave: '10', resignation_notice_days: '30',
-                    has_wage_deduction: 'あり', charges_utilities: 'あり', has_other_fees: 'あり'
+                    has_wage_deduction: 'あり', charges_utilities: 'あり', has_other_fees: 'あり',
+                    // tokuteiモード新規作成時のみ: 雇用区分のデフォルト「直接雇用」
+                    ...(isTokuteiNew ? { employment_status: '直接雇用' } : {}),
                 };
                 setDataList(prev => [...prev, newRecord]);
                 setCurrentId(newId);
@@ -1432,15 +1446,30 @@
 
                     // ─── 一時保存用列定義（既存のCSV_COLUMNS）────────────────────
                     const CSV_COLUMNS = FIELDS.filter(f => f.type !== 'section').map(f => f.id);
+                    // ─── オブジェクトキー別 sfToId マップ ───────────────────────────
+                    // 同じAPI名が複数オブジェクトで使われる（例: Gender__c が job/overseas_job/talent）ため、
+                    // CSV出力時にどのオブジェクト用の値を引き当てるかをオブジェクトキー別に管理する必要がある
+                    const sfToIdByObject = {
+                        account: {},
+                        job: {},
+                        overseas_job: {},
+                        employment_condition: {},
+                        talent: {},
+                        talent_activity: {},
+                    };
+                    // 一時保存CSV用（全マップ統合：API名衝突は後勝ち、tool_idも追加）
                     const sfToId = {};
                     const fieldTypeMap = {};
                     const fieldDefMap = {};
-                    // 全API名（account/job/overseas_job）→ tool_id の逆引きマップを構築
                     FIELDS.filter(f => f.type !== 'section').forEach(f => { 
                         if (f.sf_mapping) {
-                            if (f.sf_mapping.account)      sfToId[f.sf_mapping.account] = f.id;
-                            if (f.sf_mapping.job)          sfToId[f.sf_mapping.job] = f.id;
-                            if (f.sf_mapping.overseas_job) sfToId[f.sf_mapping.overseas_job] = f.id;
+                            for (const objKey of ['account', 'job', 'overseas_job', 'employment_condition', 'talent', 'talent_activity']) {
+                                const apiName = f.sf_mapping[objKey];
+                                if (apiName) {
+                                    sfToIdByObject[objKey][apiName] = f.id;
+                                    sfToId[apiName] = f.id; // 一時保存CSV用（全統合）
+                                }
+                            }
                         }
                         sfToId[f.id] = f.id;
                         fieldTypeMap[f.id] = f.type;
@@ -1488,10 +1517,13 @@
                     };
 
                     const buildRow = (d, columns, wageOverride, isSfExport = false, exportType = 'save') => {
+                        // SF出力時はオブジェクトキー別マップを使用、保存時は統合マップ
+                        // exportType: 'save' / 'account' / 'job' / 'overseas_job' / 'employment_condition' / 'talent' / 'talent_activity'
+                        const lookupMap = (isSfExport && sfToIdByObject[exportType]) ? sfToIdByObject[exportType] : sfToId;
                         const values = columns.map(sf => {
                             if (sf === '' || sf === '-') return '';
                             if (wageOverride && wageOverride[sf] !== undefined) return escapeCSV(wageOverride[sf]);
-                            let fieldId = sfToId[sf];
+                            let fieldId = lookupMap[sf] || sfToId[sf]; // 該当オブジェクトに無ければ統合mapにフォールバック
                             if (sf === 'Address__c') {
                                 fieldId = (exportType === 'account') ? 'address' : 'workplace_address';
                             } else if (sf === 'PlacementDate__c') {
@@ -1648,6 +1680,8 @@
                             const overrides = {
                                 'dk_WageDeadline__c': w1.cutoff, 'dk_WagePaymentDate__c': w1.payment,
                                 'dk_WageDeadline2__c': w2.cutoff, 'dk_WagePaymentDate2__c': w2.payment,
+                                // 特定技能(AJS) 雇用条件書のレコードタイプID固定値
+                                'RecordTypeId': '012Ig0000004IsEIAU',
                             };
                             // 居住費種別が「実費」の場合は、金額欄に「実費」という文字列を出力
                             if (d.housing_fee_type === '実費') {
@@ -1659,7 +1693,8 @@
                             }
                             return overrides;
                         };
-                        const ecColumns = extractColumnsForObject('employment_condition');
+                        // 雇用条件書CSVの列リスト：FIELDS抽出 + RecordTypeId（固定値）を末尾に追加
+                        const ecColumns = [...extractColumnsForObject('employment_condition'), 'RecordTypeId'];
                         const ecHeader = ecColumns.join(',');
                         const ecRows = targetRecords.map(d =>
                             buildRow(d, ecColumns, ecWageOverrideFor(d), true, 'employment_condition').join(',')
@@ -1699,11 +1734,26 @@
                             if (d.priority_1) extraNotes.push(`優先順位1: ${d.priority_1}`);
                             if (d.priority_2) extraNotes.push(`優先順位2: ${d.priority_2}`);
                             if (d.priority_3) extraNotes.push(`優先順位3: ${d.priority_3}`);
+                            // 理由カラム8項目（SF出力対象外のためここで連結） + 希望身長
+                            // 表示形式: "ラベル: 理由テキスト"（コロン区切り、複数行のテキストエリアにも対応）
+                            const reasonNotes = [];
+                            if (d.blood_type_reason) reasonNotes.push(`血液型: ${d.blood_type_reason}`);
+                            if (d.preferred_weight_reason) reasonNotes.push(`体重: ${d.preferred_weight_reason}`);
+                            if (d.dominant_hand_reason) reasonNotes.push(`利き手: ${d.dominant_hand_reason}`);
+                            if (d.glasses_reason) reasonNotes.push(`メガネ: ${d.glasses_reason}`);
+                            if (d.tattoo_reason) reasonNotes.push(`刺青: ${d.tattoo_reason}`);
+                            if (d.marital_status_reason) reasonNotes.push(`結婚: ${d.marital_status_reason}`);
+                            if (d.smoking_reason) reasonNotes.push(`喫煙: ${d.smoking_reason}`);
+                            if (d.drinking_reason) reasonNotes.push(`飲酒: ${d.drinking_reason}`);
                             // もともと「送出機関への共有事項」に入力されていたテキストがあれば繋げる
                             let sharedMatters = d.sending_org_notes || '';
                             if (extraNotes.length > 0) {
                                 if (sharedMatters) sharedMatters += '\n\n';
                                 sharedMatters += extraNotes.join('\n');
+                            }
+                            if (reasonNotes.length > 0) {
+                                if (sharedMatters) sharedMatters += '\n\n';
+                                sharedMatters += reasonNotes.join('\n');
                             }
                             return {
                                 'WageDeadline__c': w1.cutoff, 'WagePaymentDate__c': w1.payment,
@@ -1808,12 +1858,15 @@
                     // sf → id の逆引きマップを生成
                     const sfToId = {};
                     const fieldTypeMap = {}; // ★フィールドの型を判定するためのマップ
-                    // 全API名（account/job/overseas_job）→ tool_id の逆引きマップを構築
+                    // 全API名（account/job/overseas_job/employment_condition/talent/talent_activity）→ tool_id の逆引きマップを構築
                     FIELDS.filter(f => f.type !== 'section').forEach(f => { 
                         if (f.sf_mapping) {
-                            if (f.sf_mapping.account)      sfToId[f.sf_mapping.account] = f.id;
-                            if (f.sf_mapping.job)          sfToId[f.sf_mapping.job] = f.id;
-                            if (f.sf_mapping.overseas_job) sfToId[f.sf_mapping.overseas_job] = f.id;
+                            if (f.sf_mapping.account)             sfToId[f.sf_mapping.account] = f.id;
+                            if (f.sf_mapping.job)                 sfToId[f.sf_mapping.job] = f.id;
+                            if (f.sf_mapping.overseas_job)        sfToId[f.sf_mapping.overseas_job] = f.id;
+                            if (f.sf_mapping.employment_condition) sfToId[f.sf_mapping.employment_condition] = f.id;
+                            if (f.sf_mapping.talent)              sfToId[f.sf_mapping.talent] = f.id;
+                            if (f.sf_mapping.talent_activity)     sfToId[f.sf_mapping.talent_activity] = f.id;
                         }
                         sfToId[f.id] = f.id; 
                         fieldTypeMap[f.id] = f.type;
